@@ -37,6 +37,7 @@ const sections = [
   { id: 'roadmap', label: 'Roadmap' },
   { id: 'contact', label: 'Contact' },
   { id: 'sources', label: 'Sources' },
+  { id: 'dashboard', label: 'Dashboard' },
 ];
 
 const highlights = [
@@ -121,7 +122,7 @@ const publications = [
 const roadmap = [
   'Client-approved portrait, biography, speeches, awards, and media assets',
   'Dedicated pages for biography, publications, speeches, media, and gallery',
-  'Secure Supabase-backed admin CMS for communications staff to update approved content',
+  'Secure Neon-backed admin CMS for communications staff to update approved content',
   'Official contact form with spam protection, inbox workflow, and email delivery',
   'Custom domain, analytics, sitemap, performance review, and launch checklist',
 ];
@@ -162,21 +163,36 @@ function IconCard({ icon: Icon, title, children }) {
   );
 }
 
-function ContactForm({ signedIn }) {
+function ContactForm({ signedIn, token }) {
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState('idle');
 
-  function submitMessage(event) {
+  async function submitMessage(event) {
     event.preventDefault();
     const payload = {
       name: name || SIGN_IN_EMAIL,
       email: SIGN_IN_EMAIL,
+      subject: 'Leadership portfolio enquiry',
       message,
-      createdAt: new Date().toISOString(),
     };
-    const existing = JSON.parse(localStorage.getItem('mageto-messages') || '[]');
-    localStorage.setItem('mageto-messages', JSON.stringify([payload, ...existing]));
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: 'Bearer ' + token } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) throw new Error('API contact save failed');
+    } catch (_error) {
+      const existing = JSON.parse(localStorage.getItem('mageto-messages') || '[]');
+      localStorage.setItem(
+        'mageto-messages',
+        JSON.stringify([{ ...payload, createdAt: new Date().toISOString() }, ...existing]),
+      );
+    }
     setName('');
     setMessage('');
     setStatus('sent');
@@ -217,9 +233,115 @@ function ContactForm({ signedIn }) {
   );
 }
 
+function AdminDashboard({ signedIn, token }) {
+  const [messages, setMessages] = useState([]);
+  const [updates, setUpdates] = useState([]);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [status, setStatus] = useState('idle');
+
+  async function loadDashboard() {
+    if (!signedIn || !token || token === 'local-preview-token') return;
+    try {
+      const headers = { Authorization: 'Bearer ' + token };
+      const [messageRes, updateRes] = await Promise.all([
+        fetch('/api/messages', { headers }),
+        fetch('/api/content-updates'),
+      ]);
+      if (messageRes.ok) setMessages((await messageRes.json()).messages || []);
+      if (updateRes.ok) setUpdates((await updateRes.json()).updates || []);
+    } catch (_error) {
+      setStatus('Dashboard API unavailable. Local preview still works.');
+    }
+  }
+
+  useEffect(() => {
+    loadDashboard();
+  }, [signedIn, token]);
+
+  async function updateMessageStatus(id, nextStatus) {
+    try {
+      const response = await fetch('/api/messages/' + id + '/status', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      if (!response.ok) throw new Error('Status update failed');
+      await loadDashboard();
+    } catch (error) {
+      setStatus(error.message);
+    }
+  }
+
+  async function createUpdate(event) {
+    event.preventDefault();
+    try {
+      const response = await fetch('/api/content-updates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+        body: JSON.stringify({ title, body }),
+      });
+      if (!response.ok) throw new Error('Could not publish update');
+      setTitle('');
+      setBody('');
+      setStatus('Content update saved.');
+      await loadDashboard();
+    } catch (error) {
+      setStatus(error.message);
+    }
+  }
+
+  if (!signedIn) {
+    return (
+      <section className="admin-section" id="dashboard">
+        <div className="section-head"><span className="eyebrow">Admin Dashboard</span><h2>Sign in to manage the system.</h2></div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="admin-section" id="dashboard">
+      <div className="section-head">
+        <span className="eyebrow">Admin Dashboard</span>
+        <h2>Inbox, content updates, and launch operations.</h2>
+        <p>Backend-backed when deployed with Neon. Local fallback remains available for preview.</p>
+      </div>
+      <div className="admin-grid">
+        <article className="admin-panel">
+          <h3>Office messages</h3>
+          {messages.length ? messages.map((item) => (
+            <div className="message-row" key={item.id}>
+              <div><strong>{item.subject}</strong><span>{item.name} � {item.email}</span><p>{item.message}</p></div>
+              <select value={item.status} onChange={(event) => updateMessageStatus(item.id, event.target.value)}>
+                <option value="new">new</option>
+                <option value="read">read</option>
+                <option value="replied">replied</option>
+                <option value="archived">archived</option>
+              </select>
+            </div>
+          )) : <p>No backend messages yet. Submit the contact form after signing in to test it.</p>}
+        </article>
+        <article className="admin-panel">
+          <h3>Publish content update</h3>
+          <form className="contact-form" onSubmit={createUpdate}>
+            <label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} required /></label>
+            <label>Update<textarea value={body} onChange={(event) => setBody(event.target.value)} required rows={4} /></label>
+            <button type="submit">Save update</button>
+          </form>
+          {status !== 'idle' && <p className="auth-message">{status}</p>}
+          <div className="updates-list">
+            {updates.map((item) => <div key={item.id}><strong>{item.title}</strong><p>{item.body}</p></div>)}
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('mageto-theme') || 'light');
   const [signedIn, setSignedIn] = useState(() => localStorage.getItem('mageto-auth') === 'signed-in');
+  const [token, setToken] = useState(() => localStorage.getItem('mageto-token') || '');
   const [email, setEmail] = useState(SIGN_IN_EMAIL);
   const [password, setPassword] = useState('');
   const [authMessage, setAuthMessage] = useState('');
@@ -234,7 +356,10 @@ function App() {
 
   useEffect(() => {
     if (signedIn) localStorage.setItem('mageto-auth', 'signed-in');
-    else localStorage.removeItem('mageto-auth');
+    else {
+      localStorage.removeItem('mageto-auth');
+      localStorage.removeItem('mageto-token');
+    }
   }, [signedIn]);
 
   const authStatus = useMemo(
@@ -246,20 +371,40 @@ function App() {
     setMenuOpen(false);
   }
 
-  function handleSignIn(event) {
+  async function handleSignIn(event) {
     event.preventDefault();
-    if (email.trim().toLowerCase() === SIGN_IN_EMAIL && password === SIGN_IN_PASSWORD) {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!response.ok) throw new Error('API login failed');
+      const data = await response.json();
+      setToken(data.token);
+      localStorage.setItem('mageto-token', data.token);
       setSignedIn(true);
       setPassword('');
-      setAuthMessage('Signed in successfully. Preview dashboard unlocked.');
+      setAuthMessage('Signed in successfully through the backend API. Preview dashboard unlocked.');
       closeMenu();
       return;
+    } catch (_error) {
+      if (email.trim().toLowerCase() === SIGN_IN_EMAIL && password === SIGN_IN_PASSWORD) {
+        setToken('local-preview-token');
+        localStorage.setItem('mageto-token', 'local-preview-token');
+        setSignedIn(true);
+        setPassword('');
+        setAuthMessage('Signed in successfully with local preview fallback.');
+        closeMenu();
+        return;
+      }
     }
     setAuthMessage('Invalid email or password. Use the approved client preview credentials.');
   }
 
   function handleSignOut() {
     setSignedIn(false);
+    setToken('');
     setAuthMessage('Signed out successfully.');
     closeMenu();
   }
@@ -386,13 +531,15 @@ function App() {
           <div className="access-panel">
             {signedIn ? <div className="dashboard-preview">{dashboardItems.map((item) => <article key={item.label}><span>{item.label}</span><strong>{item.value}</strong></article>)}<button type="button" onClick={handleSignOut}>Sign out</button></div> : <form onSubmit={handleSignIn} data-auth-form="true"><label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} type="email" autoComplete="username" /></label><label>Password<input value={password} onChange={(event) => setPassword(event.target.value)} type="password" autoComplete="current-password" placeholder="Enter password" /></label><button type="submit" className="access-submit">Sign in <FaRightToBracket /></button></form>}
             {authMessage && <p className="auth-message">{authMessage}</p>}
-            <small>This is a static preview login for client review only. The included `schema.sql` documents the future Supabase-backed production upgrade.</small>
+            <small>This is a static preview login for client review only. The included `schema.sql` documents the future Neon-backed production upgrade.</small>
           </div>
         </section>
 
+        <AdminDashboard signedIn={signedIn} token={token} />
+
         <section className="contact-section" id="contact">
           <div><span className="eyebrow">Institutional Contact</span><h2>Connect through Africa University.</h2><p>For official communication, use Africa University's public contact channels unless the client provides a direct office address or dedicated media contact.</p><div className="contact-cards"><a href="mailto:info@africau.edu"><FaEnvelope /> info@africau.edu</a><a href="tel:+26324764296"><FaPhone /> +263 24 764296</a><a href="https://africau.edu" target="_blank" rel="noreferrer"><FaGlobe /> africau.edu</a><span><FaLocationDot /> AU, 1 Fairview Rd, Old Mutare, Zimbabwe</span></div></div>
-          <ContactForm signedIn={signedIn} />
+          <ContactForm signedIn={signedIn} token={token} />
         </section>
 
         <section className="launch-readiness"><div><span className="eyebrow">Launch Readiness</span><h2>What remains before public client release.</h2></div><ul><li>Client-approved portrait and biography.</li><li>Confirmed office contact pathway and media inquiry address.</li><li>Approved speech, award, and publication list.</li><li>Custom domain and final communications approval.</li></ul></section>

@@ -232,3 +232,7 @@ Phase 5: Add long-term maintenance plan for content updates, security, and hosti
 
 This project is a strong first professional draft. It is intentionally lightweight, clean, and static so it can be reviewed quickly. The next major improvement is not more code first; it is client-approved content, official imagery, and confirmation of the public communication strategy.
 
+
+## Full-Stack Completion Update
+
+The project now includes a Vercel serverless Express API, JWT authentication, admin dashboard, contact message inbox, content update posting, optional Neon Postgres persistence via DATABASE_URL, runtime fallback storage, schema.sql, and scripts/seed-admin.mjs. The admin preview credential is profmagteo@gmail.com / Test@123.

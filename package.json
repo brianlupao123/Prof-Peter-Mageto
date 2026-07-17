@@ -1,19 +1,27 @@
 {
-  "name": "peter-mageto-leadership-portfolio",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "vite": "^5.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-icons": "^5.2.0"
-  },
-  "devDependencies": {}
+    "name":  "peter-mageto-leadership-portfolio",
+    "private":  true,
+    "version":  "1.0.0",
+    "type":  "module",
+    "scripts":  {
+                    "dev":  "vite",
+                    "build":  "vite build",
+                    "preview":  "vite preview",
+                    "seed:admin":  "node scripts/seed-admin.mjs"
+                },
+    "dependencies":  {
+                         "@vitejs/plugin-react-swc":  "^3.5.0",
+                         "vite":  "^5.2.0",
+                         "react":  "^18.2.0",
+                         "react-dom":  "^18.2.0",
+                         "react-icons":  "^5.2.0",
+                         "express":  "^4.19.2",
+                         "cors":  "^2.8.5",
+                         "bcryptjs":  "^2.4.3",
+                         "jsonwebtoken":  "^9.0.2",
+                         "@neondatabase/serverless":  "^0.10.4"
+                     },
+    "devDependencies":  {
+
+                        }
 }

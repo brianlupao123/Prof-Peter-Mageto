@@ -128,3 +128,16 @@ footer strong { color: white; }
 @media (max-width: 1080px) { .focus-grid, .credential-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 900px) { .hero, .split-section, .strategy, .contact-section, .stakeholder-section, .launch-readiness, .access-section { grid-template-columns: 1fr; } .hero { min-height: auto; padding-top: 3rem; } .stat-band, .card-grid, .two-column { grid-template-columns: 1fr 1fr; } .menu-toggle { display: grid; } .nav-links { display: none; } .nav-links.open { display: flex; } }
 @media (max-width: 640px) { .nav { min-height: 68px; } .brand strong { max-width: 190px; font-size: 0.9rem; } .nav-links { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 0.2rem; } .nav-cta { padding-inline: 0.8rem; } h1 { font-size: clamp(3.6rem, 19vw, 5.2rem); } .stat-band, .card-grid, .credential-grid, .two-column, .focus-grid, .dashboard-preview { grid-template-columns: 1fr; } .stat-band div { border-right: 0; border-bottom: 1px solid rgba(255,255,255,0.17); } .stat-band div:last-child { border-bottom: 0; } .strategy { padding: 1.4rem; } footer { flex-direction: column; } }
+.admin-section { margin-inline: 5vw; }
+.admin-section .section-head p { color: var(--muted); line-height: 1.7; }
+.admin-grid { display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 1rem; }
+.admin-panel { background: var(--white); border: 1px solid var(--line); border-radius: 8px; padding: 1.35rem; box-shadow: 0 16px 50px rgba(18,42,32,0.08); }
+.admin-panel h3 { margin: 0 0 1rem; font-size: 1.2rem; }
+.message-row { display: grid; grid-template-columns: 1fr 140px; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--line); }
+.message-row:last-child { border-bottom: 0; }
+.message-row span { display: block; color: var(--muted); font-size: 0.9rem; margin: 0.25rem 0; }
+.message-row p, .updates-list p { color: var(--muted); line-height: 1.55; margin: 0.35rem 0 0; }
+.message-row select { height: 42px; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 0 0.65rem; }
+.updates-list { display: grid; gap: 0.75rem; margin-top: 1rem; }
+.updates-list div { padding: 0.85rem; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; }
+@media (max-width: 900px) { .admin-grid, .message-row { grid-template-columns: 1fr; } }
