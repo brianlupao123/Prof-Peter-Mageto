@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { FaBookOpen, FaBuildingColumns, FaGraduationCap } from 'react-icons/fa6';
 import PageBanner from '../components/PageBanner.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
+import { credentials as staticCredentials, publications as staticPublications, researchThemes as staticResearchThemes } from '../data/profileData.js';
 
 export default function Scholarship() {
   const slides = useHeroSlides('scholarship');
   const { data } = useProfile();
-  const credentials = data?.credentials ?? [];
-  const publications = data?.publications ?? [];
-  const researchThemes = data?.researchThemes ?? [];
+  const credentials = data?.credentials?.length ? data.credentials : staticCredentials.map((c, i) => ({ id: `sc-${i}`, label: c }));
+  const publications = data?.publications?.length ? data.publications : staticPublications.map((p, i) => ({ id: `sp-${i}`, title: p }));
+  const researchThemes = data?.researchThemes?.length ? data.researchThemes : staticResearchThemes.map((t, i) => ({ id: `st-${i}`, label: t }));
 
   useEffect(() => {
     document.title = 'Scholarship | Rev. Prof. Peter Mageto — Africa University';

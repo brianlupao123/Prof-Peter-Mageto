@@ -1,5 +1,6 @@
 import { createContext, createElement, useCallback, useContext, useEffect, useState } from 'react';
 import { apiFetch } from './api.js';
+import { fallbackHeroSlides } from '../data/profileData.js';
 
 const ProfileContext = createContext(null);
 
@@ -31,5 +32,9 @@ export function useProfile() {
 
 export function useHeroSlides(pageKey) {
   const { data } = useProfile();
-  return data?.heroSlides?.filter((slide) => slide.page_key === pageKey).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
+  const apiSlides = data?.heroSlides?.filter((slide) => slide.page_key === pageKey).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
+  // If the API returned slides for this page, use them; otherwise fall back to hardcoded data
+  if (apiSlides.length > 0) return apiSlides;
+  return fallbackHeroSlides.filter((slide) => slide.page_key === pageKey);
 }
+

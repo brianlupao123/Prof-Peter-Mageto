@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import PageBanner from '../components/PageBanner.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
+import { strategyGoals as staticStrategyGoals } from '../data/profileData.js';
 
 export default function Strategy() {
   const slides = useHeroSlides('strategy');
   const { data } = useProfile();
-  const strategyGoals = data?.strategyGoals ?? [];
+  const strategyGoals = data?.strategyGoals?.length ? data.strategyGoals : staticStrategyGoals.map((g, i) => ({ id: `sg-${i}`, label: g }));
 
   useEffect(() => {
     document.title = 'Strategy 2023–2027 | Rev. Prof. Peter Mageto — Africa University';

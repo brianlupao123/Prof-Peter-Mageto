@@ -42,15 +42,7 @@ export default function PageBanner({ pageKey, slides, level = 'h2', ctas }) {
       )}
       <div className="page-banner-overlay" />
 
-      {/* Left card */}
-      <aside className="page-banner-card">
-        <span className="avatar">PM</span>
-        <strong>Rev. Prof. Peter Mageto</strong>
-        <span>Fifth Vice Chancellor | Africa University</span>
-        {activeSlide.panel_caption && <p>{activeSlide.panel_caption}</p>}
-      </aside>
-
-      {/* Right copy */}
+      {/* Left copy */}
       <div className="page-banner-copy">
         {activeSlide.eyebrow && <span className="eyebrow">{activeSlide.eyebrow}</span>}
         <Heading>{activeSlide.heading}</Heading>
@@ -58,6 +50,14 @@ export default function PageBanner({ pageKey, slides, level = 'h2', ctas }) {
         {activeSlide.body && <p>{activeSlide.body}</p>}
         {ctas && <div className="hero-actions">{ctas}</div>}
       </div>
+
+      {/* Right card */}
+      <aside className="page-banner-card">
+        <span className="avatar">PM</span>
+        <strong>Rev. Prof. Peter Mageto</strong>
+        <span>Fifth Vice Chancellor | Africa University</span>
+        {activeSlide.panel_caption && <p>{activeSlide.panel_caption}</p>}
+      </aside>
 
       {/* Arrow navigation — only when multiple slides */}
       {slides && slides.length > 1 && (

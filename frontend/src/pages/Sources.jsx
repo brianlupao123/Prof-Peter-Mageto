@@ -2,11 +2,12 @@ import { useEffect } from 'react';
 import { FaArrowUpRightFromSquare, FaCircleCheck } from 'react-icons/fa6';
 import PageBanner from '../components/PageBanner.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
+import { sources as staticSources } from '../data/profileData.js';
 
 export default function Sources() {
   const slides = useHeroSlides('sources');
   const { data } = useProfile();
-  const sources = data?.sources ?? [];
+  const sources = data?.sources?.length ? data.sources : staticSources.map((s, i) => ({ id: `src-${i}`, ...s }));
 
   useEffect(() => {
     document.title = 'Sources | Rev. Prof. Peter Mageto — Africa University';

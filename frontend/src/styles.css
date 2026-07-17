@@ -463,7 +463,7 @@ footer { margin-left: 280px; }
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(240px, 340px) 1fr;
+  grid-template-columns: 1fr minmax(240px, 340px);
   align-items: center;
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--brand-strong) 26%, var(--surface)),
