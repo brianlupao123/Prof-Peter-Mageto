@@ -391,3 +391,31 @@ footer { margin-left: 280px; }
   .calm-shell .page-hero { width: min(100% - 1.25rem, 1040px); }
   .access-clean { grid-template-columns: 1fr; align-items: start; }
 }
+
+
+/* Sidebar toggle behavior: the menu button controls the side navigation */
+@media (min-width: 1101px) {
+  .calm-shell.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+  .calm-shell.sidebar-closed .sidebar {
+    transform: translateX(-105%);
+  }
+  .calm-shell.sidebar-open .page-main,
+  .calm-shell.sidebar-open footer {
+    margin-left: 264px;
+  }
+  .calm-shell.sidebar-closed .page-main,
+  .calm-shell.sidebar-closed footer {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 1100px) {
+  .calm-shell.sidebar-open .sidebar {
+    transform: translateX(0);
+  }
+  .calm-shell.sidebar-closed .sidebar {
+    transform: translateX(-105%);
+  }
+}

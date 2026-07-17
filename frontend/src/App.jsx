@@ -17,7 +17,7 @@ const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
 export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('pm-theme') || 'light');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1101px)').matches);
   const [session, setSession] = useState(() => {
     const token = localStorage.getItem('pm-token');
     const email = localStorage.getItem('pm-email');
@@ -65,7 +65,7 @@ export default function App() {
       signedIn={Boolean(session)}
       onSignOut={signOut}
       sidebarOpen={sidebarOpen}
-      openSidebar={() => setSidebarOpen(true)}
+      openSidebar={() => setSidebarOpen((current) => !current)}
       closeSidebar={() => setSidebarOpen(false)}
     >
       <Suspense fallback={<div className="page-loader">Loading page...</div>}>

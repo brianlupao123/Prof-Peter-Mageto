@@ -4,7 +4,7 @@ import { SITE_NAME } from '../data/profileData.js';
 
 export default function Layout({ children, theme, toggleTheme, signedIn, onSignOut, sidebarOpen, openSidebar, closeSidebar }) {
   return (
-    <div className="app-shell calm-shell">
+    <div className={`app-shell calm-shell ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <a className="skip-link" href="#main">Skip to content</a>
       <Header theme={theme} toggleTheme={toggleTheme} signedIn={signedIn} onSignOut={onSignOut} openSidebar={openSidebar} />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} signedIn={signedIn} />
