@@ -306,3 +306,88 @@ footer { margin-left: 280px; }
   .page-section, .page-band, .page-hero { width: min(100% - 1.25rem, 960px); }
   .hero-copy h1 { font-size: clamp(2.9rem, 15vw, 4.4rem); }
 }
+
+
+/* Calm layout correction: remove crowded index feel and reduce visual weight */
+.calm-shell .workspace-frame,
+.workspace-frame { display: contents; margin-left: 0; }
+.calm-shell .portfolio-index,
+.portfolio-index { display: none; }
+
+.calm-shell .page-main {
+  margin-left: 264px;
+  min-height: calc(100vh - 74px);
+  border-right: 0;
+  background: var(--bg);
+}
+.calm-shell footer { margin-left: 264px; }
+
+.calm-shell .sidebar {
+  width: 264px;
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg));
+}
+.calm-shell .sidebar-head {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line);
+}
+.calm-shell .sidebar-brand strong { max-width: 172px; }
+.calm-shell .sidebar-nav { gap: 0.2rem; }
+.calm-shell .sidebar-nav a {
+  min-height: 42px;
+  padding: 0.72rem 0.85rem;
+  font-size: 0.98rem;
+}
+
+.calm-shell .app-header {
+  grid-template-columns: minmax(250px, 330px) minmax(260px, 520px) auto;
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+}
+.calm-shell .header-search {
+  background: color-mix(in srgb, var(--surface) 94%, var(--surface-strong));
+}
+
+.calm-shell .page-section,
+.calm-shell .page-band,
+.calm-shell .page-hero {
+  width: min(1040px, calc(100% - 3rem));
+  padding: clamp(2.5rem, 5vw, 4.5rem) 0;
+}
+.calm-shell h1 {
+  font-size: clamp(2.6rem, 5vw, 5.2rem);
+  line-height: 1;
+}
+.calm-shell .hero-copy h1 { font-size: clamp(3rem, 6vw, 5.6rem); }
+.calm-shell .lead,
+.calm-shell .page-hero p,
+.calm-shell .hero-copy p { font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.65; }
+
+.access-clean {
+  min-height: calc(100vh - 150px);
+  align-items: center;
+  grid-template-columns: minmax(0, 0.85fr) minmax(320px, 420px);
+}
+.access-clean h1 { max-width: 620px; }
+.access-clean .access-form {
+  box-shadow: none;
+  padding: 1.2rem;
+}
+
+:root[data-theme="dark"] .calm-shell {
+  --bg: #101815;
+  --surface: #14221d;
+  --surface-strong: #1a2b24;
+  --line: rgba(237, 243, 238, 0.12);
+}
+
+@media (max-width: 1100px) {
+  .calm-shell .page-main,
+  .calm-shell footer { margin-left: 0; }
+  .calm-shell .sidebar { width: min(360px, 88vw); }
+}
+
+@media (max-width: 760px) {
+  .calm-shell .page-section,
+  .calm-shell .page-band,
+  .calm-shell .page-hero { width: min(100% - 1.25rem, 1040px); }
+  .access-clean { grid-template-columns: 1fr; align-items: start; }
+}

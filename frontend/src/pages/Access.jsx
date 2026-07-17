@@ -21,11 +21,11 @@ export default function Access({ signedIn, onSignIn }) {
   if (signedIn) return <Navigate to="/dashboard" replace />;
 
   return (
-    <section className="page-section access-page">
-      <div>
+    <section className="page-section access-page access-clean">
+      <div className="access-copy">
         <span className="eyebrow">Secure Access</span>
-        <h1>Admin sign in for the leadership portfolio.</h1>
-        <p className="lead">Use the approved credential to test dashboard access, message review, and content update workflows before attaching permanent production identity.</p>
+        <h1>Admin access</h1>
+        <p className="lead">Sign in to review messages, content updates, and client-preview backend workflows.</p>
       </div>
       <form className="contact-form access-form" onSubmit={submit}>
         <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
