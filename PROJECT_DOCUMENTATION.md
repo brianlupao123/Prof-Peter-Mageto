@@ -1,238 +1,112 @@
-# The Peter Mageto Leadership Portfolio - Project Documentation
+# Project Documentation: The Peter Mageto Leadership Portfolio
 
-## 1. Project Overview
+## Purpose
 
-This project is a fresh professional executive website starter for Rev. Professor Peter Mageto, fifth Vice Chancellor of Africa University. It is designed as an executive portfolio and institutional leadership profile rather than a casual personal portfolio.
+This project is a professional full-stack leadership website for Rev. Professor Peter Mageto, fifth Vice Chancellor of Africa University. It is designed as an executive public profile plus an operational backend that can grow into an official digital office platform.
 
-The website presents:
+## Engineering Goals
 
-- Professional profile and leadership summary
-- Africa University Vice Chancellor identity
-- Academic credentials and scholarship
-- Career and leadership timeline
-- Strategic Plan 2023-2027 priorities
-- Official institutional contact information
-- Source-backed references for credibility
+- Present Prof. Mageto with a calm, credible, institution-grade interface.
+- Keep the header clean and avoid wrapped navigation by moving the full menu into a sidebar.
+- Load pages independently using React Router and lazy route chunks.
+- Keep a true frontend/backend folder architecture for review and future scaling.
+- Provide working admin authentication, contact capture, dashboard review, and content update flows.
+- Deploy cleanly on Vercel while preserving serverless API support.
 
-Official sources use the spelling `Mageto`. The folder name currently uses `Prof Magetto Website` because it follows the original requested folder name.
-
-## 2. Project Goals
-
-The main goal is to give the client a polished, credible, fast-loading public-facing website that can be shown to a mentor, client, or stakeholder as a serious first draft.
-
-The design aims to communicate:
-
-- Academic dignity
-- Institutional leadership
-- Pan-African mission
-- Trust and professionalism
-- Clear information architecture
-- Strong visual presence without unnecessary complexity
-
-## 3. Technology Stack
-
-- React 18 for the user interface
-- Vite for fast development and production builds
-- React Icons for consistent iconography
-- Plain CSS for full design control and easy review
-- Static build output for simple hosting on Vercel, Netlify, Render Static Sites, or any web server
-
-No backend is required for the current version. This keeps the project simple, fast, and easy to deploy.
-
-## 4. Folder Structure
+## Folder Structure
 
 ```text
 Prof Magetto Website/
-  index.html
-  package.json
-  package-lock.json
-  vite.config.js
-  README.md
-  PROJECT_DOCUMENTATION.md
-  src/
-    main.jsx
-    App.jsx
-    styles.css
-  public/
-  dist/
+  api/
+    index.js                 # imports backend/src/app.js for Vercel
+    [...path].js             # catch-all serverless wrapper
+    auth/                    # explicit Vercel function wrappers
+    messages/[id]/status.js  # explicit status route wrapper
+  backend/
+    src/app.js               # Express API and serverless app
+    schema.sql               # Neon/Postgres database schema
+    scripts/seed-admin.mjs   # admin seed script
+  frontend/
+    index.html
+    public/                  # favicon, robots, sitemap
+    src/
+      App.jsx                # route shell, theme, auth session
+      main.jsx
+      styles.css
+      components/            # Header, Sidebar, dashboard/contact UI
+      data/profileData.js    # verified content and roadmap data
+      lib/api.js             # API helper
+      pages/                 # independent route pages
 ```
 
-## 5. Key Files
+## Frontend Design
 
-`src/App.jsx`
+The frontend uses a professional executive layout with:
 
-Contains the complete page structure and content. The content is stored in clear arrays such as highlights, credentials, career timeline, research themes, publications, strategic goals, and sources.
+- Sticky compact header.
+- Sidebar navigation containing all major sections.
+- Responsive desktop and mobile behavior.
+- Light/dark theme toggle.
+- No broken remote portrait dependency; the launch version uses a clean executive identity panel until client-approved photography is supplied.
+- Lazy-loaded routes for Overview, Leadership, Scholarship, Strategy, Roadmap, Contact, Sources, Access, Dashboard, and Not Found.
 
-`src/styles.css`
+## Backend Design
 
-Contains the complete visual system: layout, typography, responsive rules, executive color palette, timeline, cards, navigation, hero section, contact section, and source section.
+The backend is an Express application exported from `backend/src/app.js` and consumed by Vercel function wrappers in `api/`.
 
-`index.html`
+Core behavior:
 
-Contains the page title, SEO description, keywords, Open Graph metadata, mobile viewport, theme color, and Google Fonts.
+- JWT authentication.
+- Admin credential login.
+- Contact message creation.
+- Admin message listing and status updates.
+- Content update creation and listing.
+- Optional Neon Postgres persistence when `DATABASE_URL` is present.
+- Runtime memory fallback for preview/demo deployments.
 
-`README.md`
+## Deployment
 
-Quick project summary and run instructions.
+The project is configured for Vercel:
 
-## 6. Current Features
+- `npm run build` builds `frontend/` into root `dist/`.
+- `vercel.json` rewrites all public routes to `index.html` for React Router.
+- API routes remain under `/api/*`.
+- Static assets are cached with immutable headers.
 
-- Sticky navigation
-- Full executive hero section
-- Professional portrait panel
-- Leadership statistics band
-- Executive summary section
-- Leadership pillars
-- Career timeline
-- Academic credentials section
-- Research themes
-- Selected publications
-- Strategic Plan 2023-2027 priorities
-- Quotation section
-- Official contact cards
-- Source-backed references
-- Responsive mobile layout
-- Production build support
+Production project:
 
-## 7. Design Direction
+- GitHub: https://github.com/brianlupao123/Prof-Peter-Mageto
+- Vercel URL: https://prof-peter-mageto.vercel.app
 
-The visual style uses an academic executive theme:
+## Environment Variables
 
-- Deep green for authority, growth, and institutional identity
-- Gold accents for excellence and recognition
-- Warm paper background for scholarly tone
-- Serif display typography for prestige
-- Clean cards and narrow borders for professional structure
+Recommended production variables:
 
-The site avoids casual portfolio styling because the client is a university executive. The tone is formal, respectful, and leadership-oriented.
+- `JWT_SECRET`: strong random secret.
+- `ADMIN_EMAIL`: production admin email.
+- `ADMIN_PASSWORD`: temporary password, rotate before real launch.
+- `DATABASE_URL`: Neon Postgres connection string.
 
-## 8. Content Sources
+## Future Enhancements
 
-The first version uses publicly available information from official or reputable sources:
+1. Replace the launch-safe identity panel with client-approved professional portrait photography.
+2. Add official biography, speeches, sermons, publications, awards, and media pages.
+3. Promote the dashboard into a full CMS with editorial roles, approvals, and audit trails.
+4. Add email notifications through Resend or another transactional email provider.
+5. Add spam protection and rate-limited contact submissions.
+6. Connect Neon Postgres permanently and remove reliance on runtime preview memory.
+7. Add file/media upload support for communications staff.
+8. Add analytics, performance monitoring, and search console verification.
+9. Add custom domain and final SEO/social preview assets.
+10. Add Playwright end-to-end tests for sign-in, theme switching, sidebar navigation, contact, and dashboard flows.
 
-- Africa University Vice Chancellor profile: https://africau.edu/about/vice-chancellor/
-- UM News profile: https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university
-- Africa University Strategic Plan article: https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/
+## Quality Checks Completed
 
-Before public launch, the content should be reviewed and approved by the client or Africa University communications office.
+- `npm install` completed and updated `package-lock.json`.
+- `npm run build` completed successfully.
+- Build output confirms separate route chunks for fast page loading.
+- Root project structure was cleaned to separate frontend and backend architecture.
 
-## 9. How To Run Locally
+## Notes Before Official Launch
 
-Install dependencies:
-
-```bash
-npm install
-```
-
-Start development server:
-
-```bash
-npm run dev
-```
-
-Build production files:
-
-```bash
-npm run build
-```
-
-Preview the production build:
-
-```bash
-npm run preview
-```
-
-## 10. Quality Checks Completed
-
-The project has been checked with:
-
-- Production build using `npm run build`
-- Local production preview
-- Browser smoke test confirming the correct Prof. Mageto page renders
-- Error overlay check
-- Main content check for `Rev. Professor Peter Mageto`
-
-The build completed successfully.
-
-## 11. Known Notes
-
-- npm reported two dependency audit findings in the tooling dependency tree. The site still builds and runs. Avoid using `npm audit fix --force` without testing because it can introduce breaking dependency changes.
-- The current profile image is loaded from UM News. For a real client handoff, request a client-approved image and store it locally in `public/`.
-- The site currently uses public institutional contact details, not a direct personal email.
-- The project is currently a static site, so contact forms are not connected to email or database storage.
-
-## 12. Future Enhancements
-
-### Priority 1 - Client Approval And Content Polish
-
-- Confirm official preferred spelling: `Peter Mageto` vs any alternate spelling.
-- Ask the client for an approved biography.
-- Ask the client for an approved portrait image.
-- Confirm titles, dates, and previous roles.
-- Add official speeches, interviews, and keynote addresses.
-- Add awards, board memberships, and major institutional achievements.
-
-### Priority 2 - Professional Website Features
-
-- Add a dedicated biography page.
-- Add a speeches and messages section.
-- Add a media and press page.
-- Add a publications page with filters.
-- Add a gallery section for official university events.
-- Add downloadable profile PDF or executive brief.
-- Add structured schema metadata for better search visibility.
-
-### Priority 3 - Admin And Content Management
-
-- Add a secure admin dashboard.
-- Allow authorized staff to update biography, speeches, images, and publications.
-- Store content in a headless CMS such as Sanity, Strapi, Contentful, or a simple Markdown content folder.
-- Add image upload and optimization workflow.
-- Add draft and publish workflow for communications staff.
-
-### Priority 4 - Contact And Engagement
-
-- Add official inquiry form.
-- Add spam protection.
-- Add email delivery through Resend, EmailJS, or another approved provider.
-- Add categorized contact reasons such as media, partnerships, speaking, academic collaboration, and office inquiries.
-- Add calendar or meeting request integration if the client approves it.
-
-### Priority 5 - Search, Performance, And SEO
-
-- Add sitemap generation.
-- Add robots.txt.
-- Add canonical URL.
-- Add optimized local images.
-- Add Lighthouse performance pass.
-- Add Open Graph preview image.
-- Add JSON-LD structured data for a university executive profile.
-
-### Priority 6 - Deployment
-
-- Deploy to Vercel, Netlify, or Africa University-approved hosting.
-- Configure custom domain.
-- Configure HTTPS.
-- Set up environment variables only if backend features are added.
-- Add a deployment checklist for client approval.
-
-## 13. Recommended Professional Roadmap
-
-Phase 1: Approve content and portrait.
-
-Phase 2: Add pages for biography, publications, speeches, media, and contact.
-
-Phase 3: Deploy as a static site with SEO and analytics.
-
-Phase 4: Add CMS/admin features if the client wants internal updates without developer help.
-
-Phase 5: Add long-term maintenance plan for content updates, security, and hosting.
-
-## 14. Handoff Summary
-
-This project is a strong first professional draft. It is intentionally lightweight, clean, and static so it can be reviewed quickly. The next major improvement is not more code first; it is client-approved content, official imagery, and confirmation of the public communication strategy.
-
-
-## Full-Stack Completion Update
-
-The project now includes a Vercel serverless Express API, JWT authentication, admin dashboard, contact message inbox, content update posting, optional Neon Postgres persistence via DATABASE_URL, runtime fallback storage, schema.sql, and scripts/seed-admin.mjs. The admin preview credential is profmagteo@gmail.com / Test@123.
+The preview credential is intentionally documented for client review. Before public official launch, rotate the password, set production environment variables in Vercel, connect Neon persistence, and replace placeholder biography/media with client-approved content.

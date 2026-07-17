@@ -2,18 +2,29 @@
 
 Full-stack executive leadership portfolio for Rev. Professor Peter Mageto, fifth Vice Chancellor of Africa University.
 
+## Architecture
+
+```text
+Prof Magetto Website/
+  api/                    # Vercel serverless entry wrappers
+  backend/                # Express API, schema, admin seed script
+  frontend/               # React/Vite routed client application
+  package.json            # Root scripts for build, preview, API, deploy
+  vercel.json             # SPA rewrites, cache headers, Vercel config
+  PROJECT_DOCUMENTATION.md
+```
+
 ## System Features
 
-- React/Vite public executive portfolio
-- Complete header navigation with mobile menu
-- Light and dark mode
+- React/Vite frontend with independent lazy-loaded routes
+- Compact professional header and complete sidebar navigation
+- Light and dark mode with local persistence
 - JWT sign in/out with admin credential support
-- Express serverless API under `/api/*`
+- Express serverless backend under `/api/*`
 - Contact form connected to the backend
 - Admin dashboard for inbox/status management and content updates
 - Optional Neon Postgres persistence via `DATABASE_URL`
 - Runtime fallback storage for local/demo environments
-- `schema.sql` and `npm run seed:admin` implementation script
 - Vercel deployment config, sitemap, robots, favicon, SEO metadata
 
 ## Admin Preview Credential
@@ -32,8 +43,10 @@ For production, set secure Vercel environment variables:
 
 ```bash
 npm install
+npm run dev
 npm run build
 npm run preview
+npm run api:dev
 npm run seed:admin
 ```
 
@@ -53,4 +66,4 @@ npm run seed:admin
 
 ## Documentation
 
-Read [`PROJECT_DOCUMENTATION.md`](./PROJECT_DOCUMENTATION.md) for architecture, roadmap, quality checks, and future enhancements.
+Read [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) for engineering decisions, deployment notes, roadmap, and future enhancements.
