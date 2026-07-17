@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from '../data/profileData.js';
 
 export default function Access({ signedIn, onSignIn }) {
-  const [email, setEmail] = useState(ADMIN_EMAIL);
-  const [password, setPassword] = useState(ADMIN_PASSWORD);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
 
   const submit = async (event) => {

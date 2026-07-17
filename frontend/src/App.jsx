@@ -1,7 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
-import { ADMIN_EMAIL, ADMIN_PASSWORD } from './data/profileData.js';
 import { apiFetch } from './lib/api.js';
 
 const Home = lazy(() => import('./pages/Home.jsx'));
@@ -33,23 +32,12 @@ export default function App() {
 
   const signIn = async (email, password) => {
     const normalizedEmail = String(email).trim().toLowerCase();
-    try {
-      const payload = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: normalizedEmail, password }) });
-      const nextSession = { token: payload.token, email: payload.user?.email || normalizedEmail };
-      setSession(nextSession);
-      localStorage.setItem('pm-token', nextSession.token);
-      localStorage.setItem('pm-email', nextSession.email);
-      return nextSession;
-    } catch (error) {
-      if (normalizedEmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        const nextSession = { token: 'local-preview-token', email: normalizedEmail };
-        setSession(nextSession);
-        localStorage.setItem('pm-token', nextSession.token);
-        localStorage.setItem('pm-email', nextSession.email);
-        return nextSession;
-      }
-      throw error;
-    }
+    const payload = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: normalizedEmail, password }) });
+    const nextSession = { token: payload.token, email: payload.user?.email || normalizedEmail };
+    setSession(nextSession);
+    localStorage.setItem('pm-token', nextSession.token);
+    localStorage.setItem('pm-email', nextSession.email);
+    return nextSession;
   };
 
   const signOut = () => {

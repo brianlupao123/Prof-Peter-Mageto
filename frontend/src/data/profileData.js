@@ -1,7 +1,4 @@
 export const SITE_NAME = 'The Peter Mageto Leadership Portfolio';
-export const ADMIN_EMAIL = 'profmagteo@gmail.com';
-export const ADMIN_PASSWORD = 'Test@123';
-
 export const navItems = [
   { to: '/', label: 'Overview', summary: 'Executive profile landing page' },
   { to: '/leadership', label: 'Leadership', summary: 'Institutional service and governance' },

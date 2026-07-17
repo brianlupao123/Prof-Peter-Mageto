@@ -3,6 +3,7 @@ import cors from 'cors';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { neon } from '@neondatabase/serverless';
+import { put } from '@vercel/blob';
 
 const app = express();
 app.use(cors({ origin: true, credentials: true }));
@@ -215,6 +216,186 @@ app.get('/api/content-updates', async (_req, res) => {
     return res.json({ updates: rows });
   }
   res.json({ updates: runtime.contentUpdates });
+});
+
+// ============================================================
+// Profile CRUD routes
+// ============================================================
+const profileFallback = globalThis.__MAGETO_PROFILE__ || {
+  profile: {
+    id: 1,
+    full_name: 'Rev. Professor Peter Mageto',
+    title: 'Fifth Vice Chancellor of Africa University',
+    email: null,
+    phone: null,
+    phone_secondary: null,
+    address: 'Africa University | Old Mutare, Zimbabwe',
+    portrait_url: null,
+    logo_url: null,
+  },
+  heroSlides: [
+    { id: 'overview-1', page_key: 'overview', eyebrow: 'Africa University Vice Chancellor', heading: 'Rev. Professor Peter Mageto', subheading: 'The fifth Vice Chancellor of Africa University, a theological ethics scholar and institutional leader advancing pan-African education through justice, equity, collaboration, and student-centered transformation.', panel_caption: 'Leadership anchored in people and values.', sort_order: 0 },
+    { id: 'leadership-1', page_key: 'leadership', eyebrow: 'Leadership', heading: 'Institutional leadership across higher education and ministry.', subheading: "Prof. Mageto's public leadership story connects ethics, formation, academic quality, student welfare, and pan-African mission.", panel_caption: "Guiding Africa University's mission and people.", sort_order: 0 },
+    { id: 'scholarship-1', page_key: 'scholarship', eyebrow: 'Scholarship', heading: 'Academic foundation in theology, ethics, and African studies.', subheading: 'His research and publications engage ethics, HIV/AIDS, education, peace, and reconciliation across the continent.', panel_caption: 'Scholarship in service of the institution.', sort_order: 0 },
+    { id: 'strategy-1', page_key: 'strategy', eyebrow: 'Strategy', heading: "Africa University's Strategic Plan 2023-2027.", subheading: "Student access, staff investment, financial stewardship, partnerships, and internationalized research define the plan's five priorities.", panel_caption: 'Leading the plan from the front.', sort_order: 0 },
+    { id: 'roadmap-1', page_key: 'roadmap', eyebrow: 'Roadmap', heading: "What's next for this platform.", subheading: "A transparent list of what's approved, what's in progress, and what's planned before public launch.", panel_caption: 'Building toward full launch.', sort_order: 0 },
+    { id: 'contact-1', page_key: 'contact', eyebrow: 'Contact', heading: 'Reach the Office of the Vice Chancellor.', subheading: 'Official Africa University channels, plus a direct message form for signed-in visitors.', panel_caption: 'Open channels, real follow-up.', sort_order: 0 },
+    { id: 'sources-1', page_key: 'sources', eyebrow: 'Sources', heading: 'Every claim on this site, traceable.', subheading: "Verified against Africa University's official site, UM News, and public coverage.", panel_caption: 'Built on public record, not guesswork.', sort_order: 0 },
+  ],
+  credentials: [
+    { id: 'cred-1', label: 'Ph.D. in Theological Ethics, Garrett-Evangelical Theological Seminary, USA', sort_order: 0 },
+    { id: 'cred-2', label: 'Master of Theological Studies, Garrett-Evangelical Theological Seminary, USA', sort_order: 1 },
+    { id: 'cred-3', label: "Bachelor of Divinity, St Paul's United Theological College, Kenya", sort_order: 2 },
+    { id: 'cred-4', label: 'Postgraduate certificate in African Studies, Northwestern University', sort_order: 3 },
+  ],
+  careerEntries: [
+    { id: 'career-1', role: 'Vice Chancellor', place: 'Africa University, Zimbabwe', note: 'Leads the pan-African United Methodist-related institution as its fifth Vice Chancellor.', sort_order: 0 },
+    { id: 'career-2', role: 'Deputy Vice Chancellor and Interim Vice Chancellor', place: 'Africa University', note: 'Served in senior academic leadership before his installation as Vice Chancellor.', sort_order: 1 },
+    { id: 'career-3', role: 'Vice Chancellor and Professor of Ethics', place: 'University of Kigali, Rwanda', note: 'Advanced institutional leadership, academic quality, and ethical scholarship.', sort_order: 2 },
+  ],
+  publications: [
+    { id: 'pub-1', title: 'Victim Theology', sort_order: 0 },
+    { id: 'pub-2', title: 'Corporate and personal ethics for sustainable development', sort_order: 1 },
+    { id: 'pub-3', title: 'Book Review: European Traditions in the Study of Religion in Africa', sort_order: 2 },
+  ],
+  researchThemes: ['Ethics', 'Theology', 'HIV/AIDS', 'Education', 'Peace', 'Reconciliation'].map((label, sort_order) => ({ id: 'theme-' + sort_order, label, sort_order })),
+  strategyGoals: ['Enhance student access and success', 'Invest in and empower staff', 'Increase financial stewardship and institutional sustainability', 'Cultivate strategic partnerships and economic competitiveness', 'Internationalize research, teaching, and learning'].map((label, sort_order) => ({ id: 'goal-' + sort_order, label, sort_order })),
+  sources: [
+    { id: 'source-1', label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0 },
+    { id: 'source-2', label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university', sort_order: 1 },
+    { id: 'source-3', label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/', sort_order: 2 },
+    { id: 'source-4', label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/', sort_order: 3 },
+  ],
+  socialLinks: [{ id: 'social-1', platform: 'website', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0 }],
+  activity: [],
+};
+globalThis.__MAGETO_PROFILE__ = profileFallback;
+
+const REPEATABLE_TABLES = {
+  credentials: { key: 'credentials', table: 'credentials', columns: ['label'] },
+  'career-entries': { key: 'careerEntries', table: 'career_entries', columns: ['role', 'place', 'note'] },
+  publications: { key: 'publications', table: 'publications', columns: ['title'] },
+  'research-themes': { key: 'researchThemes', table: 'research_themes', columns: ['label'] },
+  'strategy-goals': { key: 'strategyGoals', table: 'strategy_goals', columns: ['label'] },
+  sources: { key: 'sources', table: 'sources_list', columns: ['label', 'url'] },
+  'social-links': { key: 'socialLinks', table: 'social_links', columns: ['platform', 'url'] },
+};
+
+function toCamel(snake) { return snake.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
+function resolveTable(collection) { return REPEATABLE_TABLES[collection] || null; }
+async function logActivity(dbRef, authorEmail, title, body) {
+  const entry = { id: 'activity-' + Date.now(), title, body, author_email: authorEmail, created_at: new Date().toISOString() };
+  profileFallback.activity.unshift(entry);
+  if (!dbRef) return;
+  try { await dbRef`insert into content_updates (title, body, author_email) values (${title}, ${body}, ${authorEmail})`; } catch (_error) {}
+}
+
+app.get('/api/profile', async (_req, res) => {
+  if (!db) return res.json(profileFallback);
+  const [profileRows, slides, credentialsRows, careerRows, pubRows, themeRows, goalRows, sourceRows, socialRows] = await Promise.all([
+    db`select * from profile where id = 1`,
+    db`select * from hero_slides order by page_key asc, sort_order asc`,
+    db`select * from credentials order by sort_order asc`,
+    db`select * from career_entries order by sort_order asc`,
+    db`select * from publications order by sort_order asc`,
+    db`select * from research_themes order by sort_order asc`,
+    db`select * from strategy_goals order by sort_order asc`,
+    db`select * from sources_list order by sort_order asc`,
+    db`select * from social_links order by sort_order asc`,
+  ]);
+  res.json({ profile: profileRows[0] || profileFallback.profile, heroSlides: slides, credentials: credentialsRows, careerEntries: careerRows, publications: pubRows, researchThemes: themeRows, strategyGoals: goalRows, sources: sourceRows, socialLinks: socialRows });
+});
+
+app.get('/api/activity', verifyAdmin, async (_req, res) => {
+  if (!db) return res.json({ activity: profileFallback.activity });
+  const rows = await db`select * from content_updates order by created_at desc limit 25`;
+  res.json({ activity: rows });
+});
+
+app.put('/api/profile', verifyAdmin, async (req, res) => {
+  const body = req.body || {};
+  if (!db) {
+    profileFallback.profile = { ...profileFallback.profile, ...body, full_name: body.fullName || body.full_name || profileFallback.profile.full_name, phone_secondary: body.phoneSecondary || body.phone_secondary || profileFallback.profile.phone_secondary, portrait_url: body.portraitUrl || body.portrait_url || profileFallback.profile.portrait_url, logo_url: body.logoUrl || body.logo_url || profileFallback.profile.logo_url, updated_at: new Date().toISOString() };
+    await logActivity(null, req.user.email, 'Updated profile', 'Core profile fields changed.');
+    return res.json({ profile: profileFallback.profile });
+  }
+  const rows = await db`update profile set full_name = coalesce(${body.fullName}, full_name), title = coalesce(${body.title}, title), email = coalesce(${body.email}, email), phone = coalesce(${body.phone}, phone), phone_secondary = coalesce(${body.phoneSecondary}, phone_secondary), address = coalesce(${body.address}, address), portrait_url = coalesce(${body.portraitUrl}, portrait_url), logo_url = coalesce(${body.logoUrl}, logo_url), updated_at = now() where id = 1 returning *`;
+  await logActivity(db, req.user.email, 'Updated profile', 'Core profile fields changed.');
+  res.json({ profile: rows[0] });
+});
+
+app.post('/api/uploads', verifyAdmin, express.raw({ type: '*/*', limit: '8mb' }), async (req, res) => {
+  const filename = String(req.query.filename || 'upload-' + Date.now());
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ message: 'Blob storage not configured' });
+  const blob = await put(filename, req.body, { access: 'public', addRandomSuffix: true });
+  await logActivity(db, req.user.email, 'Uploaded an image', blob.url);
+  res.status(201).json({ url: blob.url });
+});
+
+app.get('/api/hero-slides/:pageKey', async (req, res) => {
+  const rows = db ? await db`select * from hero_slides where page_key = ${req.params.pageKey} order by sort_order asc` : profileFallback.heroSlides.filter((slide) => slide.page_key === req.params.pageKey);
+  res.json({ heroSlides: rows });
+});
+
+app.post('/api/hero-slides/:pageKey', verifyAdmin, async (req, res) => {
+  const slide = { id: 'slide-' + Date.now(), page_key: req.params.pageKey, sort_order: req.body.sortOrder ?? 0, eyebrow: req.body.eyebrow, heading: req.body.heading, subheading: req.body.subheading, body: req.body.body, panel_caption: req.body.panelCaption, background_image_url: req.body.backgroundImageUrl };
+  if (!slide.heading) return res.status(400).json({ message: 'heading is required' });
+  if (!db) { profileFallback.heroSlides.push(slide); await logActivity(null, req.user.email, 'Added banner slide', slide.heading); return res.status(201).json({ heroSlide: slide }); }
+  const rows = await db`insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, sort_order) values (${slide.page_key}, ${slide.eyebrow}, ${slide.heading}, ${slide.subheading}, ${slide.body}, ${slide.panel_caption}, ${slide.background_image_url}, ${slide.sort_order}) returning *`;
+  await logActivity(db, req.user.email, 'Added banner slide', slide.heading);
+  res.status(201).json({ heroSlide: rows[0] });
+});
+
+app.put('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
+  const cfg = resolveTable(req.params.collection);
+  if (!cfg) return next();
+  const values = cfg.columns.map((col) => req.body[toCamel(col)] ?? req.body[col]);
+  if (!db) {
+    const item = profileFallback[cfg.key].find((row) => row.id === req.params.id);
+    if (!item) return res.status(404).json({ message: 'Not found' });
+    cfg.columns.forEach((col, index) => { item[col] = values[index]; });
+    await logActivity(null, req.user.email, 'Edited ' + req.params.collection + ' item', String(values[0] || req.params.id));
+    return res.json({ item });
+  }
+  const setClauses = cfg.columns.map((col, i) => col + ' = $' + (i + 1));
+  const rows = await db.query('update ' + cfg.table + ' set ' + setClauses.join(', ') + ' where id = $' + (values.length + 1) + ' returning *', [...values, req.params.id]);
+  if (!rows[0]) return res.status(404).json({ message: 'Not found' });
+  await logActivity(db, req.user.email, 'Edited ' + req.params.collection + ' item', String(values[0] || req.params.id));
+  res.json({ item: rows[0] });
+});
+
+app.post('/api/:collection', verifyAdmin, async (req, res, next) => {
+  const cfg = resolveTable(req.params.collection);
+  if (!cfg) return next();
+  const values = cfg.columns.map((col) => req.body[toCamel(col)] ?? req.body[col]);
+  if (values.some((value) => value == null || value === '')) return res.status(400).json({ message: cfg.columns.join(', ') + ' are required' });
+  if (!db) {
+    const item = { id: req.params.collection + '-' + Date.now(), sort_order: profileFallback[cfg.key].length };
+    cfg.columns.forEach((col, index) => { item[col] = values[index]; });
+    profileFallback[cfg.key].push(item);
+    await logActivity(null, req.user.email, 'Added ' + req.params.collection + ' item', String(values[0]));
+    return res.status(201).json({ item });
+  }
+  const placeholders = cfg.columns.map((_, i) => '$' + (i + 1));
+  const rows = await db.query('insert into ' + cfg.table + ' (' + cfg.columns.join(', ') + ') values (' + placeholders.join(', ') + ') returning *', values);
+  await logActivity(db, req.user.email, 'Added ' + req.params.collection + ' item', String(values[0]));
+  res.status(201).json({ item: rows[0] });
+});
+
+app.delete('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
+  const cfg = resolveTable(req.params.collection);
+  if (!cfg) return next();
+  if (!db) {
+    const before = profileFallback[cfg.key].length;
+    profileFallback[cfg.key] = profileFallback[cfg.key].filter((row) => row.id !== req.params.id);
+    if (profileFallback[cfg.key].length === before) return res.status(404).json({ message: 'Not found' });
+    await logActivity(null, req.user.email, 'Deleted ' + req.params.collection + ' item', req.params.id);
+    return res.json({ deleted: true });
+  }
+  const rows = await db.query('delete from ' + cfg.table + ' where id = $1 returning id', [req.params.id]);
+  if (!rows[0]) return res.status(404).json({ message: 'Not found' });
+  await logActivity(db, req.user.email, 'Deleted ' + req.params.collection + ' item', req.params.id);
+  res.json({ deleted: true });
 });
 
 export default app;
