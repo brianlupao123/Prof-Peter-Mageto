@@ -19,6 +19,7 @@ export default function Contact({ signedIn, token }) {
       <PageBanner
         pageKey="contact"
         slides={slides}
+        profile={profile}
         ctas={
           <>
             <a href="#contact-form">Send a message</a>

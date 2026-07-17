@@ -14,7 +14,7 @@ export default function Strategy() {
 
   return (
     <>
-      <PageBanner pageKey="strategy" slides={slides} />
+      <PageBanner pageKey="strategy" slides={slides} profile={data?.profile} />
 
       <section className="strategy page-section">
         <div className="strategy-copy">

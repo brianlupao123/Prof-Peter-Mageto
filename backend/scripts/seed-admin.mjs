@@ -3,7 +3,11 @@ import { neon } from '@neondatabase/serverless';
 
 const databaseUrl = process.env.DATABASE_URL;
 const email = String(process.env.ADMIN_EMAIL || 'profmagteo@gmail.com').trim().toLowerCase();
-const password = process.env.ADMIN_PASSWORD || 'Test@123';
+const password = process.env.ADMIN_PASSWORD;
+if (!password) {
+  console.error('ADMIN_PASSWORD env var is required — refusing to seed a default password.');
+  process.exit(1);
+}
 const name = process.env.ADMIN_NAME || 'Prof. Mageto Admin';
 
 if (!databaseUrl) {

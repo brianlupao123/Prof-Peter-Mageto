@@ -23,6 +23,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
     { "source": "/leadership",  "destination": "/index.html" },
     { "source": "/scholarship", "destination": "/index.html" },
     { "source": "/strategy",    "destination": "/index.html" },

@@ -34,6 +34,14 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('pm-theme', theme);
+    // Keep the browser toolbar colour in sync with the active theme
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      const bg = getComputedStyle(document.documentElement)
+        .getPropertyValue('--color-bg')
+        .trim();
+      metaThemeColor.setAttribute('content', bg || (theme === 'dark' ? '#0f1f1a' : '#f4f6f2'));
+    }
   }, [theme]);
 
   // Listen for system preference changes while the site is open

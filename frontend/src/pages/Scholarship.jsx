@@ -17,7 +17,7 @@ export default function Scholarship() {
 
   return (
     <>
-      <PageBanner pageKey="scholarship" slides={slides} />
+      <PageBanner pageKey="scholarship" slides={slides} profile={data?.profile} />
 
       {/* Credentials grid */}
       <section className="page-section">

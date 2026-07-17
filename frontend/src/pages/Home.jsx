@@ -4,10 +4,11 @@ import { FaArrowRight, FaHandshake, FaScaleBalanced, FaUserTie } from 'react-ico
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import { highlights, leadershipFocus, SITE_NAME, stakeholderPaths } from '../data/profileData.js';
-import { useHeroSlides } from '../lib/useProfile.js';
+import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
 export default function Home() {
   const slides = useHeroSlides('overview');
+  const { data } = useProfile();
 
   useEffect(() => {
     document.title = 'Overview | Rev. Prof. Peter Mageto — Africa University Vice Chancellor';
@@ -18,13 +19,8 @@ export default function Home() {
       <PageBanner
         pageKey="overview"
         slides={slides}
+        profile={data?.profile}
         level="h1"
-        ctas={
-          <>
-            <Link to="/leadership">Explore leadership <FaArrowRight /></Link>
-            <Link to="/sources">View verified sources</Link>
-          </>
-        }
       />
 
       {/* Stats band */}

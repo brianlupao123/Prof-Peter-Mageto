@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite frontend --host 127.0.0.1",
+    "dev:all": "Start-Process powershell -ArgumentList '-NoExit','-Command','$env:RUN_API_SERVER=''true''; node backend/src/app.js' ; vite frontend --host 127.0.0.1",
     "build": "vite build frontend --outDir ../dist --emptyOutDir",
     "preview": "vite preview --host 127.0.0.1 --outDir dist",
     "seed:admin": "node backend/scripts/seed-admin.mjs",
-    "api:dev": "node backend/src/app.js",
+    "api:dev": "$env:RUN_API_SERVER='true'; node backend/src/app.js",
     "seed:profile": "node backend/scripts/seed-profile.mjs"
   },
   "dependencies": {

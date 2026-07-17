@@ -13,7 +13,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'prof-mageto-preview-secret';
 const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || 'profmagteo@gmail.com').toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Test@123';
 const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
-const db = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
+let db = null;
+if (process.env.DATABASE_URL) {
+  try {
+    db = neon(process.env.DATABASE_URL);
+  } catch (e) {
+    console.warn('[DB] Invalid DATABASE_URL — falling back to runtime memory mode:', e.message);
+  }
+}
 
 const runtime = globalThis.__MAGETO_RUNTIME__ || { users: [], messages: [], contentUpdates: [], rate: new Map() };
 globalThis.__MAGETO_RUNTIME__ = runtime;
@@ -184,6 +191,19 @@ app.post('/api/contact', async (req, res) => {
   const message = String(req.body.message || req.body.body || '').trim();
   if (!name || !email || !message) return res.status(400).json({ message: 'Name, email and message are required' });
   if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
+
+  if (process.env.RESEND_API_KEY && process.env.NOTIFY_EMAIL) {
+    fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: 'Portfolio <notifications@yourdomain.com>',
+        to: process.env.NOTIFY_EMAIL,
+        subject: `New enquiry: ${subject}`,
+        text: `From: ${name} <${email}>\n\n${message}`,
+      }),
+    }).catch(() => {}); // never fail the request over an email hiccup
+  }
 
   if (db) {
     const rows = await db`insert into messages (name, email, subject, message, source) values (${name}, ${email}, ${subject}, ${message}, 'prof-mageto-portfolio') returning *`;

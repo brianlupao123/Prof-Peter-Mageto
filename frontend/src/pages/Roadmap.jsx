@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import PageBanner from '../components/PageBanner.jsx';
 import { roadmap } from '../data/profileData.js';
-import { useHeroSlides } from '../lib/useProfile.js';
+import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
 export default function Roadmap() {
   const slides = useHeroSlides('roadmap');
+  const { data } = useProfile();
 
   useEffect(() => {
     document.title = 'Platform Roadmap | Rev. Prof. Peter Mageto Portfolio';
@@ -12,7 +13,7 @@ export default function Roadmap() {
 
   return (
     <>
-      <PageBanner pageKey="roadmap" slides={slides} />
+      <PageBanner pageKey="roadmap" slides={slides} profile={data?.profile} />
       <section className="page-section">
         <span className="eyebrow">Platform Roadmap</span>
         <h2>What's built, what's in progress, what's planned.</h2>

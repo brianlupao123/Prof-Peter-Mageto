@@ -280,6 +280,12 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
         ))}
       </div>
 
+      {activePage === 'overview' && (
+        <div style={{ background: 'var(--brand)', color: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <strong>Tip:</strong> The Overview tab controls the main Home page carousel. Add all your "tour" slides here.
+        </div>
+      )}
+
       {loadingSlides && <div className="skeleton skeleton-card" style={{ marginBottom: '0.75rem' }} />}
 
       {slides.length > 1 && (

@@ -15,7 +15,7 @@ export default function Sources() {
 
   return (
     <>
-      <PageBanner pageKey="sources" slides={slides} />
+      <PageBanner pageKey="sources" slides={slides} profile={data?.profile} />
 
       <section className="page-section">
         <span className="eyebrow">Verification</span>

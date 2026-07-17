@@ -15,7 +15,7 @@ export default function Leadership() {
 
   return (
     <>
-      <PageBanner pageKey="leadership" slides={slides} />
+      <PageBanner pageKey="leadership" slides={slides} profile={data?.profile} />
 
       {/* Leadership philosophy grid */}
       <section className="focus-grid page-section">

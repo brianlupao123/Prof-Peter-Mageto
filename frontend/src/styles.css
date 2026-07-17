@@ -462,14 +462,27 @@ footer { margin-left: 280px; }
   min-height: min(600px, calc(100svh - 74px));
   position: relative;
   overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-banner-track {
+  display: flex;
+  height: 100%;
+  min-height: min(600px, calc(100svh - 74px));
+  transition: transform 0.85s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.page-banner-slide {
+  position: relative;
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: 1fr minmax(240px, 340px);
   align-items: center;
   background: linear-gradient(135deg,
     color-mix(in srgb, var(--brand-strong) 26%, var(--surface)),
     color-mix(in srgb, var(--blue) 18%, var(--bg)));
-  border-bottom: 1px solid var(--line);
 }
+
 .page-banner-bg {
   position: absolute;
   inset: 0;
@@ -481,19 +494,18 @@ footer { margin-left: 280px; }
   transform-origin: center center;
 }
 .page-banner:hover .page-banner-bg { animation-play-state: paused; }
+
 .page-banner-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(90deg, rgba(8,18,12,0.88) 0%, rgba(8,18,12,0.58) 50%, rgba(8,18,12,0.22) 100%);
 }
-.page-banner.no-image .page-banner-overlay {
+.page-banner-slide.no-image .page-banner-overlay {
   background: linear-gradient(90deg,
     color-mix(in srgb, var(--surface) 82%, transparent),
     color-mix(in srgb, var(--surface-strong) 65%, transparent));
 }
-
-/* Dark mode — deeper overlay */
 :root[data-theme="dark"] .page-banner-overlay {
   background: linear-gradient(90deg, rgba(4,10,8,0.94) 0%, rgba(4,10,8,0.7) 50%, rgba(4,10,8,0.28) 100%);
 }
@@ -501,16 +513,11 @@ footer { margin-left: 280px; }
   background: rgba(16,30,24,0.92);
   border: 1px solid var(--line);
 }
-:root[data-theme="dark"] .dashboard-panel,
-:root[data-theme="dark"] .icon-card,
-:root[data-theme="dark"] .contact-form {
-  box-shadow: var(--elevated-shadow, 0 8px 32px rgba(0,0,0,0.45));
-}
 
 .page-banner-card {
   position: relative;
   z-index: 2;
-  margin: 1.25rem clamp(1.5rem, 4vw, 3.5rem) 1.25rem 1.25rem;
+  margin: 1.25rem;
   padding: 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -519,21 +526,17 @@ footer { margin-left: 280px; }
   gap: 0.35rem;
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  min-width: 0;
-  max-width: 340px;
-  justify-self: end;
 }
 .page-banner-card .avatar {
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: var(--brand-strong);
-  color: #fff;
-  font-weight: 900;
-  font-size: 1.1rem;
+  width: 54px; height: 54px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--brand-strong); color: #fff;
+  font-weight: 900; font-size: 1.1rem;
   border: 2px solid var(--accent);
+}
+.page-banner-card .avatar-photo {
+  width: 54px; height: 54px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--accent);
 }
 .page-banner-card strong { font-size: 0.97rem; }
 .page-banner-card span { font-size: 0.82rem; color: var(--muted); }
@@ -547,9 +550,9 @@ footer { margin-left: 280px; }
   gap: 0.8rem;
   color: var(--text);
 }
-.page-banner.has-image .page-banner-copy { color: #fff; }
-.page-banner.has-image .page-banner-copy .lead { color: rgba(255,255,255,0.88); }
-.page-banner.has-image .page-banner-copy .eyebrow { color: var(--accent); }
+.page-banner-slide.has-image .page-banner-copy { color: #fff; }
+.page-banner-slide.has-image .page-banner-copy .lead { color: rgba(255,255,255,0.88); }
+.page-banner-slide.has-image .page-banner-copy .eyebrow { color: var(--accent); }
 .page-banner-copy h1,
 .page-banner-copy h2 {
   margin: 0;
@@ -558,8 +561,8 @@ footer { margin-left: 280px; }
   line-height: 1.02;
   text-shadow: 0 2px 16px rgba(0,0,0,0.32);
 }
-.page-banner.has-image .page-banner-copy h1,
-.page-banner.has-image .page-banner-copy h2 { text-shadow: 0 2px 24px rgba(0,0,0,0.55); }
+.page-banner-slide.has-image .page-banner-copy h1,
+.page-banner-slide.has-image .page-banner-copy h2 { text-shadow: 0 2px 24px rgba(0,0,0,0.55); }
 .page-banner-copy .lead { max-width: 680px; }
 
 /* Arrow navigation */
@@ -829,8 +832,8 @@ footer.site-footer {
    Mobile Hero Fix
    ============================================================ */
 @media (max-width: 900px) {
-  .page-banner { grid-template-columns: 1fr; min-height: 420px; }
-  .page-banner-card { order: 2; margin: 0 0.75rem 0.75rem; }
+  .page-banner-slide { grid-template-columns: 1fr; min-height: 420px; }
+  .page-banner-card { order: 2; margin: 0 0.75rem 0.75rem; justify-self: stretch; max-width: none; }
   .page-banner-overlay {
     background: linear-gradient(180deg, rgba(8,18,12,0.4) 0%, rgba(8,18,12,0.88) 70%, rgba(8,18,12,0.95) 100%);
   }
