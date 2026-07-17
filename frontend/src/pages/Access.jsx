@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 export default function Access({ signedIn, onSignIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    document.title = 'Sign In | Peter Mageto Portfolio Admin';
+  }, []);
 
   const submit = async (event) => {
     event.preventDefault();

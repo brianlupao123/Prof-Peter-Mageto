@@ -14,8 +14,16 @@ const Access = lazy(() => import('./pages/Access.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
+function getInitialTheme() {
+  const stored = localStorage.getItem('pm-theme');
+  if (stored) return stored;
+  // Respect system preference on first visit
+  if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+  return 'light';
+}
+
 export default function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem('pm-theme') || 'light');
+  const [theme, setTheme] = useState(getInitialTheme);
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 1101px)').matches);
   const [session, setSession] = useState(() => {
     const token = localStorage.getItem('pm-token');
@@ -28,11 +36,30 @@ export default function App() {
     localStorage.setItem('pm-theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((current) => (current === 'dark' ? 'light' : 'dark'));
+  // Listen for system preference changes while the site is open
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      if (!localStorage.getItem('pm-theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const toggleTheme = () => setTheme((current) => {
+    const next = current === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('pm-theme', next);
+    return next;
+  });
 
   const signIn = async (email, password) => {
     const normalizedEmail = String(email).trim().toLowerCase();
-    const payload = await apiFetch('/api/auth/login', { method: 'POST', body: JSON.stringify({ email: normalizedEmail, password }) });
+    const payload = await apiFetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: normalizedEmail, password }),
+    });
     const nextSession = { token: payload.token, email: payload.user?.email || normalizedEmail };
     setSession(nextSession);
     localStorage.setItem('pm-token', nextSession.token);
@@ -56,7 +83,7 @@ export default function App() {
       openSidebar={() => setSidebarOpen((current) => !current)}
       closeSidebar={() => setSidebarOpen(false)}
     >
-      <Suspense fallback={<div className="page-loader">Loading page...</div>}>
+      <Suspense fallback={<div className="page-loader">Loading…</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/leadership" element={<Leadership />} />

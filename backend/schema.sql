@@ -16,7 +16,7 @@ create table if not exists messages (
   email text not null,
   subject text not null default 'Portfolio enquiry',
   message text not null,
-  status text not null default 'new' check (status in ('new', 'read', 'replied', 'archived')),
+  status text not null default 'new' check (status in ('new', 'read', 'replied', 'resolved', 'archived')),
   source text not null default 'prof-mageto-portfolio',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -32,7 +32,6 @@ create table if not exists content_updates (
 
 create index if not exists idx_messages_status_created on messages (status, created_at desc);
 create index if not exists idx_content_updates_created on content_updates (created_at desc);
-
 
 -- ============================================================
 -- Profile CRUD system - additive migration
@@ -69,10 +68,10 @@ create table if not exists credentials (id uuid primary key default gen_random_u
 create table if not exists career_entries (id uuid primary key default gen_random_uuid(), role text not null, place text not null, note text, sort_order integer not null default 0);
 create table if not exists publications (id uuid primary key default gen_random_uuid(), title text not null, sort_order integer not null default 0);
 create table if not exists research_themes (id uuid primary key default gen_random_uuid(), label text not null, sort_order integer not null default 0);
-
 create table if not exists strategy_goals (id uuid primary key default gen_random_uuid(), label text not null, sort_order integer not null default 0);
 create table if not exists sources_list (id uuid primary key default gen_random_uuid(), label text not null, url text not null, sort_order integer not null default 0);
 create table if not exists social_links (id uuid primary key default gen_random_uuid(), platform text not null, url text not null, sort_order integer not null default 0);
+
 create index if not exists idx_credentials_sort on credentials (sort_order);
 create index if not exists idx_career_sort on career_entries (sort_order);
 create index if not exists idx_publications_sort on publications (sort_order);
@@ -80,3 +79,7 @@ create index if not exists idx_research_sort on research_themes (sort_order);
 create index if not exists idx_strategy_sort on strategy_goals (sort_order);
 create index if not exists idx_sources_sort on sources_list (sort_order);
 create index if not exists idx_social_links_sort on social_links (sort_order);
+
+-- Fix messages status constraint to allow 'resolved' (run this against existing DB)
+-- alter table messages drop constraint if exists messages_status_check;
+-- alter table messages add constraint messages_status_check check (status in ('new', 'read', 'replied', 'resolved', 'archived'));

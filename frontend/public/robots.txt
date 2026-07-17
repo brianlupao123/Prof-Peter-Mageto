@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://prof-peter-mageto.vercel.app/sitemap.xml
+Disallow: /dashboard
+Disallow: /access
+
+Sitemap: https://mageto-portfolio.vercel.app/sitemap.xml

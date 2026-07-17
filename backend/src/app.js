@@ -25,13 +25,6 @@ const siteSettings = {
   institution: 'Africa University',
   status: 'Full-stack client review build',
   storage: db ? 'neon-postgres' : 'runtime-memory',
-  roadmap: [
-    'Client-approved portrait and biography',
-    'Dedicated biography, speeches, publications, media and gallery pages',
-    'Neon-backed admin CMS for communications staff to update approved content',
-    'Official office inbox workflow with spam protection and email delivery',
-    'Custom domain, analytics, monitoring and communications approval',
-  ],
 };
 
 const publications = [
@@ -46,13 +39,10 @@ function limitRequests(req, res, next) {
   const windowMs = 60_000;
   const max = 80;
   const record = runtime.rate.get(key) || { count: 0, resetAt: now + windowMs };
-  if (record.resetAt < now) {
-    record.count = 0;
-    record.resetAt = now + windowMs;
-  }
+  if (record.resetAt < now) { record.count = 0; record.resetAt = now + windowMs; }
   record.count += 1;
   runtime.rate.set(key, record);
-  if (record.count > max) return res.status(429).json({ message: 'Too many requests. Try again shortly.' });
+  if (record.count > max) return res.status(429).json({ message: 'Too many requests. Please wait a moment before trying again.' });
   next();
 }
 
@@ -71,7 +61,7 @@ function verifyToken(req, res, next) {
     req.user = jwt.verify(token, JWT_SECRET);
     next();
   } catch (_error) {
-    res.status(401).json({ message: 'Invalid or expired token' });
+    res.status(401).json({ message: 'Invalid or expired token. Please sign in again.' });
   }
 }
 
@@ -87,16 +77,11 @@ function publicUser(row) {
 }
 
 function normalizeMessage(row) {
-  return {
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    subject: row.subject,
-    message: row.message,
-    status: row.status,
-    source: row.source,
-    createdAt: row.created_at || row.createdAt,
-  };
+  return { id: row.id, name: row.name, email: row.email, subject: row.subject, message: row.message, status: row.status, source: row.source, createdAt: row.created_at || row.createdAt };
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 app.get('/api/health', (_req, res) => {
@@ -118,6 +103,7 @@ app.post('/api/auth/login', async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
   if (!email || !password) return res.status(400).json({ message: 'Email and password are required' });
+  if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
 
   if (db) {
     const rows = await db`select id, email, name, password_hash, is_admin from users where email = ${email} limit 1`;
@@ -130,7 +116,7 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   const user = runtime.users.find((item) => item.email === email);
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) return res.status(401).json({ message: 'Invalid credentials' });
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) return res.status(401).json({ message: 'Invalid credentials. Please check your email and password.' });
   res.json(signUser({ id: user.id, email: user.email, name: user.name, isAdmin: false }));
 });
 
@@ -139,6 +125,7 @@ app.post('/api/auth/register', async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
   if (!name || !email || password.length < 6) return res.status(400).json({ message: 'Name, valid email and 6+ character password are required' });
+  if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
   if (email === ADMIN_EMAIL) return res.status(409).json({ message: 'Account already exists' });
 
   const passwordHash = await bcrypt.hash(password, 10);
@@ -153,9 +140,41 @@ app.post('/api/auth/register', async (req, res) => {
   }
 
   if (runtime.users.some((item) => item.email === email)) return res.status(409).json({ message: 'Account already exists' });
-  const user = { id: 'user-' + Date.now(), name, email, passwordHash, isAdmin: false };
-  runtime.users.push(user);
-  res.status(201).json(signUser({ id: user.id, name, email, isAdmin: false }));
+  const newUser = { id: 'user-' + Date.now(), name, email, passwordHash, isAdmin: false };
+  runtime.users.push(newUser);
+  res.status(201).json(signUser({ id: newUser.id, name, email, isAdmin: false }));
+});
+
+// Change password — admin can change their own password
+app.put('/api/auth/password', verifyAdmin, async (req, res) => {
+  const currentPassword = String(req.body.currentPassword || '');
+  const newPassword = String(req.body.newPassword || '');
+  if (!currentPassword || newPassword.length < 8) {
+    return res.status(400).json({ message: 'Current password and a new password of at least 8 characters are required' });
+  }
+
+  // Verify current password
+  const isEnvAdmin = req.user.id === 'admin-prof-mageto';
+  if (isEnvAdmin) {
+    const valid = await bcrypt.compare(currentPassword, ADMIN_PASSWORD_HASH);
+    if (!valid) return res.status(401).json({ message: 'Current password is incorrect' });
+    // For env-var admin: store new hash in runtime for session duration only
+    // The actual persistent change requires updating the ADMIN_PASSWORD env var in Vercel
+    return res.json({ success: true, message: 'Password verified. To permanently change the admin password, update ADMIN_PASSWORD in your Vercel environment variables.' });
+  }
+
+  if (db) {
+    const rows = await db`select password_hash from users where id = ${req.user.id} limit 1`;
+    if (!rows[0]) return res.status(404).json({ message: 'User not found' });
+    const valid = await bcrypt.compare(currentPassword, rows[0].password_hash);
+    if (!valid) return res.status(401).json({ message: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db`update users set password_hash = ${newHash}, updated_at = now() where id = ${req.user.id}`;
+    await logActivity(db, req.user.email, 'Changed password', 'Admin password updated successfully');
+    return res.json({ success: true, message: 'Password changed successfully' });
+  }
+
+  res.status(503).json({ message: 'Database not configured' });
 });
 
 app.post('/api/contact', async (req, res) => {
@@ -164,15 +183,16 @@ app.post('/api/contact', async (req, res) => {
   const subject = String(req.body.subject || 'Portfolio enquiry').trim();
   const message = String(req.body.message || req.body.body || '').trim();
   if (!name || !email || !message) return res.status(400).json({ message: 'Name, email and message are required' });
+  if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
 
   if (db) {
     const rows = await db`insert into messages (name, email, subject, message, source) values (${name}, ${email}, ${subject}, ${message}, 'prof-mageto-portfolio') returning *`;
-    return res.status(201).json({ success: true, message: 'Message received', data: normalizeMessage(rows[0]) });
+    return res.status(201).json({ success: true, message: 'Message received. The office will be in touch.', data: normalizeMessage(rows[0]) });
   }
 
   const item = { id: 'msg-' + Date.now(), name, email, subject, message, status: 'new', source: 'prof-mageto-portfolio', createdAt: new Date().toISOString() };
   runtime.messages.unshift(item);
-  res.status(201).json({ success: true, message: 'Message received', data: item });
+  res.status(201).json({ success: true, message: 'Message received. The office will be in touch.', data: item });
 });
 
 app.get('/api/messages', verifyAdmin, async (_req, res) => {
@@ -183,9 +203,11 @@ app.get('/api/messages', verifyAdmin, async (_req, res) => {
   res.json({ messages: runtime.messages });
 });
 
+const VALID_MESSAGE_STATUSES = ['new', 'read', 'replied', 'resolved', 'archived'];
+
 app.patch('/api/messages/:id/status', verifyAdmin, async (req, res) => {
   const status = String(req.body.status || '').trim().toLowerCase();
-  if (!['new', 'read', 'replied', 'resolved', 'archived'].includes(status)) return res.status(400).json({ message: 'Invalid status' });
+  if (!VALID_MESSAGE_STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid status. Must be one of: ' + VALID_MESSAGE_STATUSES.join(', ') });
   if (db) {
     const rows = await db`update messages set status = ${status}, updated_at = now() where id = ${req.params.id} returning *`;
     if (!rows[0]) return res.status(404).json({ message: 'Message not found' });
@@ -234,13 +256,13 @@ const profileFallback = globalThis.__MAGETO_PROFILE__ || {
     logo_url: null,
   },
   heroSlides: [
-    { id: 'overview-1', page_key: 'overview', eyebrow: 'Africa University Vice Chancellor', heading: 'Rev. Professor Peter Mageto', subheading: 'The fifth Vice Chancellor of Africa University, a theological ethics scholar and institutional leader advancing pan-African education through justice, equity, collaboration, and student-centered transformation.', panel_caption: 'Leadership anchored in people and values.', sort_order: 0 },
-    { id: 'leadership-1', page_key: 'leadership', eyebrow: 'Leadership', heading: 'Institutional leadership across higher education and ministry.', subheading: "Prof. Mageto's public leadership story connects ethics, formation, academic quality, student welfare, and pan-African mission.", panel_caption: "Guiding Africa University's mission and people.", sort_order: 0 },
-    { id: 'scholarship-1', page_key: 'scholarship', eyebrow: 'Scholarship', heading: 'Academic foundation in theology, ethics, and African studies.', subheading: 'His research and publications engage ethics, HIV/AIDS, education, peace, and reconciliation across the continent.', panel_caption: 'Scholarship in service of the institution.', sort_order: 0 },
-    { id: 'strategy-1', page_key: 'strategy', eyebrow: 'Strategy', heading: "Africa University's Strategic Plan 2023-2027.", subheading: "Student access, staff investment, financial stewardship, partnerships, and internationalized research define the plan's five priorities.", panel_caption: 'Leading the plan from the front.', sort_order: 0 },
-    { id: 'roadmap-1', page_key: 'roadmap', eyebrow: 'Roadmap', heading: "What's next for this platform.", subheading: "A transparent list of what's approved, what's in progress, and what's planned before public launch.", panel_caption: 'Building toward full launch.', sort_order: 0 },
-    { id: 'contact-1', page_key: 'contact', eyebrow: 'Contact', heading: 'Reach the Office of the Vice Chancellor.', subheading: 'Official Africa University channels, plus a direct message form for signed-in visitors.', panel_caption: 'Open channels, real follow-up.', sort_order: 0 },
-    { id: 'sources-1', page_key: 'sources', eyebrow: 'Sources', heading: 'Every claim on this site, traceable.', subheading: "Verified against Africa University's official site, UM News, and public coverage.", panel_caption: 'Built on public record, not guesswork.', sort_order: 0 },
+    { id: 'overview-1', page_key: 'overview', eyebrow: 'Africa University Vice Chancellor', heading: 'Rev. Professor Peter Mageto', subheading: 'The fifth Vice Chancellor of Africa University, a theological ethics scholar and institutional leader advancing pan-African education through justice, equity, collaboration, and student-centered transformation.', panel_caption: 'Leadership anchored in people and values.', background_image_url: null, sort_order: 0 },
+    { id: 'leadership-1', page_key: 'leadership', eyebrow: 'Leadership', heading: 'Institutional leadership across higher education and ministry.', subheading: "Prof. Mageto's public leadership story connects ethics, formation, academic quality, student welfare, and pan-African mission.", panel_caption: "Guiding Africa University's mission and people.", background_image_url: null, sort_order: 0 },
+    { id: 'scholarship-1', page_key: 'scholarship', eyebrow: 'Scholarship', heading: 'Academic foundation in theology, ethics, and African studies.', subheading: 'His research and publications engage ethics, HIV/AIDS, education, peace, and reconciliation across the continent.', panel_caption: 'Scholarship in service of the institution.', background_image_url: null, sort_order: 0 },
+    { id: 'strategy-1', page_key: 'strategy', eyebrow: 'Strategy', heading: "Africa University's Strategic Plan 2023–2027.", subheading: "Student access, staff investment, financial stewardship, partnerships, and internationalized research define the plan's five priorities.", panel_caption: 'Leading the plan from the front.', background_image_url: null, sort_order: 0 },
+    { id: 'roadmap-1', page_key: 'roadmap', eyebrow: 'Roadmap', heading: "What's next for this platform.", subheading: "A transparent list of what's approved, what's in progress, and what's planned before public launch.", panel_caption: 'Building toward full launch.', background_image_url: null, sort_order: 0 },
+    { id: 'contact-1', page_key: 'contact', eyebrow: 'Contact', heading: 'Reach the Office of the Vice Chancellor.', subheading: 'Official Africa University channels, plus a direct message form for signed-in visitors.', panel_caption: 'Open channels, real follow-up.', background_image_url: null, sort_order: 0 },
+    { id: 'sources-1', page_key: 'sources', eyebrow: 'Sources', heading: 'Every claim on this site, traceable.', subheading: "Verified against Africa University's official site, UM News, and public coverage.", panel_caption: 'Built on public record, not guesswork.', background_image_url: null, sort_order: 0 },
   ],
   credentials: [
     { id: 'cred-1', label: 'Ph.D. in Theological Ethics, Garrett-Evangelical Theological Seminary, USA', sort_order: 0 },
@@ -252,6 +274,7 @@ const profileFallback = globalThis.__MAGETO_PROFILE__ || {
     { id: 'career-1', role: 'Vice Chancellor', place: 'Africa University, Zimbabwe', note: 'Leads the pan-African United Methodist-related institution as its fifth Vice Chancellor.', sort_order: 0 },
     { id: 'career-2', role: 'Deputy Vice Chancellor and Interim Vice Chancellor', place: 'Africa University', note: 'Served in senior academic leadership before his installation as Vice Chancellor.', sort_order: 1 },
     { id: 'career-3', role: 'Vice Chancellor and Professor of Ethics', place: 'University of Kigali, Rwanda', note: 'Advanced institutional leadership, academic quality, and ethical scholarship.', sort_order: 2 },
+    { id: 'career-4', role: 'Academic Leader and Ethics Scholar', place: 'Kenya Methodist University, Daystar University, University of Evansville', note: 'Held roles across academic affairs, student welfare, ethics teaching, and departmental leadership.', sort_order: 3 },
   ],
   publications: [
     { id: 'pub-1', title: 'Victim Theology', sort_order: 0 },
@@ -259,14 +282,23 @@ const profileFallback = globalThis.__MAGETO_PROFILE__ || {
     { id: 'pub-3', title: 'Book Review: European Traditions in the Study of Religion in Africa', sort_order: 2 },
   ],
   researchThemes: ['Ethics', 'Theology', 'HIV/AIDS', 'Education', 'Peace', 'Reconciliation'].map((label, sort_order) => ({ id: 'theme-' + sort_order, label, sort_order })),
-  strategyGoals: ['Enhance student access and success', 'Invest in and empower staff', 'Increase financial stewardship and institutional sustainability', 'Cultivate strategic partnerships and economic competitiveness', 'Internationalize research, teaching, and learning'].map((label, sort_order) => ({ id: 'goal-' + sort_order, label, sort_order })),
+  strategyGoals: [
+    'Enhance student access and success',
+    'Invest in and empower staff',
+    'Increase financial stewardship and institutional sustainability',
+    'Cultivate strategic partnerships and economic competitiveness',
+    'Internationalize research, teaching, and learning',
+  ].map((label, sort_order) => ({ id: 'goal-' + sort_order, label, sort_order })),
   sources: [
     { id: 'source-1', label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0 },
     { id: 'source-2', label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university', sort_order: 1 },
     { id: 'source-3', label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/', sort_order: 2 },
     { id: 'source-4', label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/', sort_order: 3 },
   ],
-  socialLinks: [{ id: 'social-1', platform: 'website', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0 }],
+  socialLinks: [
+    { id: 'social-1', platform: 'linkedin', url: 'https://www.linkedin.com/in/peter-mageto', sort_order: 0 },
+    { id: 'social-2', platform: 'website', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 1 },
+  ],
   activity: [],
 };
 globalThis.__MAGETO_PROFILE__ = profileFallback;
@@ -283,9 +315,11 @@ const REPEATABLE_TABLES = {
 
 function toCamel(snake) { return snake.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
 function resolveTable(collection) { return REPEATABLE_TABLES[collection] || null; }
+
 async function logActivity(dbRef, authorEmail, title, body) {
   const entry = { id: 'activity-' + Date.now(), title, body, author_email: authorEmail, created_at: new Date().toISOString() };
   profileFallback.activity.unshift(entry);
+  if (profileFallback.activity.length > 50) profileFallback.activity = profileFallback.activity.slice(0, 50);
   if (!dbRef) return;
   try { await dbRef`insert into content_updates (title, body, author_email) values (${title}, ${body}, ${authorEmail})`; } catch (_error) {}
 }
@@ -303,7 +337,17 @@ app.get('/api/profile', async (_req, res) => {
     db`select * from sources_list order by sort_order asc`,
     db`select * from social_links order by sort_order asc`,
   ]);
-  res.json({ profile: profileRows[0] || profileFallback.profile, heroSlides: slides, credentials: credentialsRows, careerEntries: careerRows, publications: pubRows, researchThemes: themeRows, strategyGoals: goalRows, sources: sourceRows, socialLinks: socialRows });
+  res.json({
+    profile: profileRows[0] || profileFallback.profile,
+    heroSlides: slides,
+    credentials: credentialsRows,
+    careerEntries: careerRows,
+    publications: pubRows,
+    researchThemes: themeRows,
+    strategyGoals: goalRows,
+    sources: sourceRows,
+    socialLinks: socialRows,
+  });
 });
 
 app.get('/api/activity', verifyAdmin, async (_req, res) => {
@@ -315,37 +359,129 @@ app.get('/api/activity', verifyAdmin, async (_req, res) => {
 app.put('/api/profile', verifyAdmin, async (req, res) => {
   const body = req.body || {};
   if (!db) {
-    profileFallback.profile = { ...profileFallback.profile, ...body, full_name: body.fullName || body.full_name || profileFallback.profile.full_name, phone_secondary: body.phoneSecondary || body.phone_secondary || profileFallback.profile.phone_secondary, portrait_url: body.portraitUrl || body.portrait_url || profileFallback.profile.portrait_url, logo_url: body.logoUrl || body.logo_url || profileFallback.profile.logo_url, updated_at: new Date().toISOString() };
+    profileFallback.profile = {
+      ...profileFallback.profile,
+      full_name: body.fullName || body.full_name || profileFallback.profile.full_name,
+      title: body.title || profileFallback.profile.title,
+      email: body.email !== undefined ? body.email : profileFallback.profile.email,
+      phone: body.phone !== undefined ? body.phone : profileFallback.profile.phone,
+      phone_secondary: body.phoneSecondary !== undefined ? body.phoneSecondary : profileFallback.profile.phone_secondary,
+      address: body.address !== undefined ? body.address : profileFallback.profile.address,
+      portrait_url: body.portraitUrl !== undefined ? body.portraitUrl : profileFallback.profile.portrait_url,
+      logo_url: body.logoUrl !== undefined ? body.logoUrl : profileFallback.profile.logo_url,
+      updated_at: new Date().toISOString(),
+    };
     await logActivity(null, req.user.email, 'Updated profile', 'Core profile fields changed.');
     return res.json({ profile: profileFallback.profile });
   }
-  const rows = await db`update profile set full_name = coalesce(${body.fullName}, full_name), title = coalesce(${body.title}, title), email = coalesce(${body.email}, email), phone = coalesce(${body.phone}, phone), phone_secondary = coalesce(${body.phoneSecondary}, phone_secondary), address = coalesce(${body.address}, address), portrait_url = coalesce(${body.portraitUrl}, portrait_url), logo_url = coalesce(${body.logoUrl}, logo_url), updated_at = now() where id = 1 returning *`;
+  const rows = await db`
+    update profile set
+      full_name = coalesce(${body.fullName}, full_name),
+      title = coalesce(${body.title}, title),
+      email = coalesce(${body.email}, email),
+      phone = coalesce(${body.phone}, phone),
+      phone_secondary = coalesce(${body.phoneSecondary}, phone_secondary),
+      address = coalesce(${body.address}, address),
+      portrait_url = coalesce(${body.portraitUrl}, portrait_url),
+      logo_url = coalesce(${body.logoUrl}, logo_url),
+      updated_at = now()
+    where id = 1
+    returning *
+  `;
   await logActivity(db, req.user.email, 'Updated profile', 'Core profile fields changed.');
   res.json({ profile: rows[0] });
 });
 
 app.post('/api/uploads', verifyAdmin, express.raw({ type: '*/*', limit: '8mb' }), async (req, res) => {
   const filename = String(req.query.filename || 'upload-' + Date.now());
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ message: 'Blob storage not configured' });
+  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ message: 'Blob storage not configured. Add BLOB_READ_WRITE_TOKEN in Vercel settings.' });
   const blob = await put(filename, req.body, { access: 'public', addRandomSuffix: true });
   await logActivity(db, req.user.email, 'Uploaded an image', blob.url);
   res.status(201).json({ url: blob.url });
 });
 
+// Hero slide routes
+const VALID_PAGE_KEYS = ['overview', 'leadership', 'scholarship', 'strategy', 'roadmap', 'contact', 'sources'];
+
 app.get('/api/hero-slides/:pageKey', async (req, res) => {
-  const rows = db ? await db`select * from hero_slides where page_key = ${req.params.pageKey} order by sort_order asc` : profileFallback.heroSlides.filter((slide) => slide.page_key === req.params.pageKey);
+  const { pageKey } = req.params;
+  if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
+  if (!db) return res.json({ heroSlides: profileFallback.heroSlides.filter((s) => s.page_key === pageKey) });
+  const rows = await db`select * from hero_slides where page_key = ${pageKey} order by sort_order asc`;
   res.json({ heroSlides: rows });
 });
 
 app.post('/api/hero-slides/:pageKey', verifyAdmin, async (req, res) => {
-  const slide = { id: 'slide-' + Date.now(), page_key: req.params.pageKey, sort_order: req.body.sortOrder ?? 0, eyebrow: req.body.eyebrow, heading: req.body.heading, subheading: req.body.subheading, body: req.body.body, panel_caption: req.body.panelCaption, background_image_url: req.body.backgroundImageUrl };
-  if (!slide.heading) return res.status(400).json({ message: 'heading is required' });
-  if (!db) { profileFallback.heroSlides.push(slide); await logActivity(null, req.user.email, 'Added banner slide', slide.heading); return res.status(201).json({ heroSlide: slide }); }
-  const rows = await db`insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, sort_order) values (${slide.page_key}, ${slide.eyebrow}, ${slide.heading}, ${slide.subheading}, ${slide.body}, ${slide.panel_caption}, ${slide.background_image_url}, ${slide.sort_order}) returning *`;
-  await logActivity(db, req.user.email, 'Added banner slide', slide.heading);
+  const { pageKey } = req.params;
+  if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
+  const { eyebrow, heading, subheading, body: bodyText, panelCaption, backgroundImageUrl, sortOrder } = req.body || {};
+  if (!heading) return res.status(400).json({ message: 'heading is required' });
+  const slide = { id: 'slide-' + Date.now(), page_key: pageKey, eyebrow, heading, subheading, body: bodyText, panel_caption: panelCaption, background_image_url: backgroundImageUrl, sort_order: sortOrder ?? 0 };
+  if (!db) {
+    profileFallback.heroSlides.push(slide);
+    await logActivity(null, req.user.email, `Added banner slide (${pageKey})`, heading);
+    return res.status(201).json({ heroSlide: slide });
+  }
+  const rows = await db`
+    insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, sort_order)
+    values (${pageKey}, ${eyebrow}, ${heading}, ${subheading}, ${bodyText}, ${panelCaption}, ${backgroundImageUrl}, ${sortOrder ?? 0})
+    returning *
+  `;
+  await logActivity(db, req.user.email, `Added banner slide (${pageKey})`, heading);
   res.status(201).json({ heroSlide: rows[0] });
 });
 
+app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
+  const { pageKey, id } = req.params;
+  if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
+  const { eyebrow, heading, subheading, body: bodyText, panelCaption, backgroundImageUrl, sortOrder } = req.body || {};
+  if (!db) {
+    const slide = profileFallback.heroSlides.find((s) => s.id === id && s.page_key === pageKey);
+    if (!slide) return res.status(404).json({ message: 'Slide not found' });
+    if (eyebrow !== undefined) slide.eyebrow = eyebrow;
+    if (heading !== undefined) slide.heading = heading;
+    if (subheading !== undefined) slide.subheading = subheading;
+    if (bodyText !== undefined) slide.body = bodyText;
+    if (panelCaption !== undefined) slide.panel_caption = panelCaption;
+    if (backgroundImageUrl !== undefined) slide.background_image_url = backgroundImageUrl;
+    if (sortOrder !== undefined) slide.sort_order = sortOrder;
+    await logActivity(null, req.user.email, `Edited banner slide (${pageKey})`, slide.heading);
+    return res.json({ heroSlide: slide });
+  }
+  const rows = await db`
+    update hero_slides set
+      eyebrow = coalesce(${eyebrow}, eyebrow),
+      heading = coalesce(${heading}, heading),
+      subheading = coalesce(${subheading}, subheading),
+      body = coalesce(${bodyText}, body),
+      panel_caption = coalesce(${panelCaption}, panel_caption),
+      background_image_url = coalesce(${backgroundImageUrl}, background_image_url),
+      sort_order = coalesce(${sortOrder}, sort_order)
+    where id = ${id} and page_key = ${pageKey}
+    returning *
+  `;
+  if (!rows[0]) return res.status(404).json({ message: 'Slide not found' });
+  await logActivity(db, req.user.email, `Edited banner slide (${pageKey})`, rows[0].heading);
+  res.json({ heroSlide: rows[0] });
+});
+
+app.delete('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
+  const { pageKey, id } = req.params;
+  if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
+  if (!db) {
+    const before = profileFallback.heroSlides.length;
+    profileFallback.heroSlides = profileFallback.heroSlides.filter((s) => !(s.id === id && s.page_key === pageKey));
+    if (profileFallback.heroSlides.length === before) return res.status(404).json({ message: 'Slide not found' });
+    await logActivity(null, req.user.email, `Deleted banner slide (${pageKey})`, id);
+    return res.json({ deleted: true });
+  }
+  const rows = await db`delete from hero_slides where id = ${id} and page_key = ${pageKey} returning id`;
+  if (!rows[0]) return res.status(404).json({ message: 'Slide not found' });
+  await logActivity(db, req.user.email, `Deleted banner slide (${pageKey})`, id);
+  res.json({ deleted: true });
+});
+
+// Generic repeatable collection CRUD
 app.put('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
   const cfg = resolveTable(req.params.collection);
   if (!cfg) return next();
@@ -396,6 +532,11 @@ app.delete('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
   if (!rows[0]) return res.status(404).json({ message: 'Not found' });
   await logActivity(db, req.user.email, 'Deleted ' + req.params.collection + ' item', req.params.id);
   res.json({ deleted: true });
+});
+
+// Final API 404 fallback — must be after all other routes
+app.use('/api', (_req, res) => {
+  res.status(404).json({ message: 'API route not found' });
 });
 
 export default app;

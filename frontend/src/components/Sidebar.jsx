@@ -1,5 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { FaBookOpen, FaChartLine, FaEnvelope, FaHouse, FaLandmark, FaMap, FaNewspaper, FaShieldHalved, FaXmark } from 'react-icons/fa6';
+import {
+  FaBookOpen,
+  FaChartLine,
+  FaEnvelope,
+  FaHouse,
+  FaLandmark,
+  FaMap,
+  FaNewspaper,
+  FaShieldHalved,
+  FaXmark,
+} from 'react-icons/fa6';
 import { navItems, SITE_NAME } from '../data/profileData.js';
 
 const navIcons = {
@@ -13,6 +23,9 @@ const navIcons = {
   '/dashboard': FaShieldHalved,
 };
 
+// Filter out Dashboard from the public nav — only show it when signed in
+const publicNavItems = navItems.filter((item) => item.to !== '/dashboard');
+
 export default function Sidebar({ open, onClose, signedIn }) {
   return (
     <>
@@ -22,11 +35,23 @@ export default function Sidebar({ open, onClose, signedIn }) {
           <button className="icon-button close-sidebar" type="button" onClick={onClose} aria-label="Close navigation"><FaXmark /></button>
         </div>
         <nav className="sidebar-nav">
-          {navItems.map((item) => {
+          {publicNavItems.map((item) => {
             const Icon = navIcons[item.to] || FaNewspaper;
-            return <NavLink key={item.to} to={item.to} onClick={onClose}><Icon /><span>{item.label}</span></NavLink>;
+            return (
+              <NavLink key={item.to} to={item.to} onClick={onClose}>
+                <Icon /><span>{item.label}</span>
+              </NavLink>
+            );
           })}
-          <NavLink to="/access" onClick={onClose}><FaShieldHalved /><span>{signedIn ? 'Account' : 'Sign in'}</span></NavLink>
+          {/* Dashboard — only visible when signed in */}
+          {signedIn && (
+            <NavLink to="/dashboard" onClick={onClose}>
+              <FaShieldHalved /><span>Dashboard</span>
+            </NavLink>
+          )}
+          <NavLink to="/access" onClick={onClose}>
+            <FaShieldHalved /><span>{signedIn ? 'Account' : 'Sign in'}</span>
+          </NavLink>
         </nav>
         <div className="sidebar-footer">
           <strong>Office of the Vice Chancellor</strong>

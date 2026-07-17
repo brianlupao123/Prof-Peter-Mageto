@@ -15,7 +15,7 @@ export default function ContactForm({ signedIn, token }) {
 
   const submitForm = async (event) => {
     event.preventDefault();
-    setStatus({ type: 'loading', text: 'Sending message...' });
+    setStatus({ type: 'loading', text: 'Sending message…' });
 
     try {
       if (token === 'local-preview-token') {
@@ -25,9 +25,14 @@ export default function ContactForm({ signedIn, token }) {
         await apiFetch('/api/contact', { method: 'POST', body: JSON.stringify(form) });
       }
       setForm(initialForm);
-      setStatus({ type: 'success', text: 'Message saved successfully. The dashboard can now review it.' });
+      setStatus({ type: 'success', text: '✓ Message received. The office will be in touch.' });
     } catch (error) {
-      setStatus({ type: 'error', text: error.message });
+      // Friendly rate-limit message
+      if (error.message.includes('429') || error.message.toLowerCase().includes('too many')) {
+        setStatus({ type: 'error', text: "You've sent several messages in a short time. Please wait a moment before trying again." });
+      } else {
+        setStatus({ type: 'error', text: error.message });
+      }
     }
   };
 
@@ -35,7 +40,7 @@ export default function ContactForm({ signedIn, token }) {
     return (
       <div className="notice-panel">
         <h2>Secure contact access</h2>
-        <p>Sign in first to submit or manage messages for this leadership portfolio.</p>
+        <p>Sign in to submit a message directly to the Office of the Vice Chancellor's inbox.</p>
         <Link className="button-link" to="/access">Open access portal</Link>
       </div>
     );
@@ -43,11 +48,13 @@ export default function ContactForm({ signedIn, token }) {
 
   return (
     <form className="contact-form" onSubmit={submitForm}>
-      <label>Name<input name="name" value={form.name} onChange={updateField} required /></label>
-      <label>Email<input name="email" type="email" value={form.email} onChange={updateField} required /></label>
-      <label>Organization<input name="organization" value={form.organization} onChange={updateField} placeholder="Optional" /></label>
-      <label>Message<textarea name="message" value={form.message} onChange={updateField} rows="6" required /></label>
-      <button className="button-link" type="submit" disabled={status.type === 'loading'}>Send message <FaPaperPlane /></button>
+      <label>Full name <input name="name" value={form.name} onChange={updateField} required /></label>
+      <label>Email address <input name="email" type="email" value={form.email} onChange={updateField} required /></label>
+      <label>Organization <input name="organization" value={form.organization} onChange={updateField} placeholder="Optional" /></label>
+      <label>Message <textarea name="message" value={form.message} onChange={updateField} rows="6" required /></label>
+      <button className="button-link" type="submit" disabled={status.type === 'loading'}>
+        Send message <FaPaperPlane />
+      </button>
       {status.text && <p className={`form-status ${status.type}`}>{status.text}</p>}
     </form>
   );
