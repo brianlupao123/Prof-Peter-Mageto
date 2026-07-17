@@ -510,7 +510,7 @@ footer { margin-left: 280px; }
 .page-banner-card {
   position: relative;
   z-index: 2;
-  margin: 1.25rem;
+  margin: 1.25rem clamp(1.5rem, 4vw, 3.5rem) 1.25rem 1.25rem;
   padding: 1.1rem;
   border-radius: 10px;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -519,6 +519,9 @@ footer { margin-left: 280px; }
   gap: 0.35rem;
   backdrop-filter: blur(8px);
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  min-width: 0;
+  max-width: 340px;
+  justify-self: end;
 }
 .page-banner-card .avatar {
   width: 54px;
