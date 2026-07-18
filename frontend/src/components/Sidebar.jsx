@@ -1,16 +1,11 @@
 import { NavLink } from 'react-router-dom';
 import {
-  FaBookOpen,
-  FaChartLine,
-  FaEnvelope,
-  FaHouse,
-  FaLandmark,
-  FaMap,
-  FaNewspaper,
-  FaShieldHalved,
-  FaXmark,
+  FaBookOpen, FaChartLine, FaEnvelope, FaHouse, FaLandmark,
+  FaMap, FaNewspaper, FaShieldHalved, FaXmark, FaRightToBracket,
 } from 'react-icons/fa6';
-import { navItems, SITE_NAME } from '../data/profileData.js';
+import Logo from './Logo.jsx';
+import { useProfile } from '../lib/useProfile.js';
+import { navItems } from '../data/profileData.js';
 
 const navIcons = {
   '/': FaHouse,
@@ -23,17 +18,22 @@ const navIcons = {
   '/dashboard': FaShieldHalved,
 };
 
-// Filter out Dashboard from the public nav — only show it when signed in
 const publicNavItems = navItems.filter((item) => item.to !== '/dashboard');
 
 export default function Sidebar({ open, onClose, signedIn }) {
+  const { data } = useProfile();
+
   return (
     <>
       <aside className={`sidebar ${open ? 'open' : ''}`} aria-label="Site navigation">
+        {/* Clean header — just logo + close button */}
         <div className="sidebar-head">
-          <div className="brand sidebar-brand"><span>PM</span><strong>{SITE_NAME}</strong></div>
-          <button className="icon-button close-sidebar" type="button" onClick={onClose} aria-label="Close navigation"><FaXmark /></button>
+          <Logo logoUrl={data?.profile?.logo_url} compact />
+          <button className="icon-button close-sidebar" type="button" onClick={onClose} aria-label="Close navigation">
+            <FaXmark />
+          </button>
         </div>
+
         <nav className="sidebar-nav">
           {publicNavItems.map((item) => {
             const Icon = navIcons[item.to] || FaNewspaper;
@@ -43,22 +43,34 @@ export default function Sidebar({ open, onClose, signedIn }) {
               </NavLink>
             );
           })}
-          {/* Dashboard — only visible when signed in */}
+
+          {/* Dashboard — only when signed in */}
           {signedIn && (
             <NavLink to="/dashboard" onClick={onClose}>
               <FaShieldHalved /><span>Dashboard</span>
             </NavLink>
           )}
-          <NavLink to="/access" onClick={onClose}>
-            <FaShieldHalved /><span>{signedIn ? 'Account' : 'Sign in'}</span>
+
+          {/* Sign in / Account */}
+          <NavLink to={signedIn ? '/dashboard' : '/sign-in'} onClick={onClose} className="sidebar-signin-link">
+            <FaRightToBracket />
+            <span>{signedIn ? 'My Account' : 'Sign in'}</span>
           </NavLink>
         </nav>
+
         <div className="sidebar-footer">
           <strong>Office of the Vice Chancellor</strong>
           <span>Africa University | Old Mutare, Zimbabwe</span>
         </div>
       </aside>
-      {open && <button className="sidebar-backdrop" type="button" aria-label="Close navigation backdrop" onClick={onClose} />}
+      {open && (
+        <button
+          className="sidebar-backdrop"
+          type="button"
+          aria-label="Close navigation"
+          onClick={onClose}
+        />
+      )}
     </>
   );
 }

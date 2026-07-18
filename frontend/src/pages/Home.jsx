@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaArrowRight, FaHandshake, FaScaleBalanced, FaUserTie } from 'react-icons/fa6';
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
+import EngagementSection from '../components/EngagementSection.jsx';
 import { highlights, leadershipFocus, SITE_NAME, stakeholderPaths } from '../data/profileData.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
@@ -81,6 +82,11 @@ export default function Home() {
           </article>
         ))}
       </section>
+
+      {/* Engagement */}
+      <div className="page-section" style={{ paddingTop: 0 }}>
+        <EngagementSection pageKey="home" baseLikes={248} />
+      </div>
     </>
   );
 }

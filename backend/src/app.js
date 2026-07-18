@@ -10,7 +10,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '200kb' }));
 
 const JWT_SECRET = process.env.JWT_SECRET || 'prof-mageto-preview-secret';
-const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || 'profmagteo@gmail.com').toLowerCase();
+const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || 'profpmageto@gmail.com').toLowerCase();
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Test@123';
 const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
 let db = null;

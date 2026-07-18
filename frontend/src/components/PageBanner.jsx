@@ -50,7 +50,7 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
         className="page-banner-track"
         style={{ transform: `translateX(-${index * 100}%)`, width: `${slides.length * 100}%` }}
       >
-        {slides.map((slide) => {
+        {slides.map((slide, slideIdx) => {
           const hasImage = Boolean(slide.background_image_url);
           // Per-slide CTA takes priority; fall back to page-level ctas
           const slideActions = slide.cta_label && slide.cta_href
@@ -69,10 +69,17 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
             <div
               key={slide.id}
               className={`page-banner-slide ${hasImage ? 'has-image' : 'no-image'}`}
-              style={{ width: `${100 / slides.length}%` }}
+              style={{ width: `${100 / slides.length}%`, flexShrink: 0 }}
             >
               {hasImage && (
-                <img className="page-banner-bg" src={slide.background_image_url} alt="" aria-hidden="true" />
+                <img
+                  className="page-banner-bg"
+                  src={slide.background_image_url}
+                  alt=""
+                  aria-hidden="true"
+                  loading={slideIdx === 0 ? 'eager' : 'lazy'}
+                  fetchpriority={slideIdx === 0 ? 'high' : 'low'}
+                />
               )}
               <div className="page-banner-overlay" />
 

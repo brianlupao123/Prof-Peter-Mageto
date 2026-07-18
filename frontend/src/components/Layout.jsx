@@ -22,16 +22,17 @@ const SOCIAL_ICON = {
   website: FaGlobe,
 };
 
-export default function Layout({ children, theme, toggleTheme, signedIn, onSignOut, sidebarOpen, openSidebar, closeSidebar }) {
+export default function Layout({ children, theme, toggleTheme, signedIn, onSignOut, userEmail, sidebarOpen, openSidebar, closeSidebar }) {
   const { data } = useProfile();
   const socialLinks = data?.socialLinks ?? [];
 
   return (
     <div className={`app-shell calm-shell ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
       <a className="skip-link" href="#main">Skip to content</a>
-      <Header theme={theme} toggleTheme={toggleTheme} signedIn={signedIn} onSignOut={onSignOut} openSidebar={openSidebar} />
+      <Header theme={theme} toggleTheme={toggleTheme} signedIn={signedIn} onSignOut={onSignOut} openSidebar={openSidebar} userEmail={userEmail} />
       <Sidebar open={sidebarOpen} onClose={closeSidebar} signedIn={signedIn} />
       <main id="main" className="page-main">{children}</main>
+
 
       <footer className="site-footer">
         <div className="footer-top">

@@ -1,4 +1,5 @@
-export default function Logo({ size = 40, showWordmark = true, logoUrl }) {
+export default function Logo({ size = 40, showWordmark = true, logoUrl, compact = false }) {
+  if (compact) showWordmark = false;
   if (logoUrl) {
     return (
       <span className="site-logo">

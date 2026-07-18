@@ -24,13 +24,20 @@
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/leadership",  "destination": "/index.html" },
-    { "source": "/scholarship", "destination": "/index.html" },
-    { "source": "/strategy",    "destination": "/index.html" },
-    { "source": "/roadmap",     "destination": "/index.html" },
-    { "source": "/contact",     "destination": "/index.html" },
-    { "source": "/sources",     "destination": "/index.html" },
-    { "source": "/access",      "destination": "/index.html" },
-    { "source": "/dashboard",   "destination": "/index.html" }
+    { "source": "/leadership",      "destination": "/index.html" },
+    { "source": "/scholarship",     "destination": "/index.html" },
+    { "source": "/strategy",        "destination": "/index.html" },
+    { "source": "/roadmap",         "destination": "/index.html" },
+    { "source": "/contact",         "destination": "/index.html" },
+    { "source": "/sources",         "destination": "/index.html" },
+    { "source": "/sign-in",         "destination": "/index.html" },
+    { "source": "/signin",          "destination": "/index.html" },
+    { "source": "/login",           "destination": "/index.html" },
+    { "source": "/sign-up",         "destination": "/index.html" },
+    { "source": "/signup",          "destination": "/index.html" },
+    { "source": "/register",        "destination": "/index.html" },
+    { "source": "/forgot-password", "destination": "/index.html" },
+    { "source": "/access",          "destination": "/index.html" },
+    { "source": "/dashboard",       "destination": "/index.html" }
   ]
 }
