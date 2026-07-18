@@ -210,19 +210,57 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
 // ── Banner Slide Editor ────────────────────────────────────────────────────
 const PAGE_KEYS = ['overview', 'leadership', 'scholarship', 'strategy', 'roadmap', 'contact', 'sources'];
 
+function toSlideDraft(slide = {}) {
+  return {
+    ...slide,
+    eyebrow: slide.eyebrow || '',
+    heading: slide.heading || '',
+    subheading: slide.subheading || '',
+    panel_caption: slide.panel_caption || slide.panelCaption || '',
+    background_image_url: slide.background_image_url || slide.backgroundImageUrl || '',
+    cta_label: slide.cta_label || slide.ctaLabel || '',
+    cta_href: slide.cta_href || slide.ctaHref || '',
+    sort_order: Number(slide.sort_order ?? slide.sortOrder ?? 0),
+  };
+}
+
+function toSlidePayload(slide) {
+  return {
+    eyebrow: slide.eyebrow || null,
+    heading: slide.heading,
+    subheading: slide.subheading || null,
+    body: slide.body || null,
+    panelCaption: slide.panel_caption || null,
+    backgroundImageUrl: slide.background_image_url || null,
+    ctaLabel: slide.cta_label || null,
+    ctaHref: slide.cta_href || null,
+    sortOrder: Number(slide.sort_order ?? 0),
+  };
+}
+
+const SLIDE_FORM_FIELDS = [
+  { key: 'eyebrow', label: 'Eyebrow' },
+  { key: 'heading', label: 'Heading *', required: true },
+  { key: 'subheading', label: 'Subheading', multiline: true },
+  { key: 'panel_caption', label: 'Identity card caption' },
+  { key: 'background_image_url', label: 'Background image URL' },
+  { key: 'cta_label', label: 'Button label' },
+  { key: 'cta_href', label: 'Button link' },
+];
+
 function BannerEditor({ token, profileData, onRefresh, toast }) {
   const [activePage, setActivePage] = useState('overview');
   const [slides, setSlides] = useState([]);
   const [loadingSlides, setLoadingSlides] = useState(false);
   const [editingSlide, setEditingSlide] = useState(null);
-  const [newSlide, setNewSlide] = useState({ heading: '', subheading: '', eyebrow: '', panelCaption: '', backgroundImageUrl: '' });
+  const [newSlide, setNewSlide] = useState(toSlideDraft({ heading: '', sort_order: 0 }));
   const [adding, setAdding] = useState(false);
 
   const loadSlides = useCallback(async (pageKey) => {
     setLoadingSlides(true);
     try {
       const payload = await apiFetch(`/api/hero-slides/${pageKey}`);
-      setSlides(payload.heroSlides || []);
+      setSlides((payload.heroSlides || []).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)));
     } catch (e) { toast(e.message, 'error'); }
     finally { setLoadingSlides(false); }
   }, [toast]);
@@ -230,7 +268,7 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
   useEffect(() => { loadSlides(activePage); }, [activePage, loadSlides]);
 
   const deleteSlide = async (id) => {
-    if (!window.confirm('Delete this slide? The page will use the next available slide.')) return;
+    if (!window.confirm('Delete this slide? The public page may use a fallback if no database slide remains.')) return;
     try {
       await apiFetch(`/api/hero-slides/${activePage}/${id}`, { method: 'DELETE', token });
       await loadSlides(activePage);
@@ -243,29 +281,83 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
     e.preventDefault();
     if (!editingSlide) return;
     try {
-      await apiFetch(`/api/hero-slides/${activePage}/${editingSlide.id}`, { method: 'PUT', token, body: JSON.stringify(editingSlide) });
+      await apiFetch(`/api/hero-slides/${activePage}/${editingSlide.id}`, { method: 'PUT', token, body: JSON.stringify(toSlidePayload(editingSlide)) });
       setEditingSlide(null);
       await loadSlides(activePage);
       await onRefresh();
-      toast('Slide updated ✓');
+      toast('Slide updated');
     } catch (e) { toast(e.message, 'error'); }
   };
 
   const addSlide = async (e) => {
     e.preventDefault();
     try {
-      await apiFetch(`/api/hero-slides/${activePage}`, { method: 'POST', token, body: JSON.stringify({ ...newSlide, sortOrder: slides.length }) });
+      const payload = toSlidePayload({ ...newSlide, sort_order: slides.length });
+      await apiFetch(`/api/hero-slides/${activePage}`, { method: 'POST', token, body: JSON.stringify(payload) });
       setAdding(false);
-      setNewSlide({ heading: '', subheading: '', eyebrow: '', panelCaption: '', backgroundImageUrl: '' });
+      setNewSlide(toSlideDraft({ heading: '', sort_order: 0 }));
       await loadSlides(activePage);
       await onRefresh();
-      toast('Slide added ✓');
+      toast('Slide added');
     } catch (e) { toast(e.message, 'error'); }
   };
 
+  const moveSlide = async (slide, direction) => {
+    const ordered = [...slides].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    const index = ordered.findIndex((item) => item.id === slide.id);
+    const swapIndex = index + direction;
+    if (index < 0 || swapIndex < 0 || swapIndex >= ordered.length) return;
+    const current = toSlideDraft(ordered[index]);
+    const target = toSlideDraft(ordered[swapIndex]);
+    const currentOrder = current.sort_order;
+    current.sort_order = target.sort_order;
+    target.sort_order = currentOrder;
+    try {
+      await Promise.all([
+        apiFetch(`/api/hero-slides/${activePage}/${current.id}`, { method: 'PUT', token, body: JSON.stringify(toSlidePayload(current)) }),
+        apiFetch(`/api/hero-slides/${activePage}/${target.id}`, { method: 'PUT', token, body: JSON.stringify(toSlidePayload(target)) }),
+      ]);
+      await loadSlides(activePage);
+      await onRefresh();
+      toast('Slide order updated');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const restoreMissingOverviewSlides = async () => {
+    if (activePage !== 'overview') return;
+    const fallbackOverview = fallbackHeroSlides.filter((slide) => slide.page_key === 'overview');
+    const missing = fallbackOverview.slice(slides.length);
+    if (missing.length === 0) {
+      toast('Overview carousel already has all fallback slides', 'info');
+      return;
+    }
+    if (!window.confirm(`Add ${missing.length} missing Overview carousel slide${missing.length === 1 ? '' : 's'}? Existing slides will be kept.`)) return;
+    try {
+      for (const [index, slide] of missing.entries()) {
+        await apiFetch('/api/hero-slides/overview', {
+          method: 'POST',
+          token,
+          body: JSON.stringify(toSlidePayload({ ...toSlideDraft(slide), sort_order: slides.length + index })),
+        });
+      }
+      await loadSlides('overview');
+      await onRefresh();
+      toast('Missing Overview slides restored');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const renderSlideFields = (draft, setDraft) => SLIDE_FORM_FIELDS.map(({ key, label, required, multiline }) => (
+    <label key={key} style={{ display: 'grid', gap: '0.2rem' }}>
+      <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>{label}</span>
+      {multiline
+        ? <textarea rows={2} required={required} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={draft[key] || ''} onChange={(e) => setDraft((item) => ({ ...item, [key]: e.target.value }))} />
+        : <input required={required} style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={draft[key] || ''} onChange={(e) => setDraft((item) => ({ ...item, [key]: e.target.value }))} />
+      }
+    </label>
+  ));
+
   return (
     <div>
-      {/* Page selector */}
       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
         {PAGE_KEYS.map((key) => (
           <button
@@ -281,51 +373,31 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
       </div>
 
       {activePage === 'overview' && (
-        <div style={{ background: 'var(--brand)', color: 'var(--surface)', padding: '0.65rem 0.85rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-          <strong>Tip:</strong> The Overview tab controls the main Home page carousel. Add all your "tour" slides here.
+        <div style={{ background: 'var(--surface-strong)', border: '1px solid var(--line)', padding: '0.75rem 0.85rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', display: 'grid', gap: '0.7rem' }}>
+          <span><strong>Overview carousel:</strong> Home works best with the full seven-slide tour.</span>
+          <button className="btn-save" type="button" onClick={restoreMissingOverviewSlides} style={{ justifySelf: 'start', display: 'inline-flex', alignItems: 'center', gap: '0.45rem' }}>
+            <FaRotate /> Restore missing Overview slides
+          </button>
         </div>
       )}
 
       {loadingSlides && <div className="skeleton skeleton-card" style={{ marginBottom: '0.75rem' }} />}
+      <p style={{ fontSize: '0.84rem', color: slides.length > 1 ? 'var(--brand-strong)' : 'var(--muted)', marginBottom: '0.75rem' }}>
+        {slides.length > 1 ? `${slides.length} slides - rotation is active for this page.` : 'Add a second slide to enable auto-rotation on this page.'}
+      </p>
 
-      {slides.length > 1 && (
-        <p style={{ fontSize: '0.84rem', color: 'var(--brand-strong)', marginBottom: '0.75rem' }}>
-          ✓ {slides.length} slides — rotation is active for this page.
-        </p>
-      )}
-      {slides.length === 1 && (
-        <p style={{ fontSize: '0.84rem', color: 'var(--muted)', marginBottom: '0.75rem' }}>
-          Add a second slide to enable auto-rotation on this page.
-        </p>
-      )}
-
-      {/* Existing slides */}
       <div style={{ display: 'grid', gap: '0.75rem', marginBottom: '1rem' }}>
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <div key={slide.id} className="collection-item">
             {editingSlide?.id === slide.id
               ? (
                 <form style={{ display: 'grid', gap: '0.5rem', width: '100%' }} onSubmit={saveSlide}>
-                  {[
-                    { key: 'eyebrow', label: 'Eyebrow' },
-                    { key: 'heading', label: 'Heading *', required: true },
-                    { key: 'subheading', label: 'Subheading', multiline: true },
-                    { key: 'panel_caption', label: 'Panel caption' },
-                    { key: 'background_image_url', label: 'Background image URL' },
-                  ].map(({ key, label, required, multiline }) => (
-                    <label key={key} style={{ display: 'grid', gap: '0.2rem' }}>
-                      <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>{label}</span>
-                      {multiline
-                        ? <textarea rows={2} required={required} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={editingSlide[key] || ''} onChange={(e) => setEditingSlide((s) => ({ ...s, [key]: e.target.value }))} />
-                        : <input required={required} style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={editingSlide[key] || ''} onChange={(e) => setEditingSlide((s) => ({ ...s, [key]: e.target.value }))} />
-                      }
-                    </label>
-                  ))}
+                  {renderSlideFields(editingSlide, setEditingSlide)}
                   <div style={{ marginTop: '0.25rem' }}>
                     <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Or upload a photo</span>
-                    <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setEditingSlide((s) => ({ ...s, background_image_url: url }))} />
+                    <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setEditingSlide((item) => ({ ...item, background_image_url: url }))} />
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
                     <button className="btn-save" type="submit">Save slide</button>
                     <button className="btn-edit" type="button" onClick={() => setEditingSlide(null)}>Cancel</button>
                   </div>
@@ -336,10 +408,13 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
                   <div>
                     {slide.background_image_url && <img className="upload-preview" src={slide.background_image_url} alt="slide bg" />}
                     <div style={{ fontWeight: 700, marginTop: slide.background_image_url ? '0.5rem' : 0 }}>{slide.heading}</div>
-                    {slide.subheading && <div style={{ fontSize: '0.84rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{slide.subheading.slice(0, 90)}{slide.subheading.length > 90 ? '…' : ''}</div>}
+                    {slide.subheading && <div style={{ fontSize: '0.84rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{slide.subheading.slice(0, 90)}{slide.subheading.length > 90 ? '...' : ''}</div>}
+                    {(slide.cta_label || slide.cta_href) && <div style={{ fontSize: '0.78rem', color: 'var(--brand-strong)', marginTop: '0.35rem' }}>{slide.cta_label || 'CTA'} {'->'} {slide.cta_href || '/'}</div>}
                   </div>
                   <div className="collection-item-actions">
-                    <button className="btn-edit" type="button" onClick={() => setEditingSlide({ ...slide })}>Edit</button>
+                    <button className="btn-edit" type="button" onClick={() => moveSlide(slide, -1)} disabled={index === 0} aria-label="Move slide up"><FaArrowUp /></button>
+                    <button className="btn-edit" type="button" onClick={() => moveSlide(slide, 1)} disabled={index === slides.length - 1} aria-label="Move slide down"><FaArrowDown /></button>
+                    <button className="btn-edit" type="button" onClick={() => setEditingSlide(toSlideDraft(slide))}>Edit</button>
                     <button className="btn-delete" type="button" onClick={() => deleteSlide(slide.id)}><FaTrash /></button>
                   </div>
                 </>
@@ -349,33 +424,18 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
         ))}
       </div>
 
-      {/* Add slide */}
       {adding
         ? (
           <form className="contact-form compact" style={{ border: '1px solid var(--brand)', borderRadius: '8px' }} onSubmit={addSlide}>
             <strong style={{ fontSize: '0.9rem' }}>New slide for {activePage}</strong>
-            {[
-              { key: 'eyebrow', label: 'Eyebrow' },
-              { key: 'heading', label: 'Heading *', required: true },
-              { key: 'subheading', label: 'Subheading', multiline: true },
-              { key: 'panelCaption', label: 'Panel caption' },
-              { key: 'backgroundImageUrl', label: 'Background image URL' },
-            ].map(({ key, label, required, multiline }) => (
-              <label key={key} style={{ display: 'grid', gap: '0.2rem' }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700 }}>{label}</span>
-                {multiline
-                  ? <textarea rows={2} required={required} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={newSlide[key] || ''} onChange={(e) => setNewSlide((s) => ({ ...s, [key]: e.target.value }))} />
-                  : <input required={required} style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={newSlide[key] || ''} onChange={(e) => setNewSlide((s) => ({ ...s, [key]: e.target.value }))} />
-                }
-              </label>
-            ))}
+            {renderSlideFields(newSlide, setNewSlide)}
             <div>
               <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Or upload a photo</span>
-              <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setNewSlide((s) => ({ ...s, backgroundImageUrl: url }))} />
+              <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setNewSlide((item) => ({ ...item, background_image_url: url }))} />
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
               <button className="btn-save" type="submit"><FaPlus /> Add slide</button>
-              <button className="btn-edit" type="button" onClick={() => { setAdding(false); setNewSlide({ heading: '', subheading: '', eyebrow: '', panelCaption: '', backgroundImageUrl: '' }); }}>Cancel</button>
+              <button className="btn-edit" type="button" onClick={() => { setAdding(false); setNewSlide(toSlideDraft({ heading: '', sort_order: 0 })); }}>Cancel</button>
             </div>
           </form>
         )
@@ -393,7 +453,6 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
     </div>
   );
 }
-
 // ── Main AdminDashboard ────────────────────────────────────────────────────
 const TABS = ['Profile', 'Banners', 'Collections', 'Inbox', 'Activity'];
 
@@ -708,3 +767,5 @@ export default function AdminDashboard({ signedIn, token }) {
     </>
   );
 }
+
+

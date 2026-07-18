@@ -64,6 +64,8 @@ create table if not exists hero_slides (
   body text,
   panel_caption text,
   background_image_url text,
+  cta_label text,
+  cta_href text,
   sort_order integer not null default 0,
   id uuid primary key default gen_random_uuid()
 );

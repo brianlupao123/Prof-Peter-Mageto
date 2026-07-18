@@ -443,17 +443,26 @@ app.get('/api/hero-slides/:pageKey', async (req, res) => {
 app.post('/api/hero-slides/:pageKey', verifyAdmin, async (req, res) => {
   const { pageKey } = req.params;
   if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
-  const { eyebrow, heading, subheading, body: bodyText, panelCaption, backgroundImageUrl, sortOrder } = req.body || {};
+  const body = req.body || {};
+  const eyebrow = body.eyebrow;
+  const heading = body.heading;
+  const subheading = body.subheading;
+  const bodyText = body.body;
+  const panelCaption = body.panelCaption ?? body.panel_caption;
+  const backgroundImageUrl = body.backgroundImageUrl ?? body.background_image_url;
+  const sortOrder = body.sortOrder ?? body.sort_order;
+  const ctaLabel = body.ctaLabel ?? body.cta_label;
+  const ctaHref = body.ctaHref ?? body.cta_href;
   if (!heading) return res.status(400).json({ message: 'heading is required' });
-  const slide = { id: 'slide-' + Date.now(), page_key: pageKey, eyebrow, heading, subheading, body: bodyText, panel_caption: panelCaption, background_image_url: backgroundImageUrl, sort_order: sortOrder ?? 0 };
+  const slide = { id: 'slide-' + Date.now(), page_key: pageKey, eyebrow, heading, subheading, body: bodyText, panel_caption: panelCaption, background_image_url: backgroundImageUrl, cta_label: ctaLabel, cta_href: ctaHref, sort_order: sortOrder ?? 0 };
   if (!db) {
     profileFallback.heroSlides.push(slide);
     await logActivity(null, req.user.email, `Added banner slide (${pageKey})`, heading);
     return res.status(201).json({ heroSlide: slide });
   }
   const rows = await db`
-    insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, sort_order)
-    values (${pageKey}, ${eyebrow}, ${heading}, ${subheading}, ${bodyText}, ${panelCaption}, ${backgroundImageUrl}, ${sortOrder ?? 0})
+    insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, cta_label, cta_href, sort_order)
+    values (${pageKey}, ${eyebrow}, ${heading}, ${subheading}, ${bodyText}, ${panelCaption}, ${backgroundImageUrl}, ${ctaLabel}, ${ctaHref}, ${sortOrder ?? 0})
     returning *
   `;
   await logActivity(db, req.user.email, `Added banner slide (${pageKey})`, heading);
@@ -463,9 +472,18 @@ app.post('/api/hero-slides/:pageKey', verifyAdmin, async (req, res) => {
 app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
   const { pageKey, id } = req.params;
   if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
-  const { eyebrow, heading, subheading, body: bodyText, panelCaption, backgroundImageUrl, sortOrder } = req.body || {};
+  const body = req.body || {};
+  const eyebrow = body.eyebrow;
+  const heading = body.heading;
+  const subheading = body.subheading;
+  const bodyText = body.body;
+  const panelCaption = body.panelCaption ?? body.panel_caption;
+  const backgroundImageUrl = body.backgroundImageUrl ?? body.background_image_url;
+  const sortOrder = body.sortOrder ?? body.sort_order;
+  const ctaLabel = body.ctaLabel ?? body.cta_label;
+  const ctaHref = body.ctaHref ?? body.cta_href;
   if (!db) {
-    const slide = profileFallback.heroSlides.find((s) => s.id === id && s.page_key === pageKey);
+    const slide = profileFallback.heroSlides.find((item) => item.id === id && item.page_key === pageKey);
     if (!slide) return res.status(404).json({ message: 'Slide not found' });
     if (eyebrow !== undefined) slide.eyebrow = eyebrow;
     if (heading !== undefined) slide.heading = heading;
@@ -473,6 +491,8 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
     if (bodyText !== undefined) slide.body = bodyText;
     if (panelCaption !== undefined) slide.panel_caption = panelCaption;
     if (backgroundImageUrl !== undefined) slide.background_image_url = backgroundImageUrl;
+    if (ctaLabel !== undefined) slide.cta_label = ctaLabel;
+    if (ctaHref !== undefined) slide.cta_href = ctaHref;
     if (sortOrder !== undefined) slide.sort_order = sortOrder;
     await logActivity(null, req.user.email, `Edited banner slide (${pageKey})`, slide.heading);
     return res.json({ heroSlide: slide });
@@ -485,6 +505,8 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
       body = coalesce(${bodyText}, body),
       panel_caption = coalesce(${panelCaption}, panel_caption),
       background_image_url = coalesce(${backgroundImageUrl}, background_image_url),
+      cta_label = coalesce(${ctaLabel}, cta_label),
+      cta_href = coalesce(${ctaHref}, cta_href),
       sort_order = coalesce(${sortOrder}, sort_order)
     where id = ${id} and page_key = ${pageKey}
     returning *
@@ -493,7 +515,6 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
   await logActivity(db, req.user.email, `Edited banner slide (${pageKey})`, rows[0].heading);
   res.json({ heroSlide: rows[0] });
 });
-
 app.delete('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
   const { pageKey, id } = req.params;
   if (!VALID_PAGE_KEYS.includes(pageKey)) return res.status(400).json({ message: 'Unknown page key' });
