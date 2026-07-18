@@ -93,11 +93,18 @@ export default function EngagementSection({ pageKey = 'home', baseLikes = 142, s
     window.open('/contact', '_self');
   };
 
-  const requestSystem = () => {
+  const requestSpeaking = () => {
     const next = { ...state, systemRequested: true };
     setState(next);
     save(next);
     window.open('/contact', '_self');
+  };
+
+  const readPublications = () => {
+    const next = { ...state, demoRequested: true };
+    setState(next);
+    save(next);
+    window.open('/scholarship', '_self');
   };
 
   return (
@@ -136,24 +143,24 @@ export default function EngagementSection({ pageKey = 'home', baseLikes = 142, s
           onClick={playAdvert}
         >
           <FaPlay />
-          {state.advertPlayed ? 'Viewed ✓' : 'Watch Advert'}
+          {state.advertPlayed ? 'Viewed ✓' : 'Watch Address'}
         </button>
 
         <button
           className={`project-action-btn ${state.demoRequested ? 'done' : ''}`}
-          onClick={requestDemo}
+          onClick={readPublications}
         >
-          <FaVideo />
-          {state.demoRequested ? 'Requested ✓' : 'Live Demo'}
+          <FaBookOpen />
+          {state.demoRequested ? 'Viewed ✓' : 'Read Publications'}
           <FaArrowRight />
         </button>
 
         <button
           className={`project-action-btn ${state.systemRequested ? 'done' : ''}`}
-          onClick={requestSystem}
+          onClick={requestSpeaking}
         >
-          <FaCode />
-          {state.systemRequested ? 'Requested ✓' : 'Request Similar System'}
+          <FaUserTie />
+          {state.systemRequested ? 'Requested ✓' : 'Invite for Speaking'}
           <FaArrowRight />
         </button>
       </div>

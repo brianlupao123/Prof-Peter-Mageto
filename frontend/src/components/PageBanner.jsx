@@ -48,7 +48,7 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
       {/* ── Sliding track ── */}
       <div
         className="page-banner-track"
-        style={{ transform: `translateX(-${index * 100}%)`, width: `${slides.length * 100}%` }}
+        style={{ transform: `translateX(-${index * (100 / slides.length)}%)`, width: `${slides.length * 100}%` }}
       >
         {slides.map((slide, slideIdx) => {
           const hasImage = Boolean(slide.background_image_url);
