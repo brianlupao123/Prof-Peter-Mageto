@@ -1,79 +1,98 @@
 import { neon } from '@neondatabase/serverless';
 
 const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) {
-  console.error('DATABASE_URL is required to seed profile content.');
-  process.exit(1);
-}
-
+if (!databaseUrl) { console.error('DATABASE_URL is required.'); process.exit(1); }
 const sql = neon(databaseUrl);
 
-await sql`insert into profile (id) values (1) on conflict (id) do nothing`;
 await sql`
   update profile set
     full_name = 'Rev. Professor Peter Mageto',
     title = 'Fifth Vice Chancellor of Africa University',
-    email = ${process.env.PROFILE_EMAIL || null},
-    phone = ${process.env.PROFILE_PHONE || null},
+    email = ${process.env.PROFILE_EMAIL || 'info@africau.edu'},
+    phone = ${process.env.PROFILE_PHONE || '+263 8688002151'},
+    address = 'Africa University, 1 Fairview Rd, Old Mutare, Zimbabwe',
     updated_at = now()
   where id = 1
 `;
-
+for (const table of ['hero_slides', 'credentials', 'career_entries', 'publications', 'research_themes', 'strategy_goals', 'sources_list']) {
+  await sql(`delete from ${table}`);
+}
 const slides = [
-  // ── Overview (Home) Carousel ──
-  ['overview', 'Africa University Vice Chancellor', 'Rev. Professor Peter Mageto', 'The fifth Vice Chancellor of Africa University — a theological ethics scholar advancing pan-African education through justice, equity, and student-centered transformation.', 'Leading Africa University into a new era of excellence, access, and continental impact.', 'https://www.umnews.org/-/media/umc-media/2022/10/20/20/45/au-mageto-profile-1-horizontal-1200x800.jpg', 'Executive Profile', '/leadership'],
-  ['overview', 'Institutional Service', 'Leadership & Governance', 'A career spanning Africa and the United States — from Kenya Methodist University to the Vice Chancellorship of Africa University — grounded in ethical scholarship.', 'A lifelong commitment to values-led institutional leadership.', 'https://africau.edu/wp-content/uploads/2023/12/profmageto-1.png', 'View Leadership Profile', '/leadership'],
-  ['overview', 'Academic Profile', 'Scholarship & Research', 'Ph.D. in Theological Ethics from Garrett-Evangelical — advancing discourse on justice, reconciliation, HIV/AIDS, and sustainable development across the continent.', 'Author of "Victim Theology" and contributor to African ethical scholarship.', 'https://africau.edu/wp-content/themes/africau/images/profmageto.png', 'Explore Scholarship', '/scholarship'],
-  ['overview', '2023–2027 Strategic Plan', 'Strategy & Vision', 'Five strategic goals positioning Africa University for sustainable growth, internationalized research, empowered staff, and enhanced student success.', 'A roadmap for pan-African academic excellence and institutional resilience.', 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-34-800x445.jpg', 'Explore Strategy', '/strategy'],
-  ['overview', 'Platform Development', 'Portfolio Roadmap', 'Milestones toward a fully operational leadership portfolio — from content approval to CMS deployment and official public launch.', 'Building a digital presence worthy of Africa University.', 'https://africau.edu/wp-content/themes/africau/images/sunset.jpg', 'View Roadmap', '/roadmap'],
-  ['overview', 'Get in Touch', 'Contact the Office', "Reach the Vice Chancellor's office through official channels. Enquiries are routed securely and responded to by the communications team.", 'Africa University, Old Mutare, Manicaland, Zimbabwe.', 'https://aunews.africau.edu/wp-content/uploads/2026/03/AU-BOD-DINNER-MARCH-2026-02-800x445.jpg', 'Contact the Office', '/contact'],
-  ['overview', 'Transparency & Trust', 'Verified Sources', 'Every claim on this portfolio is traced to an official public source — Africa University publications, UM News, and institutional records.', 'No claim without a verified citation.', 'https://www.umnews.org/-/media/umc-media/2022/10/20/20/45/au-mageto-profile-1-horizontal-1200x800.jpg', 'View Sources', '/sources'],
-  
-  // ── Individual Static Pages ──
-  ['leadership', 'Institutional Service', 'Leadership & Governance', 'A career spanning multiple institutions across Africa and the United States, grounded in ethical scholarship and transformational governance.', 'From Kenya Methodist University to Africa University — a lifelong commitment to values-led leadership.', 'https://africau.edu/wp-content/uploads/2023/12/profmageto-1.png', null, null],
-  ['scholarship', 'Academic Profile', 'Scholarship & Research', 'Theological ethics scholar with a Ph.D. from Garrett-Evangelical, advancing discourse on justice, reconciliation, HIV/AIDS, and sustainable development.', 'Author of "Victim Theology" and contributor to African ethical scholarship.', 'https://www.umnews.org/-/media/umc-media/2022/10/20/20/51/au-mageto-profile-2-vertical-280.jpg', null, null],
-  ['strategy', '2023–2027 Strategic Plan', 'Strategy & Vision', 'Five strategic goals positioning Africa University for sustainable growth, internationalized research, empowered staff, and enhanced student success.', 'A roadmap for pan-African academic excellence and institutional resilience.', 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-34-800x445.jpg', null, null],
-  ['roadmap', 'Platform Development', 'Portfolio Roadmap', 'Milestones toward a fully operational leadership portfolio — from content approval to CMS deployment and official launch.', 'Building a digital presence worthy of Africa University.', 'https://africau.edu/wp-content/themes/africau/images/sunset.jpg', null, null],
-  ['contact', 'Get in Touch', 'Contact the Office', "Reach the Vice Chancellor's office through official channels. Enquiries are routed securely and responded to by the communications team.", 'Africa University, Old Mutare, Manicaland, Zimbabwe.', 'https://aunews.africau.edu/wp-content/uploads/2026/03/AU-BOD-DINNER-MARCH-2026-02-800x445.jpg', null, null],
-  ['sources', 'Transparency & Trust', 'Verified Sources', 'Every claim on this portfolio is traced to an official public source. No unverified material is presented.', 'Built on Africa University publications, UM News, and institutional records.', 'https://africau.edu/wp-content/themes/africau/images/profmageto.png', null, null]
+  { pageKey: 'overview', eyebrow: 'Africa University Vice Chancellor', heading: 'Rev. Professor Peter Mageto', subheading: 'The fifth Vice Chancellor of Africa University, a theological ethics scholar and institutional leader advancing pan-African education through justice, equity, collaboration, and student-centered transformation.', panelCaption: 'Leading Africa University into a new era of excellence, access, and continental impact.' },
+  { pageKey: 'leadership', eyebrow: 'Institutional Service', heading: 'Leadership & Governance', subheading: "A career spanning multiple institutions across Africa and the United States, grounded in ethical scholarship and transformational governance.", panelCaption: 'From Kenya Methodist University to Africa University - a lifelong commitment to values-led leadership.' },
+  { pageKey: 'scholarship', eyebrow: 'Academic Profile', heading: 'Scholarship & Research', subheading: 'Theological ethics scholar advancing discourse on justice, reconciliation, HIV/AIDS, and sustainable development.', panelCaption: 'Author of "Victim Theology" and contributor to African ethical scholarship.' },
+  { pageKey: 'strategy', eyebrow: '2023-2027 Strategic Plan', heading: 'Strategy & Vision', subheading: 'Five strategic goals positioning Africa University for sustainable growth, internationalized research, empowered staff, and enhanced student success.', panelCaption: 'A roadmap for pan-African academic excellence and institutional resilience.' },
+  { pageKey: 'roadmap', eyebrow: 'Platform Development', heading: 'Portfolio Roadmap', subheading: 'Milestones toward a fully operational leadership portfolio.', panelCaption: 'Building a digital presence worthy of Africa University.' },
+  { pageKey: 'contact', eyebrow: 'Get in Touch', heading: 'Contact the Office', subheading: "Reach the Vice Chancellor's office through official channels.", panelCaption: 'Africa University, Old Mutare, Manicaland, Zimbabwe.' },
+  { pageKey: 'sources', eyebrow: 'Transparency & Trust', heading: 'Verified Sources', subheading: 'Every claim on this portfolio is traced to an official public source.', panelCaption: 'Built on Africa University publications, UM News, and institutional records.' },
 ];
-await sql`delete from hero_slides`;
-for (const [sortOrder, slide] of slides.entries()) {
-  await sql`insert into hero_slides (page_key, eyebrow, heading, subheading, panel_caption, background_image_url, cta_label, cta_href, sort_order) values (${slide[0]}, ${slide[1]}, ${slide[2]}, ${slide[3]}, ${slide[4]}, ${slide[5]}, ${slide[6]}, ${slide[7]}, ${sortOrder})`;
+for (const [i, s] of slides.entries()) {
+  await sql`
+    insert into hero_slides (page_key, eyebrow, heading, subheading, panel_caption, sort_order)
+    values (${s.pageKey}, ${s.eyebrow}, ${s.heading}, ${s.subheading}, ${s.panelCaption}, ${i})
+    on conflict do nothing
+  `;
 }
 
-const insertList = async (table, rows, columns = ['label']) => {
-  await sql(`delete from ${table}`);
-  for (const [sortOrder, row] of rows.entries()) {
-    const values = Array.isArray(row) ? row : [row];
-    await sql(
-      `insert into ${table} (${columns.join(', ')}, sort_order) values (${columns.map((_, i) => '$' + (i + 1)).join(', ')}, $${columns.length + 1})`,
-      [...values, sortOrder]
-    );
-  }
-};
-
-await insertList('credentials', [
+const credentials = [
   'Ph.D. in Theological Ethics, Garrett-Evangelical Theological Seminary, USA',
   'Master of Theological Studies, Garrett-Evangelical Theological Seminary, USA',
   "Bachelor of Divinity, St Paul's United Theological College, Kenya",
-  'Postgraduate certificate in African Studies, Northwestern University',
-]);
-await insertList('career_entries', [
-  ['Vice Chancellor', 'Africa University, Zimbabwe', 'Leads the pan-African United Methodist-related institution as its fifth Vice Chancellor.'],
-  ['Deputy Vice Chancellor and Interim Vice Chancellor', 'Africa University', 'Served in senior academic leadership before his installation as Vice Chancellor.'],
-  ['Vice Chancellor and Professor of Ethics', 'University of Kigali, Rwanda', 'Advanced institutional leadership, academic quality, and ethical scholarship.'],
-  ['Academic Leader and Ethics Scholar', 'Kenya Methodist University, Daystar University, University of Evansville', 'Held roles across academic affairs, student welfare, ethics teaching, and departmental leadership.'],
-], ['role', 'place', 'note']);
-await insertList('publications', ['Victim Theology', 'Corporate and personal ethics for sustainable development', 'Book Review: European Traditions in the Study of Religion in Africa'], ['title']);
-await insertList('research_themes', ['Ethics', 'Theology', 'HIV/AIDS', 'Education', 'Peace', 'Reconciliation']);
-await insertList('strategy_goals', ['Enhance student access and success', 'Invest in and empower staff', 'Increase financial stewardship and institutional sustainability', 'Cultivate strategic partnerships and economic competitiveness', 'Internationalize research, teaching, and learning']);
-await insertList('sources_list', [
-  ['Africa University official Vice Chancellor profile', 'https://africau.edu/about/vice-chancellor/'],
-  ['UM News profile on Prof. Mageto', 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university'],
-  ['Africa University 2023/27 Strategic Plan launch', 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/'],
-  ['Africa University official contact page', 'https://africau.edu/about/contact-us/'],
-], ['label', 'url']);
-await insertList('social_links', [['website', 'https://africau.edu/about/vice-chancellor/']], ['platform', 'url']);
+  'Postgraduate Certificate in African Studies, Northwestern University',
+];
+for (const [i, label] of credentials.entries()) {
+  await sql`insert into credentials (label, sort_order) values (${label}, ${i}) on conflict do nothing`;
+}
 
-console.log('Profile content seeded.');
+const career = [
+  { role: 'Vice Chancellor', place: 'Africa University, Zimbabwe (2022-present)', note: 'The 5th Vice Chancellor of Africa University, and its first non-Zimbabwean VC - leads the pan-African United Methodist-related institution.' },
+  { role: 'Deputy Vice Chancellor', place: 'Africa University (2018-2021)', note: 'Senior academic leadership prior to his installation as Vice Chancellor.' },
+  { role: 'Vice Chancellor and Professor of Ethics', place: 'University of Kigali, Rwanda', note: 'Advanced institutional leadership, academic quality, and ethical scholarship.' },
+  { role: 'Acting Vice Chancellor', place: 'Kenya Methodist University', note: 'Academic affairs, student welfare, and ethics teaching leadership.' },
+];
+for (const [i, c] of career.entries()) {
+  await sql`insert into career_entries (role, place, note, sort_order) values (${c.role}, ${c.place}, ${c.note}, ${i}) on conflict do nothing`;
+}
+
+const publications = [
+  "Victim Theology: A critical look at the church's response to AIDS (2005)",
+  "Silent Church = Death: A critical look at the church's response to HIV/AIDS (2005)",
+  'Spiritual Gullibility in Search of Health: Tragedies of Scarcity and Sanctity in African Contexts (2020)',
+  'Corporate and personal ethics for sustainable development: experiences, challenges and promises (2015)',
+];
+for (const [i, title] of publications.entries()) {
+  await sql`insert into publications (title, sort_order) values (${title}, ${i}) on conflict do nothing`;
+}
+
+const researchThemes = ['Ethics', 'Theology', 'HIV/AIDS in Africa', 'Peace & Reconciliation', 'Educational Transformation', 'Pastoral Care'];
+for (const [i, label] of researchThemes.entries()) {
+  await sql`insert into research_themes (label, sort_order) values (${label}, ${i}) on conflict do nothing`;
+}
+
+const strategyGoals = [
+  'Enhance student access and success',
+  'Invest in and empower staff',
+  'Increase financial stewardship and institutional sustainability',
+  'Cultivate strategic partnerships and economic competitiveness',
+  'Internationalize research, teaching, and learning',
+];
+for (const [i, label] of strategyGoals.entries()) {
+  await sql`insert into strategy_goals (label, sort_order) values (${label}, ${i}) on conflict do nothing`;
+}
+
+const sources = [
+  { label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/' },
+  { label: 'Africa University faculty directory profile', url: 'https://africau.edu/faculty-staff/rev-peter-mageto/' },
+  { label: 'UM News: 5th Vice Chancellor installation', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university' },
+  { label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/' },
+  { label: 'Wikipedia biography', url: 'https://en.wikipedia.org/wiki/Peter_Mageto' },
+  { label: 'ResearchGate - Spiritual Gullibility in Search of Health', url: 'https://www.researchgate.net/publication/356651216_Spiritual_Gullibility_in_Search_of_Health_Tragedies_of_Scarcity_and_Sanctity_in_African_Contexts' },
+  { label: 'Amani Partners feature profile', url: 'https://amanipartners.org/peter-mageto-maiko/' },
+  { label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/' },
+];
+for (const [i, s] of sources.entries()) {
+  await sql`insert into sources_list (label, url, sort_order) values (${s.label}, ${s.url}, ${i}) on conflict do nothing`;
+}
+
+console.log('Profile content seeded - all pages should now be fully populated.');
+

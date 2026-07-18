@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaArrowRight, FaHandshake, FaScaleBalanced, FaUserTie } from 'react-icons/fa6';
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
-import EngagementSection from '../components/EngagementSection.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { highlights, leadershipFocus, SITE_NAME, stakeholderPaths } from '../data/profileData.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
@@ -12,7 +12,7 @@ export default function Home() {
   const { data } = useProfile();
 
   useEffect(() => {
-    document.title = 'Overview | Rev. Prof. Peter Mageto â€” Africa University Vice Chancellor';
+    document.title = 'Overview | Rev. Prof. Peter Mageto — Africa University Vice Chancellor';
   }, []);
 
   return (
@@ -23,6 +23,7 @@ export default function Home() {
         profile={data?.profile}
         level="h1"
       />
+      <LikeButton pageKey="overview" />
 
       {/* Stats band */}
       <section className="stat-band">
@@ -51,7 +52,7 @@ export default function Home() {
       <section className="page-section" style={{ paddingTop: 0 }}>
         <p className="credibility-note">
           All claims on this site are drawn from Africa University's official website, UM News, and public announcements.
-          Every page links to its primary source. <Link to="/sources" style={{ color: 'var(--brand-strong)', fontWeight: 700 }}>View all sources â†’</Link>
+          Every page links to its primary source. <Link to="/sources" style={{ color: 'var(--brand-strong)', fontWeight: 700 }}>View all sources ?</Link>
         </p>
       </section>
 
@@ -60,7 +61,7 @@ export default function Home() {
         <div>
           <span className="eyebrow">Audience Design</span>
           <h2>Built for credible information, fast.</h2>
-          <p className="lead">This portfolio serves funders, partners, academic peers, students, and media â€” each with a direct path to what matters most to them.</p>
+          <p className="lead">This portfolio serves funders, partners, academic peers, students, and media — each with a direct path to what matters most to them.</p>
         </div>
         <div className="stakeholder-list">
           {stakeholderPaths.map((path) => (
@@ -82,11 +83,7 @@ export default function Home() {
           </article>
         ))}
       </section>
-
-      {/* Engagement */}
-      <div className="page-section" style={{ paddingTop: 0 }}>
-        <EngagementSection pageKey="home" baseLikes={248} />
-      </div>
     </>
   );
 }
+

@@ -33,6 +33,11 @@ create table if not exists content_updates (
 create index if not exists idx_messages_status_created on messages (status, created_at desc);
 create index if not exists idx_content_updates_created on content_updates (created_at desc);
 
+create table if not exists page_likes (
+  page_key text primary key,
+  count integer not null default 0
+);
+
 -- ============================================================
 -- Profile CRUD system - additive migration
 -- ============================================================
@@ -81,5 +86,6 @@ create index if not exists idx_sources_sort on sources_list (sort_order);
 create index if not exists idx_social_links_sort on social_links (sort_order);
 
 -- Fix messages status constraint to allow 'resolved' (run this against existing DB)
--- alter table messages drop constraint if exists messages_status_check;
--- alter table messages add constraint messages_status_check check (status in ('new', 'read', 'replied', 'resolved', 'archived'));
+alter table messages drop constraint if exists messages_status_check;
+alter table messages add constraint messages_status_check check (status in ('new', 'read', 'replied', 'resolved', 'archived'));
+

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import PageBanner from '../components/PageBanner.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 import { strategyGoals as staticStrategyGoals } from '../data/profileData.js';
 
@@ -15,6 +16,7 @@ export default function Strategy() {
   return (
     <>
       <PageBanner pageKey="strategy" slides={slides} profile={data?.profile} />
+      <LikeButton pageKey="strategy" />
 
       <section className="strategy page-section">
         <div className="strategy-copy">
@@ -53,3 +55,4 @@ export default function Strategy() {
     </>
   );
 }
+

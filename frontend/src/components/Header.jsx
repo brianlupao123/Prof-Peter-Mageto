@@ -108,9 +108,10 @@ export default function Header({ theme, toggleTheme, signedIn, onSignOut, openSi
             )}
           </div>
         ) : (
-          <Link className="nav-cta" to="/sign-in">Sign in →</Link>
+          <Link className="nav-cta" to="/access">Sign in →</Link>
         )}
       </div>
     </header>
   );
 }
+

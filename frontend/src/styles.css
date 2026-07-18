@@ -81,6 +81,34 @@ h3 { font-size: 1.12rem; margin-bottom: 0.65rem; }
 .hero-actions { flex-wrap: wrap; gap: 0.75rem; margin: 1.6rem 0; }
 .hero-actions a { min-height: 46px; border-radius: 8px; padding: 0.8rem 1rem; border: 1px solid var(--line); background: var(--surface); font-weight: 800; }
 .hero-actions a:first-child { background: var(--brand-strong); color: #fff; border-color: var(--brand-strong); display: inline-flex; align-items: center; gap: 0.5rem; }
+
+.page-like-bar {
+  width: min(960px, calc(100% - 3rem));
+  margin: 1rem auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.page-like-bar button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  background: var(--surface);
+  color: var(--brand-strong);
+  font-weight: 800;
+}
+.page-like-bar button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  color: var(--text);
+}
+.page-like-bar button:disabled { cursor: default; opacity: 0.82; }
 .credibility-note { color: var(--muted); border-left: 4px solid var(--accent); padding-left: 1rem; line-height: 1.6; max-width: 680px; }
 .portrait-panel { min-height: 520px; border-radius: 8px; background: linear-gradient(145deg, var(--surface-strong), color-mix(in srgb, var(--brand) 16%, var(--surface))); border: 1px solid var(--line); box-shadow: var(--shadow); display: grid; align-content: end; padding: 1.2rem; overflow: hidden; position: relative; }
 .portrait-panel::before { content: "PM"; position: absolute; inset: 12% 8% auto auto; font: 900 clamp(6rem, 16vw, 11rem)/1 Georgia, serif; color: color-mix(in srgb, var(--brand) 18%, transparent); }
@@ -1292,4 +1320,5 @@ footer.site-footer {
 }
 .comment-text { font-size: 0.9rem; margin: 0 0 0.2rem; }
 .comment-time { color: var(--muted); font-size: 0.75rem; }
+
 

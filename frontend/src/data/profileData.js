@@ -1,21 +1,11 @@
 // ── Verified official image sources ─────────────────────────────────────────
-// All URLs sourced from Africa University and UM News public web properties.
+// Image fallbacks are limited to Africa University-owned profile photos.
 
 // Portrait & headshots
 const IMG_PORTRAIT_FACULTY = 'https://africau.edu/wp-content/uploads/2023/12/profmageto-1.png';
 const IMG_PORTRAIT_VC      = 'https://africau.edu/wp-content/themes/africau/images/profmageto.png';
 
-// UM News professional photography (1200×800 — ideal hero quality)
-const IMG_UMNEWS_HORIZONTAL = 'https://www.umnews.org/-/media/umc-media/2022/10/20/20/45/au-mageto-profile-1-horizontal-1200x800.jpg';
-const IMG_UMNEWS_VERTICAL   = 'https://www.umnews.org/-/media/umc-media/2022/10/20/20/51/au-mageto-profile-2-vertical-280.jpg';
 
-// Africa University campus & events
-const IMG_AU_CAMPUS         = 'https://africau.edu/wp-content/themes/africau/images/sunset.jpg';
-const IMG_STRATEGY_LAUNCH   = 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-34-800x445.jpg';
-const IMG_STRATEGY_EVENT_1  = 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-8-300x200.jpg';
-const IMG_STRATEGY_EVENT_2  = 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-10-300x200.jpg';
-const IMG_STRATEGY_EVENT_3  = 'https://aunews.africau.edu/wp-content/uploads/2023/11/STRATEGIC-PLAN-MEETING-38-300x200.jpg';
-const IMG_BOD_DINNER        = 'https://aunews.africau.edu/wp-content/uploads/2026/03/AU-BOD-DINNER-MARCH-2026-02-800x445.jpg';
 
 export const SITE_NAME = 'The Peter Mageto Leadership Portfolio';
 export const navItems = [
@@ -123,7 +113,7 @@ export const fallbackHeroSlides = [
     subheading: 'The fifth Vice Chancellor of Africa University — a theological ethics scholar advancing pan-African education through justice, equity, and student-centered transformation.',
     body: null,
     panel_caption: 'Leading Africa University into a new era of excellence, access, and continental impact.',
-    background_image_url: IMG_UMNEWS_HORIZONTAL,
+    background_image_url: null,
     cta_label: 'Executive Profile',
     cta_href: '/leadership',
   },
@@ -162,7 +152,7 @@ export const fallbackHeroSlides = [
     subheading: 'Five strategic goals positioning Africa University for sustainable growth, internationalized research, empowered staff, and enhanced student success.',
     body: null,
     panel_caption: 'A roadmap for pan-African academic excellence and institutional resilience.',
-    background_image_url: IMG_STRATEGY_LAUNCH,
+    background_image_url: null,
     cta_label: 'Explore Strategy',
     cta_href: '/strategy',
   },
@@ -175,7 +165,7 @@ export const fallbackHeroSlides = [
     subheading: 'Milestones toward a fully operational leadership portfolio — from content approval to CMS deployment and official public launch.',
     body: null,
     panel_caption: 'Building a digital presence worthy of Africa University.',
-    background_image_url: IMG_AU_CAMPUS,
+    background_image_url: null,
     cta_label: 'View Roadmap',
     cta_href: '/roadmap',
   },
@@ -188,7 +178,7 @@ export const fallbackHeroSlides = [
     subheading: "Reach the Vice Chancellor's office through official channels. Enquiries are routed securely and responded to by the communications team.",
     body: null,
     panel_caption: 'Africa University, Old Mutare, Manicaland, Zimbabwe.',
-    background_image_url: IMG_BOD_DINNER,
+    background_image_url: null,
     cta_label: 'Contact the Office',
     cta_href: '/contact',
   },
@@ -201,7 +191,7 @@ export const fallbackHeroSlides = [
     subheading: 'Every claim on this portfolio is traced to an official public source — Africa University publications, UM News, and institutional records.',
     body: null,
     panel_caption: 'No claim without a verified citation.',
-    background_image_url: IMG_UMNEWS_HORIZONTAL,
+    background_image_url: null,
     cta_label: 'View Sources',
     cta_href: '/sources',
   },
@@ -233,7 +223,7 @@ export const fallbackHeroSlides = [
     subheading: 'Theological ethics scholar with a Ph.D. from Garrett-Evangelical, advancing discourse on justice, reconciliation, HIV/AIDS, and sustainable development.',
     body: null,
     panel_caption: 'Author of "Victim Theology" and contributor to African ethical scholarship.',
-    background_image_url: IMG_UMNEWS_VERTICAL,
+    background_image_url: null,
     cta_label: null,
     cta_href: null,
   },
@@ -247,7 +237,7 @@ export const fallbackHeroSlides = [
     subheading: 'Five strategic goals positioning Africa University for sustainable growth, internationalized research, empowered staff, and enhanced student success.',
     body: null,
     panel_caption: 'A roadmap for pan-African academic excellence and institutional resilience.',
-    background_image_url: IMG_STRATEGY_LAUNCH,
+    background_image_url: null,
     cta_label: null,
     cta_href: null,
   },
@@ -261,7 +251,7 @@ export const fallbackHeroSlides = [
     subheading: 'Milestones toward a fully operational leadership portfolio — from content approval to CMS deployment and official launch.',
     body: null,
     panel_caption: 'Building a digital presence worthy of Africa University.',
-    background_image_url: IMG_AU_CAMPUS,
+    background_image_url: null,
     cta_label: null,
     cta_href: null,
   },
@@ -275,7 +265,7 @@ export const fallbackHeroSlides = [
     subheading: "Reach the Vice Chancellor's office through official channels. Enquiries are routed securely and responded to by the communications team.",
     body: null,
     panel_caption: 'Africa University, Old Mutare, Manicaland, Zimbabwe.',
-    background_image_url: IMG_BOD_DINNER,
+    background_image_url: null,
     cta_label: null,
     cta_href: null,
   },
@@ -294,3 +284,5 @@ export const fallbackHeroSlides = [
     cta_href: null,
   },
 ];
+
+

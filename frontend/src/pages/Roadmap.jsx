@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import PageBanner from '../components/PageBanner.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { roadmap } from '../data/profileData.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
@@ -14,6 +15,7 @@ export default function Roadmap() {
   return (
     <>
       <PageBanner pageKey="roadmap" slides={slides} profile={data?.profile} />
+      <LikeButton pageKey="roadmap" />
       <section className="page-section">
         <span className="eyebrow">Platform Roadmap</span>
         <h2>What's built, what's in progress, what's planned.</h2>
@@ -33,3 +35,4 @@ export default function Roadmap() {
     </>
   );
 }
+

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { FaBookOpen, FaBuildingColumns, FaGraduationCap } from 'react-icons/fa6';
 import PageBanner from '../components/PageBanner.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 import { credentials as staticCredentials, publications as staticPublications, researchThemes as staticResearchThemes } from '../data/profileData.js';
 
@@ -18,6 +19,7 @@ export default function Scholarship() {
   return (
     <>
       <PageBanner pageKey="scholarship" slides={slides} profile={data?.profile} />
+      <LikeButton pageKey="scholarship" />
 
       {/* Credentials grid */}
       <section className="page-section">
@@ -68,3 +70,4 @@ export default function Scholarship() {
     </>
   );
 }
+

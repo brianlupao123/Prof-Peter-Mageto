@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaBuilding, FaEnvelope, FaGlobe, FaPhone } from 'react-icons/fa6';
 import ContactForm from '../components/ContactForm.jsx';
 import PageBanner from '../components/PageBanner.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
 export default function Contact({ signedIn, token }) {
@@ -19,7 +20,7 @@ export default function Contact({ signedIn, token }) {
       <PageBanner
         pageKey="contact"
         slides={slides}
-        profile={profile}
+        profile={data?.profile}
         ctas={
           <>
             <a href="#contact-form">Send a message</a>
@@ -27,7 +28,7 @@ export default function Contact({ signedIn, token }) {
           </>
         }
       />
-
+      <LikeButton pageKey="contact" />
       <section id="contact-form" className="page-section two-column">
         {/* Office info panel */}
         <div>
@@ -74,3 +75,7 @@ export default function Contact({ signedIn, token }) {
     </>
   );
 }
+
+
+
+

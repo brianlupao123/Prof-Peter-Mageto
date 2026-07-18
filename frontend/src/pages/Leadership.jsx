@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa6';
 import PageBanner from '../components/PageBanner.jsx';
+import LikeButton from '../components/LikeButton.jsx';
 import { leadershipFocus } from '../data/profileData.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
@@ -16,6 +17,7 @@ export default function Leadership() {
   return (
     <>
       <PageBanner pageKey="leadership" slides={slides} profile={data?.profile} />
+      <LikeButton pageKey="leadership" />
 
       {/* Leadership philosophy grid */}
       <section className="focus-grid page-section">
@@ -86,3 +88,4 @@ export default function Leadership() {
     </>
   );
 }
+

@@ -9,10 +9,11 @@ const app = express();
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '200kb' }));
 
-const JWT_SECRET = process.env.JWT_SECRET || 'prof-mageto-preview-secret';
-const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || 'profpmageto@gmail.com').toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Test@123';
-const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
+const JWT_SECRET = process.env.JWT_SECRET;
+const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || '').toLowerCase();
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const ADMIN_PASSWORD_HASH = ADMIN_PASSWORD ? bcrypt.hashSync(ADMIN_PASSWORD, 10) : null;
+if (!JWT_SECRET) console.warn('[AUTH] JWT_SECRET is not configured; authentication routes will refuse requests.');
 let db = null;
 if (process.env.DATABASE_URL) {
   try {
@@ -22,7 +23,8 @@ if (process.env.DATABASE_URL) {
   }
 }
 
-const runtime = globalThis.__MAGETO_RUNTIME__ || { users: [], messages: [], contentUpdates: [], rate: new Map() };
+const runtime = globalThis.__MAGETO_RUNTIME__ || { users: [], messages: [], contentUpdates: [], pageLikes: {}, rate: new Map() };
+runtime.pageLikes ||= {};
 globalThis.__MAGETO_RUNTIME__ = runtime;
 
 const siteSettings = {
@@ -56,7 +58,8 @@ function limitRequests(req, res, next) {
 app.use('/api', limitRequests);
 
 function signUser(user) {
-  const token = jwt.sign({ id: user.id, email: user.email, isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: '1d' });
+  if (!JWT_SECRET) throw new Error('JWT_SECRET is required for authentication');
+  const token = jwt.sign({ id: user.id, email: user.email, isAdmin: Boolean(user.isAdmin) }, JWT_SECRET, { expiresIn: '1d' });
   return { token, user };
 }
 
@@ -118,7 +121,7 @@ app.post('/api/auth/login', async (req, res) => {
     if (user && await bcrypt.compare(password, user.password_hash)) return res.json(signUser(publicUser(user)));
   }
 
-  if (email === ADMIN_EMAIL && await bcrypt.compare(password, ADMIN_PASSWORD_HASH)) {
+  if (ADMIN_EMAIL && ADMIN_PASSWORD_HASH && email === ADMIN_EMAIL && await bcrypt.compare(password, ADMIN_PASSWORD_HASH)) {
     return res.json(signUser({ id: 'admin-prof-mageto', email, name: 'Prof. Mageto Admin', isAdmin: true }));
   }
 
@@ -127,29 +130,8 @@ app.post('/api/auth/login', async (req, res) => {
   res.json(signUser({ id: user.id, email: user.email, name: user.name, isAdmin: false }));
 });
 
-app.post('/api/auth/register', async (req, res) => {
-  const name = String(req.body.name || '').trim();
-  const email = String(req.body.email || '').trim().toLowerCase();
-  const password = String(req.body.password || '');
-  if (!name || !email || password.length < 6) return res.status(400).json({ message: 'Name, valid email and 6+ character password are required' });
-  if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
-  if (email === ADMIN_EMAIL) return res.status(409).json({ message: 'Account already exists' });
-
-  const passwordHash = await bcrypt.hash(password, 10);
-  if (db) {
-    try {
-      const rows = await db`insert into users (name, email, password_hash, is_admin) values (${name}, ${email}, ${passwordHash}, false) returning id, name, email, is_admin`;
-      return res.status(201).json(signUser(publicUser(rows[0])));
-    } catch (error) {
-      if (String(error.message).includes('duplicate')) return res.status(409).json({ message: 'Account already exists' });
-      throw error;
-    }
-  }
-
-  if (runtime.users.some((item) => item.email === email)) return res.status(409).json({ message: 'Account already exists' });
-  const newUser = { id: 'user-' + Date.now(), name, email, passwordHash, isAdmin: false };
-  runtime.users.push(newUser);
-  res.status(201).json(signUser({ id: newUser.id, name, email, isAdmin: false }));
+app.post('/api/auth/register', (_req, res) => {
+  res.status(404).json({ message: 'Public registration is disabled for this portfolio.' });
 });
 
 // Change password — admin can change their own password
@@ -163,7 +145,7 @@ app.put('/api/auth/password', verifyAdmin, async (req, res) => {
   // Verify current password
   const isEnvAdmin = req.user.id === 'admin-prof-mageto';
   if (isEnvAdmin) {
-    const valid = await bcrypt.compare(currentPassword, ADMIN_PASSWORD_HASH);
+    const valid = ADMIN_PASSWORD_HASH && await bcrypt.compare(currentPassword, ADMIN_PASSWORD_HASH);
     if (!valid) return res.status(401).json({ message: 'Current password is incorrect' });
     // For env-var admin: store new hash in runtime for session duration only
     // The actual persistent change requires updating the ADMIN_PASSWORD env var in Vercel
@@ -184,6 +166,19 @@ app.put('/api/auth/password', verifyAdmin, async (req, res) => {
   res.status(503).json({ message: 'Database not configured' });
 });
 
+function notifyNewMessage({ name, email, subject, message }) {
+  if (!process.env.RESEND_API_KEY || !process.env.NOTIFY_EMAIL) return;
+  fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: process.env.NOTIFY_FROM_EMAIL || 'Portfolio <notifications@yourdomain.com>',
+      to: process.env.NOTIFY_EMAIL,
+      subject: `New enquiry: ${subject}`,
+      text: `From: ${name} <${email}>\n\n${message}`,
+    }),
+  }).catch(() => {});
+}
 app.post('/api/contact', async (req, res) => {
   const name = String(req.body.name || '').trim();
   const email = String(req.body.email || '').trim().toLowerCase();
@@ -192,21 +187,10 @@ app.post('/api/contact', async (req, res) => {
   if (!name || !email || !message) return res.status(400).json({ message: 'Name, email and message are required' });
   if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
 
-  if (process.env.RESEND_API_KEY && process.env.NOTIFY_EMAIL) {
-    fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Portfolio <notifications@yourdomain.com>',
-        to: process.env.NOTIFY_EMAIL,
-        subject: `New enquiry: ${subject}`,
-        text: `From: ${name} <${email}>\n\n${message}`,
-      }),
-    }).catch(() => {}); // never fail the request over an email hiccup
-  }
 
   if (db) {
     const rows = await db`insert into messages (name, email, subject, message, source) values (${name}, ${email}, ${subject}, ${message}, 'prof-mageto-portfolio') returning *`;
+    notifyNewMessage({ name, email, subject, message });
     return res.status(201).json({ success: true, message: 'Message received. The office will be in touch.', data: normalizeMessage(rows[0]) });
   }
 
@@ -252,6 +236,31 @@ app.post('/api/content-updates', verifyAdmin, async (req, res) => {
   res.status(201).json({ update });
 });
 
+
+app.get('/api/likes/:pageKey', async (req, res) => {
+  const pageKey = String(req.params.pageKey || '').trim().toLowerCase();
+  if (!pageKey) return res.status(400).json({ message: 'Page key is required' });
+  if (db) {
+    const rows = await db`select count from page_likes where page_key = ${pageKey} limit 1`;
+    return res.json({ count: rows[0]?.count || 0 });
+  }
+  res.json({ count: runtime.pageLikes[pageKey] || 0 });
+});
+
+app.post('/api/likes/:pageKey', async (req, res) => {
+  const pageKey = String(req.params.pageKey || '').trim().toLowerCase();
+  if (!pageKey) return res.status(400).json({ message: 'Page key is required' });
+  if (db) {
+    const rows = await db`
+      insert into page_likes (page_key, count) values (${pageKey}, 1)
+      on conflict (page_key) do update set count = page_likes.count + 1
+      returning count
+    `;
+    return res.json({ count: rows[0].count });
+  }
+  runtime.pageLikes[pageKey] = (runtime.pageLikes[pageKey] || 0) + 1;
+  res.json({ count: runtime.pageLikes[pageKey] });
+});
 app.get('/api/content-updates', async (_req, res) => {
   if (db) {
     const rows = await db`select id, title, body, author_email as "authorEmail", created_at as "createdAt" from content_updates order by created_at desc limit 50`;
@@ -565,3 +574,6 @@ if (process.env.RUN_API_SERVER === 'true') {
   const port = process.env.PORT || 5000;
   app.listen(port, () => console.log(`Prof. Mageto API listening on ${port}`));
 }
+
+
+
