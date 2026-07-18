@@ -1327,7 +1327,7 @@ footer.site-footer {
    Handover UI Stabilization: hero framing, header layering, mobile overflow
    ============================================================ */
 html, body, #root { max-width: 100%; overflow-x: clip; }
-.app-shell, .page-main, .page-banner, .page-banner-track, .page-banner-slide { max-width: 100vw; }
+.app-shell, .page-main, .page-banner { max-width: 100vw; }
 
 .calm-shell .app-header,
 .app-header {
