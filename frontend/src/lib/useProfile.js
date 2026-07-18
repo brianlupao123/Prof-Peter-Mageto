@@ -32,9 +32,17 @@ export function useProfile() {
 
 export function useHeroSlides(pageKey) {
   const { data } = useProfile();
+  const fallbackSlides = fallbackHeroSlides.filter((slide) => slide.page_key === pageKey);
   const apiSlides = data?.heroSlides?.filter((slide) => slide.page_key === pageKey).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
-  // If the API returned slides for this page, use them; otherwise fall back to hardcoded data
-  if (apiSlides.length > 0) return apiSlides;
-  return fallbackHeroSlides.filter((slide) => slide.page_key === pageKey);
-}
 
+  if (apiSlides.length === 0) return fallbackSlides;
+  if (apiSlides.length >= fallbackSlides.length) return apiSlides;
+
+  const missingFallbackSlides = fallbackSlides.slice(apiSlides.length).map((slide, offset) => ({
+    ...slide,
+    id: `${slide.id}-merged`,
+    sort_order: apiSlides.length + offset,
+  }));
+
+  return [...apiSlides, ...missingFallbackSlides];
+}
