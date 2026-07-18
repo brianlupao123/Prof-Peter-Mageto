@@ -1,0 +1,66 @@
+[
+  {
+    "endpoint": "https://api.resend.com/emails",
+    "file": "backend/src/app.js"
+  },
+  {
+    "endpoint": "/api/auth/login",
+    "file": "frontend/src/App.jsx"
+  },
+  {
+    "endpoint": "/api/${collection}/${id}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/${collection}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/hero-slides/${pageKey}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/hero-slides/${activePage}/${id}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/hero-slides/${activePage}/${editingSlide.id}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/hero-slides/${activePage}",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/messages",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/activity",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/profile",
+    "file": "frontend/src/lib/useProfile.js"
+  },
+  {
+    "endpoint": "/api/auth/password",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/messages/${id}/status",
+    "file": "frontend/src/components/AdminDashboard.jsx"
+  },
+  {
+    "endpoint": "/api/contact",
+    "file": "frontend/src/components/ContactForm.jsx"
+  },
+  {
+    "endpoint": "/api/likes/${pageKey}",
+    "file": "frontend/src/components/LikeButton.jsx"
+  },
+  {
+    "endpoint": "/api/uploads?filename=${encodeURIComponent(file.name)}",
+    "file": "frontend/src/lib/api.js"
+  }
+]

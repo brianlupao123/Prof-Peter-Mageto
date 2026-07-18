@@ -1,0 +1,128 @@
+{
+  "total_files": 60,
+  "binary_files": 2,
+  "total_size_mb": 0.37,
+  "lines": {
+    "total": 9082,
+    "blank": 630,
+    "comment": 263,
+    "code": 8189
+  },
+  "comment_percentage": 2.9,
+  "languages": {
+    "React JSX": 23,
+    "Other": 14,
+    "JavaScript": 11,
+    "Markdown": 5,
+    "JSON": 3,
+    "Python": 1,
+    "SQL": 1,
+    "HTML": 1,
+    "CSS": 1
+  },
+  "extensions": {
+    ".jsx": 23,
+    ".js": 11,
+    ".mjs": 6,
+    ".md": 5,
+    ".json": 3,
+    ".svg": 2,
+    ".example": 1,
+    ".py": 1,
+    ".sql": 1,
+    ".html": 1,
+    ".txt": 1,
+    ".xml": 1,
+    ".css": 1
+  },
+  "largest_files": [
+    {
+      "size_kb": 84.3,
+      "file": "package-lock.json"
+    },
+    {
+      "size_kb": 53.4,
+      "file": "analyze_project.py"
+    },
+    {
+      "size_kb": 43.2,
+      "file": "frontend\\src\\styles.css"
+    },
+    {
+      "size_kb": 33.7,
+      "file": "frontend\\src\\components\\AdminDashboard.jsx"
+    },
+    {
+      "size_kb": 31.5,
+      "file": "backend\\src\\app.js"
+    },
+    {
+      "size_kb": 13.4,
+      "file": "frontend\\src\\data\\profileData.js"
+    },
+    {
+      "size_kb": 10.8,
+      "file": "Mageto-Portfolio-Final-Build-Prompt.md"
+    },
+    {
+      "size_kb": 7.2,
+      "file": "backend\\scripts\\seed-profile.mjs"
+    },
+    {
+      "size_kb": 5.3,
+      "file": "frontend\\src\\components\\PageBanner.jsx"
+    },
+    {
+      "size_kb": 4.8,
+      "file": "frontend\\src\\App.jsx"
+    },
+    {
+      "size_kb": 4.7,
+      "file": "PROJECT_DOCUMENTATION.md"
+    },
+    {
+      "size_kb": 4.4,
+      "file": "frontend\\src\\components\\Header.jsx"
+    },
+    {
+      "size_kb": 4.2,
+      "file": "backend\\schema.sql"
+    },
+    {
+      "size_kb": 3.8,
+      "file": "frontend\\src\\pages\\Leadership.jsx"
+    },
+    {
+      "size_kb": 3.3,
+      "file": "frontend\\src\\pages\\Home.jsx"
+    },
+    {
+      "size_kb": 3.3,
+      "file": "frontend\\src\\pages\\Contact.jsx"
+    },
+    {
+      "size_kb": 3.1,
+      "file": "backend\\scripts\\set-launch-photos.mjs"
+    },
+    {
+      "size_kb": 3.0,
+      "file": "frontend\\src\\pages\\Scholarship.jsx"
+    },
+    {
+      "size_kb": 2.8,
+      "file": "frontend\\src\\pages\\ForgotPassword.jsx"
+    },
+    {
+      "size_kb": 2.6,
+      "file": "frontend\\src\\components\\ContactForm.jsx"
+    }
+  ],
+  "duplicate_file_groups": [
+    [
+      "api/auth/login.js",
+      "api/auth/me.js",
+      "api/auth/register.js"
+    ]
+  ],
+  "todo_count": 2
+}

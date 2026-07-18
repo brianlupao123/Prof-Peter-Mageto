@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { Component, lazy, Suspense, useEffect, useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import { apiFetch } from './lib/api.js';
@@ -16,6 +16,40 @@ const SignUp = lazy(() => import('./pages/SignUp.jsx'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+
+class RouteErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error) {
+    const message = String(error?.message || '');
+    const staleChunk = /Failed to fetch dynamically imported module|Importing a module script failed|module script/i.test(message);
+    if (staleChunk && !sessionStorage.getItem('pm-route-reload')) {
+      sessionStorage.setItem('pm-route-reload', 'true');
+      window.location.reload();
+    }
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="page-loader route-error-panel" role="alert">
+          <strong>We could not load this page after an update.</strong>
+          <span>Please refresh once to get the latest version.</span>
+          <button type="button" onClick={() => window.location.reload()}>Refresh page</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 
 function getInitialTheme() {
   const stored = localStorage.getItem('pm-theme');
@@ -88,7 +122,8 @@ export default function App() {
       openSidebar={() => setSidebarOpen((v) => !v)}
       closeSidebar={() => setSidebarOpen(false)}
     >
-      <Suspense fallback={<div className="page-loader">Loading…</div>}>
+      <RouteErrorBoundary>
+        <Suspense fallback={<div className="page-loader">Loading...</div>}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/leadership" element={<Leadership />} />
@@ -116,7 +151,8 @@ export default function App() {
 
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </Suspense>
+        </Suspense>
+      </RouteErrorBoundary>
     </Layout>
   );
 }

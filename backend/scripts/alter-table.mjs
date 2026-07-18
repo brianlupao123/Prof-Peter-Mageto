@@ -35,6 +35,9 @@ try {
   await sql`alter table hero_slides add column if not exists background_image_url text`;
   await sql`alter table hero_slides add column if not exists cta_label text`;
   await sql`alter table hero_slides add column if not exists cta_href text`;
+  await sql`alter table hero_slides add column if not exists focal_position text default 'center center'`;
+  await sql`alter table hero_slides add column if not exists overlay_strength integer default 68`;
+  await sql`alter table hero_slides add column if not exists card_visibility boolean default true`;
   console.log('Done.');
 } catch (error) {
   console.error('Failed to alter table:', error);

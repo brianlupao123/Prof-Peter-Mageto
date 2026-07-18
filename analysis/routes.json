@@ -1,0 +1,132 @@
+[
+  {
+    "method": "USE",
+    "path": "/api",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/health",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/site-settings",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/publications",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/auth/me",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/login",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/auth/register",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/auth/password",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/contact",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/messages",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "PATCH",
+    "path": "/api/messages/:id/status",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/content-updates",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/likes/:pageKey",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/likes/:pageKey",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/content-updates",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/profile",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/activity",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/profile",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/uploads",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "GET",
+    "path": "/api/hero-slides/:pageKey",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/hero-slides/:pageKey",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/hero-slides/:pageKey/:id",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/hero-slides/:pageKey/:id",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/:collection/:id",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "POST",
+    "path": "/api/:collection",
+    "file": "backend/src/app.js"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/:collection/:id",
+    "file": "backend/src/app.js"
+  }
+]

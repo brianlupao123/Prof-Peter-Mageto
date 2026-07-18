@@ -85,9 +85,10 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
                   aria-hidden="true"
                   loading={slideIdx === 0 ? 'eager' : 'lazy'}
                   fetchpriority={slideIdx === 0 ? 'high' : 'low'}
+                  style={{ objectPosition: slide.focal_position || undefined }}
                 />
               )}
-              <div className="page-banner-overlay" />
+              <div className="page-banner-overlay" style={{ opacity: (slide.overlay_strength ?? 68) / 100 }} />
 
               <div className="page-banner-copy">
                 {slide.eyebrow && <span className="eyebrow">{slide.eyebrow}</span>}
@@ -97,15 +98,17 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
                 {slideActions}
               </div>
 
-              <aside className="page-banner-card">
-                {profile?.portrait_url
-                  ? <img className="avatar-photo" src={profile.portrait_url} alt={profile.full_name || 'Portrait'} />
-                  : <span className="avatar">{(profile?.full_name || 'PM').split(' ').map((w) => w[0]).slice(0, 2).join('')}</span>
-                }
-                <strong>{profile?.full_name || 'Rev. Prof. Peter Mageto'}</strong>
-                <span>{profile?.title || 'Fifth Vice Chancellor | Africa University'}</span>
-                {slide.panel_caption && <p>{slide.panel_caption}</p>}
-              </aside>
+              {slide.card_visibility !== false && (
+                <aside className="page-banner-card">
+                  {profile?.portrait_url
+                    ? <img className="avatar-photo" src={profile.portrait_url} alt={profile.full_name || 'Portrait'} />
+                    : <span className="avatar">{(profile?.full_name || 'PM').split(' ').map((w) => w[0]).slice(0, 2).join('')}</span>
+                  }
+                  <strong>{profile?.full_name || 'Rev. Prof. Peter Mageto'}</strong>
+                  <span>{profile?.title || 'Fifth Vice Chancellor | Africa University'}</span>
+                  {slide.panel_caption && <p>{slide.panel_caption}</p>}
+                </aside>
+              )}
             </div>
           );
         })}

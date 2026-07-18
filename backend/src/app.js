@@ -469,16 +469,20 @@ app.post('/api/hero-slides/:pageKey', verifyAdmin, async (req, res) => {
   const sortOrder = body.sortOrder ?? body.sort_order;
   const ctaLabel = body.ctaLabel ?? body.cta_label;
   const ctaHref = body.ctaHref ?? body.cta_href;
+  const focalPosition = body.focalPosition ?? body.focal_position ?? 'center center';
+  const overlayStrength = body.overlayStrength ?? body.overlay_strength ?? 68;
+  const cardVisibility = body.cardVisibility ?? body.card_visibility ?? true;
+
   if (!heading) return res.status(400).json({ message: 'heading is required' });
-  const slide = { id: 'slide-' + Date.now(), page_key: pageKey, eyebrow, heading, subheading, body: bodyText, panel_caption: panelCaption, background_image_url: backgroundImageUrl, cta_label: ctaLabel, cta_href: ctaHref, sort_order: sortOrder ?? 0 };
+  const slide = { id: 'slide-' + Date.now(), page_key: pageKey, eyebrow, heading, subheading, body: bodyText, panel_caption: panelCaption, background_image_url: backgroundImageUrl, cta_label: ctaLabel, cta_href: ctaHref, sort_order: sortOrder ?? 0, focal_position: focalPosition, overlay_strength: overlayStrength, card_visibility: cardVisibility };
   if (!db) {
     profileFallback.heroSlides.push(slide);
     await logActivity(null, req.user.email, `Added banner slide (${pageKey})`, heading);
     return res.status(201).json({ heroSlide: slide });
   }
   const rows = await db`
-    insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, cta_label, cta_href, sort_order)
-    values (${pageKey}, ${eyebrow}, ${heading}, ${subheading}, ${bodyText}, ${panelCaption}, ${backgroundImageUrl}, ${ctaLabel}, ${ctaHref}, ${sortOrder ?? 0})
+    insert into hero_slides (page_key, eyebrow, heading, subheading, body, panel_caption, background_image_url, cta_label, cta_href, sort_order, focal_position, overlay_strength, card_visibility)
+    values (${pageKey}, ${eyebrow}, ${heading}, ${subheading}, ${bodyText}, ${panelCaption}, ${backgroundImageUrl}, ${ctaLabel}, ${ctaHref}, ${sortOrder ?? 0}, ${focalPosition}, ${overlayStrength}, ${cardVisibility})
     returning *
   `;
   await logActivity(db, req.user.email, `Added banner slide (${pageKey})`, heading);
@@ -498,6 +502,10 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
   const sortOrder = body.sortOrder ?? body.sort_order;
   const ctaLabel = body.ctaLabel ?? body.cta_label;
   const ctaHref = body.ctaHref ?? body.cta_href;
+  const focalPosition = body.focalPosition ?? body.focal_position;
+  const overlayStrength = body.overlayStrength ?? body.overlay_strength;
+  const cardVisibility = body.cardVisibility ?? body.card_visibility;
+
   if (!db) {
     const slide = profileFallback.heroSlides.find((item) => item.id === id && item.page_key === pageKey);
     if (!slide) return res.status(404).json({ message: 'Slide not found' });
@@ -510,6 +518,9 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
     if (ctaLabel !== undefined) slide.cta_label = ctaLabel;
     if (ctaHref !== undefined) slide.cta_href = ctaHref;
     if (sortOrder !== undefined) slide.sort_order = sortOrder;
+    if (focalPosition !== undefined) slide.focal_position = focalPosition;
+    if (overlayStrength !== undefined) slide.overlay_strength = overlayStrength;
+    if (cardVisibility !== undefined) slide.card_visibility = cardVisibility;
     await logActivity(null, req.user.email, `Edited banner slide (${pageKey})`, slide.heading);
     return res.json({ heroSlide: slide });
   }
@@ -523,7 +534,10 @@ app.put('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
       background_image_url = coalesce(${backgroundImageUrl}, background_image_url),
       cta_label = coalesce(${ctaLabel}, cta_label),
       cta_href = coalesce(${ctaHref}, cta_href),
-      sort_order = coalesce(${sortOrder}, sort_order)
+      sort_order = coalesce(${sortOrder}, sort_order),
+      focal_position = coalesce(${focalPosition}, focal_position),
+      overlay_strength = coalesce(${overlayStrength}, overlay_strength),
+      card_visibility = coalesce(${cardVisibility}, card_visibility)
     where id = ${id} and page_key = ${pageKey}
     returning *
   `;

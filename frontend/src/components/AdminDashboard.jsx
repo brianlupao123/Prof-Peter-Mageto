@@ -214,6 +214,9 @@ const PAGE_KEYS = ['overview', 'leadership', 'scholarship', 'strategy', 'roadmap
 
 function toSlideDraft(slide = {}) {
   return {
+    focal_position: 'center center',
+    overlay_strength: 68,
+    card_visibility: true,
     ...slide,
     eyebrow: slide.eyebrow || '',
     heading: slide.heading || '',
@@ -237,6 +240,9 @@ function toSlidePayload(slide) {
     ctaLabel: slide.cta_label || null,
     ctaHref: slide.cta_href || null,
     sortOrder: Number(slide.sort_order ?? 0),
+    focalPosition: slide.focal_position || 'center center',
+    overlayStrength: Number(slide.overlay_strength ?? 68),
+    cardVisibility: slide.card_visibility !== false,
   };
 }
 
@@ -395,6 +401,20 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
               ? (
                 <form style={{ display: 'grid', gap: '0.5rem', width: '100%' }} onSubmit={saveSlide}>
                   {renderSlideFields(editingSlide, setEditingSlide)}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', padding: '0.5rem', background: 'var(--surface-strong)', borderRadius: '6px', border: '1px solid var(--line)' }}>
+                    <label style={{ display: 'grid', gap: '0.2rem' }}>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Focal point (object-position)</span>
+                      <input style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--line)', borderRadius: '4px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit', fontSize: '0.85rem' }} placeholder="e.g. center 22%" value={editingSlide.focal_position || ''} onChange={(e) => setEditingSlide((item) => ({ ...item, focal_position: e.target.value }))} />
+                    </label>
+                    <label style={{ display: 'grid', gap: '0.2rem' }}>
+                      <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Overlay strength (0-100)</span>
+                      <input type="number" min="0" max="100" style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--line)', borderRadius: '4px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit', fontSize: '0.85rem' }} value={editingSlide.overlay_strength ?? 68} onChange={(e) => setEditingSlide((item) => ({ ...item, overlay_strength: Number(e.target.value) }))} />
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', userSelect: 'none', alignSelf: 'center', marginTop: '0.9rem' }}>
+                      <input type="checkbox" checked={editingSlide.card_visibility !== false} onChange={(e) => setEditingSlide((item) => ({ ...item, card_visibility: e.target.checked }))} />
+                      <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Show identity card</span>
+                    </label>
+                  </div>
                   <div style={{ marginTop: '0.25rem' }}>
                     <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Or upload a photo</span>
                     <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setEditingSlide((item) => ({ ...item, background_image_url: url }))} />
@@ -412,6 +432,11 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
                     <div style={{ fontWeight: 700, marginTop: slide.background_image_url ? '0.5rem' : 0 }}>{slide.heading}</div>
                     {slide.subheading && <div style={{ fontSize: '0.84rem', color: 'var(--muted)', marginTop: '0.2rem' }}>{slide.subheading.slice(0, 90)}{slide.subheading.length > 90 ? '...' : ''}</div>}
                     {(slide.cta_label || slide.cta_href) && <div style={{ fontSize: '0.78rem', color: 'var(--brand-strong)', marginTop: '0.35rem' }}>{slide.cta_label || 'CTA'} {'->'} {slide.cta_href || '/'}</div>}
+                    <div style={{ fontSize: '0.74rem', color: 'var(--muted)', marginTop: '0.3rem', display: 'flex', gap: '0.75rem' }}>
+                      <span>Position: {slide.focal_position || 'center center'}</span>
+                      <span>Overlay: {slide.overlay_strength ?? 68}%</span>
+                      <span>Card: {slide.card_visibility !== false ? 'Visible' : 'Hidden'}</span>
+                    </div>
                   </div>
                   <div className="collection-item-actions">
                     <button className="btn-edit" type="button" onClick={() => moveSlide(slide, -1)} disabled={index === 0} aria-label="Move slide up"><FaArrowUp /></button>
@@ -431,6 +456,20 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
           <form className="contact-form compact" style={{ border: '1px solid var(--brand)', borderRadius: '8px' }} onSubmit={addSlide}>
             <strong style={{ fontSize: '0.9rem' }}>New slide for {activePage}</strong>
             {renderSlideFields(newSlide, setNewSlide)}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.5rem', padding: '0.5rem', background: 'var(--surface-strong)', borderRadius: '6px', border: '1px solid var(--line)' }}>
+              <label style={{ display: 'grid', gap: '0.2rem' }}>
+                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Focal point (object-position)</span>
+                <input style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--line)', borderRadius: '4px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit', fontSize: '0.85rem' }} placeholder="e.g. center 22%" value={newSlide.focal_position || ''} onChange={(e) => setNewSlide((item) => ({ ...item, focal_position: e.target.value }))} />
+              </label>
+              <label style={{ display: 'grid', gap: '0.2rem' }}>
+                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Overlay strength (0-100)</span>
+                <input type="number" min="0" max="100" style={{ width: '100%', padding: '0.4rem', border: '1px solid var(--line)', borderRadius: '4px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit', fontSize: '0.85rem' }} value={newSlide.overlay_strength ?? 68} onChange={(e) => setNewSlide((item) => ({ ...item, overlay_strength: Number(e.target.value) }))} />
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', userSelect: 'none', alignSelf: 'center', marginTop: '0.9rem' }}>
+                <input type="checkbox" checked={newSlide.card_visibility !== false} onChange={(e) => setNewSlide((item) => ({ ...item, card_visibility: e.target.checked }))} />
+                <span style={{ fontSize: '0.74rem', color: 'var(--muted)', fontWeight: 700 }}>Show identity card</span>
+              </label>
+            </div>
             <div>
               <span style={{ fontSize: '0.78rem', color: 'var(--muted)', fontWeight: 700, display: 'block', marginBottom: '0.3rem' }}>Or upload a photo</span>
               <UploadButton token={token} label="Upload background photo" onUploaded={(url) => setNewSlide((item) => ({ ...item, background_image_url: url }))} />

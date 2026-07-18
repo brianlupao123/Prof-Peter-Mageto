@@ -67,6 +67,9 @@ create table if not exists hero_slides (
   cta_label text,
   cta_href text,
   sort_order integer not null default 0,
+  focal_position text default 'center center',
+  overlay_strength integer default 68,
+  card_visibility boolean default true,
   id uuid primary key default gen_random_uuid()
 );
 create index if not exists idx_hero_slides_page on hero_slides (page_key, sort_order);

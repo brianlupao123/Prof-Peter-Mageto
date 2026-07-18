@@ -1322,3 +1322,133 @@ footer.site-footer {
 .comment-time { color: var(--muted); font-size: 0.75rem; }
 
 
+
+/* ============================================================
+   Handover UI Stabilization: hero framing, header layering, mobile overflow
+   ============================================================ */
+html, body, #root { max-width: 100%; overflow-x: clip; }
+.app-shell, .page-main, .page-banner, .page-banner-track, .page-banner-slide { max-width: 100vw; }
+
+.calm-shell .app-header,
+.app-header {
+  background: color-mix(in srgb, var(--surface) 98%, transparent);
+  box-shadow: 0 1px 0 var(--line), 0 10px 32px rgba(0,0,0,0.08);
+  isolation: isolate;
+}
+:root[data-theme="dark"] .calm-shell .app-header,
+:root[data-theme="dark"] .app-header {
+  background: color-mix(in srgb, var(--surface) 96%, #000 10%);
+}
+.logo-brand { min-width: 48px; }
+.header-left { min-width: 0; }
+
+.page-banner { min-height: clamp(420px, 62svh, 560px); }
+.page-banner-track { min-height: clamp(420px, 62svh, 560px); }
+.page-banner-slide { min-height: clamp(420px, 62svh, 560px); }
+.page-banner-bg { object-position: center center; }
+.page-banner--leadership .page-banner-bg { object-position: center 22%; }
+.page-banner--scholarship .page-banner-bg { object-position: center 28%; }
+.page-banner--strategy .page-banner-bg,
+.page-banner--roadmap .page-banner-bg,
+.page-banner--contact .page-banner-bg { object-position: center center; }
+.page-banner-overlay {
+  background:
+    radial-gradient(circle at 82% 42%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 26%),
+    linear-gradient(90deg, rgba(5,14,10,0.92) 0%, rgba(5,14,10,0.68) 48%, rgba(5,14,10,0.34) 100%);
+}
+.page-banner-card {
+  max-width: min(340px, calc(100% - 2rem));
+  justify-self: end;
+  margin-right: clamp(1rem, 2vw, 1.4rem);
+}
+.page-banner-copy { max-width: 880px; }
+
+.sidebar {
+  max-width: min(320px, calc(100vw - 2rem));
+}
+.sidebar-backdrop {
+  backdrop-filter: blur(3px);
+  background: rgba(4, 12, 9, 0.34);
+}
+.sidebar-head .icon-button { width: 40px; height: 40px; }
+
+@media (max-width: 900px) {
+  .page-banner,
+  .page-banner-track,
+  .page-banner-slide { min-height: auto; }
+  .page-banner-slide {
+    min-height: calc(100svh - 74px);
+    max-height: none;
+    grid-template-columns: 1fr;
+    align-content: end;
+    gap: 0;
+    padding: clamp(5rem, 14svh, 7rem) 1rem 1.15rem;
+  }
+  .page-banner-copy {
+    padding: 0;
+    gap: 0.55rem;
+    max-width: 100%;
+  }
+  .page-banner-copy h1,
+  .page-banner-copy h2 {
+    font-size: clamp(2.15rem, 11vw, 3.35rem);
+    line-height: 1.02;
+    overflow-wrap: anywhere;
+  }
+  .page-banner-copy .lead {
+    font-size: 1rem;
+    line-height: 1.55;
+    max-width: 100%;
+  }
+  .page-banner-card {
+    justify-self: stretch;
+    margin: 1rem 0 0;
+    padding: 0.85rem;
+    grid-template-columns: 46px 1fr;
+    column-gap: 0.7rem;
+    align-items: center;
+  }
+  .page-banner-card .avatar,
+  .page-banner-card .avatar-photo { width: 46px; height: 46px; grid-row: span 3; }
+  .page-banner-card p { grid-column: 2; font-size: 0.8rem; }
+  .page-banner-dots { bottom: 0.65rem; }
+  .banner-arrow { display: none; }
+  .page-banner-bg { object-position: center top; }
+  .page-banner--leadership .page-banner-bg { object-position: center top; }
+}
+
+@media (max-width: 620px) {
+  .app-header,
+  .calm-shell .app-header {
+    min-height: 66px;
+    padding: 0.55rem 0.75rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .header-left { gap: 0.55rem; }
+  .icon-button { width: 40px; height: 40px; }
+  .brand span { width: 38px; height: 38px; }
+  .nav-cta { min-height: 40px; padding: 0.6rem 0.8rem; }
+  .sidebar { width: min(304px, calc(100vw - 1.25rem)); padding: 0.85rem; }
+  .sidebar-nav a { min-height: 40px; padding: 0.62rem 0.75rem; }
+  .sidebar-footer { font-size: 0.9rem; }
+  .page-banner-slide { min-height: clamp(440px, 72svh, 560px); padding-top: 4.25rem; }
+}
+
+.route-error-panel {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.route-error-panel button {
+  border: 0;
+  border-radius: 8px;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  padding: 0.8rem 1rem;
+}

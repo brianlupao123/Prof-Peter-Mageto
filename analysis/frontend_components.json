@@ -1,0 +1,169 @@
+{
+  "pages": [
+    {
+      "name": "PageBanner",
+      "file": "frontend/src/components/PageBanner.jsx"
+    },
+    {
+      "name": "Access",
+      "file": "frontend/src/pages/Access.jsx"
+    },
+    {
+      "name": "Contact",
+      "file": "frontend/src/pages/Contact.jsx"
+    },
+    {
+      "name": "Dashboard",
+      "file": "frontend/src/pages/Dashboard.jsx"
+    },
+    {
+      "name": "ForgotPassword",
+      "file": "frontend/src/pages/ForgotPassword.jsx"
+    },
+    {
+      "name": "Home",
+      "file": "frontend/src/pages/Home.jsx"
+    },
+    {
+      "name": "Leadership",
+      "file": "frontend/src/pages/Leadership.jsx"
+    },
+    {
+      "name": "NotFound",
+      "file": "frontend/src/pages/NotFound.jsx"
+    },
+    {
+      "name": "Roadmap",
+      "file": "frontend/src/pages/Roadmap.jsx"
+    },
+    {
+      "name": "Scholarship",
+      "file": "frontend/src/pages/Scholarship.jsx"
+    },
+    {
+      "name": "Sources",
+      "file": "frontend/src/pages/Sources.jsx"
+    },
+    {
+      "name": "Strategy",
+      "file": "frontend/src/pages/Strategy.jsx"
+    }
+  ],
+  "components": [
+    {
+      "name": "ProjectAnalyzer",
+      "file": "analyze_project.py"
+    },
+    {
+      "name": "Home",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Leadership",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Scholarship",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Strategy",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Roadmap",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Contact",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Sources",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Access",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "ForgotPassword",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "Dashboard",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "NotFound",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "App",
+      "file": "frontend/src/App.jsx"
+    },
+    {
+      "name": "TABS",
+      "file": "frontend/src/components/AdminDashboard.jsx"
+    },
+    {
+      "name": "COLLECTIONS",
+      "file": "frontend/src/components/AdminDashboard.jsx"
+    },
+    {
+      "name": "AdminDashboard",
+      "file": "frontend/src/components/AdminDashboard.jsx"
+    },
+    {
+      "name": "ContactForm",
+      "file": "frontend/src/components/ContactForm.jsx"
+    },
+    {
+      "name": "Header",
+      "file": "frontend/src/components/Header.jsx"
+    },
+    {
+      "name": "IconCard",
+      "file": "frontend/src/components/IconCard.jsx"
+    },
+    {
+      "name": "Layout",
+      "file": "frontend/src/components/Layout.jsx"
+    },
+    {
+      "name": "Icon",
+      "file": "frontend/src/components/Layout.jsx"
+    },
+    {
+      "name": "LikeButton",
+      "file": "frontend/src/components/LikeButton.jsx"
+    },
+    {
+      "name": "Logo",
+      "file": "frontend/src/components/Logo.jsx"
+    },
+    {
+      "name": "Heading",
+      "file": "frontend/src/components/PageBanner.jsx"
+    },
+    {
+      "name": "PortfolioIndex",
+      "file": "frontend/src/components/PortfolioIndex.jsx"
+    },
+    {
+      "name": "Sidebar",
+      "file": "frontend/src/components/Sidebar.jsx"
+    },
+    {
+      "name": "ProfileContext",
+      "file": "frontend/src/lib/useProfile.js"
+    }
+  ],
+  "context_providers": [
+    {
+      "name": "ProfileProvider",
+      "file": "frontend/src/lib/useProfile.js"
+    }
+  ],
+  "hooks": []
+}

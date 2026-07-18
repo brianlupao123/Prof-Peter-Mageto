@@ -1,0 +1,75 @@
+Prof Magetto Website/
+├── api/
+│   ├── auth/
+│   │   ├── login.js
+│   │   ├── me.js
+│   │   └── register.js
+│   ├── messages/
+│   │   └── [id]/
+│   │       └── status.js
+│   ├── [...path].js
+│   └── index.js
+├── backend/
+│   ├── scripts/
+│   │   ├── alter-table.mjs
+│   │   ├── init-db.mjs
+│   │   ├── seed-admin.mjs
+│   │   ├── seed-profile.mjs
+│   │   └── set-launch-photos.mjs
+│   ├── src/
+│   │   └── app.js
+│   ├── .env
+│   ├── README.md
+│   └── schema.sql
+├── frontend/
+│   ├── public/
+│   │   ├── favicon.svg
+│   │   ├── og-image.svg
+│   │   ├── robots.txt
+│   │   └── sitemap.xml
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   ├── ContactForm.jsx
+│   │   │   ├── Header.jsx
+│   │   │   ├── IconCard.jsx
+│   │   │   ├── Layout.jsx
+│   │   │   ├── LikeButton.jsx
+│   │   │   ├── Logo.jsx
+│   │   │   ├── PageBanner.jsx
+│   │   │   ├── PortfolioIndex.jsx
+│   │   │   └── Sidebar.jsx
+│   │   ├── data/
+│   │   │   └── profileData.js
+│   │   ├── lib/
+│   │   │   ├── api.js
+│   │   │   └── useProfile.js
+│   │   ├── pages/
+│   │   │   ├── Access.jsx
+│   │   │   ├── Contact.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── ForgotPassword.jsx
+│   │   │   ├── Home.jsx
+│   │   │   ├── Leadership.jsx
+│   │   │   ├── NotFound.jsx
+│   │   │   ├── Roadmap.jsx
+│   │   │   ├── Scholarship.jsx
+│   │   │   ├── Sources.jsx
+│   │   │   └── Strategy.jsx
+│   │   ├── App.jsx
+│   │   ├── main.jsx
+│   │   └── styles.css
+│   ├── index.html
+│   ├── README.md
+│   └── vite.config.js
+├── .env
+├── .env.example
+├── .gitignore
+├── .inspect-mageto-schema.mjs
+├── analyze_project.py
+├── Mageto-Portfolio-Final-Build-Prompt.md
+├── package-lock.json
+├── package.json
+├── PROJECT_DOCUMENTATION.md
+├── README.md
+└── vercel.json

@@ -1,0 +1,69 @@
+{
+  "models": [
+    {
+      "name": "users",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "messages",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "content_updates",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "page_likes",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "profile",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "hero_slides",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "credentials",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "career_entries",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "publications",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "research_themes",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "strategy_goals",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "sources_list",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    },
+    {
+      "name": "social_links",
+      "file": "backend\\schema.sql",
+      "type": "SQL Table"
+    }
+  ]
+}
