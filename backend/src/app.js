@@ -166,18 +166,34 @@ app.put('/api/auth/password', verifyAdmin, async (req, res) => {
   res.status(503).json({ message: 'Database not configured' });
 });
 
-function notifyNewMessage({ name, email, subject, message }) {
-  if (!process.env.RESEND_API_KEY || !process.env.NOTIFY_EMAIL) return;
-  fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      from: process.env.NOTIFY_FROM_EMAIL || 'Portfolio <notifications@yourdomain.com>',
-      to: process.env.NOTIFY_EMAIL,
-      subject: `New enquiry: ${subject}`,
-      text: `From: ${name} <${email}>\n\n${message}`,
-    }),
-  }).catch(() => {});
+async function notifyNewMessage({ name, email, subject, message }) {
+  if (!process.env.RESEND_API_KEY || !process.env.NOTIFY_EMAIL) return { skipped: true };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3500);
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from: process.env.NOTIFY_FROM_EMAIL || 'Portfolio <onboarding@resend.dev>',
+        to: process.env.NOTIFY_EMAIL,
+        subject: `New enquiry: ${subject}`,
+        text: `From: ${name} <${email}>\n\n${message}`,
+      }),
+    });
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown Resend error');
+      console.warn('[EMAIL] Notification failed:', response.status, errorText.slice(0, 240));
+      return { sent: false, status: response.status };
+    }
+    return { sent: true };
+  } catch (error) {
+    console.warn('[EMAIL] Notification failed:', error.message);
+    return { sent: false, error: error.message };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 app.post('/api/contact', async (req, res) => {
   const name = String(req.body.name || '').trim();
@@ -595,6 +611,7 @@ if (process.env.RUN_API_SERVER === 'true') {
   const port = process.env.PORT || 5000;
   app.listen(port, () => console.log(`Prof. Mageto API listening on ${port}`));
 }
+
 
 
 
