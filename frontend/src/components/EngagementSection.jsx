@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FaHeart, FaComment, FaShare, FaPlay, FaCode, FaVideo, FaArrowRight } from 'react-icons/fa6';
+import { FaHeart, FaComment, FaShare, FaPlay, FaBookOpen, FaUserTie, FaArrowRight } from 'react-icons/fa6';
 
 const STORAGE_KEY = 'pm-engagement';
 
