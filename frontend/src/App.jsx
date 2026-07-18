@@ -11,6 +11,8 @@ const Roadmap = lazy(() => import('./pages/Roadmap.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Sources = lazy(() => import('./pages/Sources.jsx'));
 const Access = lazy(() => import('./pages/Access.jsx'));
+const SignIn = lazy(() => import('./pages/SignIn.jsx'));
+const SignUp = lazy(() => import('./pages/SignUp.jsx'));
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
@@ -97,12 +99,12 @@ export default function App() {
           <Route path="/sources" element={<Sources />} />
 
           <Route path="/access" element={<Access signedIn={signedIn} onSignIn={signIn} />} />
-          <Route path="/sign-in" element={<Navigate to="/access" replace />} />
-          <Route path="/signin" element={<Navigate to="/access" replace />} />
-          <Route path="/login" element={<Navigate to="/access" replace />} />
-          <Route path="/sign-up" element={<Navigate to="/access" replace />} />
-          <Route path="/signup" element={<Navigate to="/access" replace />} />
-          <Route path="/register" element={<Navigate to="/access" replace />} />
+          <Route path="/sign-in" element={<SignIn signedIn={signedIn} onSignIn={signIn} />} />
+          <Route path="/signin" element={<Navigate to="/sign-in" replace />} />
+          <Route path="/login" element={<Navigate to="/sign-in" replace />} />
+          <Route path="/sign-up" element={<SignUp signedIn={signedIn} />} />
+          <Route path="/signup" element={<Navigate to="/sign-up" replace />} />
+          <Route path="/register" element={<Navigate to="/sign-up" replace />} />
 
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
@@ -118,4 +120,5 @@ export default function App() {
     </Layout>
   );
 }
+
 

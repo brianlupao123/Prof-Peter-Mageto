@@ -42,7 +42,7 @@ export default function ForgotPassword() {
             <span className="auth-success-icon">✓</span>
             <strong>Check your inbox!</strong>
             <p>If an account exists for <em>{email}</em>, a reset link has been sent.</p>
-            <Link to="/access" className="auth-submit" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
+            <Link to="/sign-in" className="auth-submit" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}>
               Back to Sign In →
             </Link>
           </div>
@@ -69,7 +69,7 @@ export default function ForgotPassword() {
             </button>
 
             <p className="auth-switch">
-              Remember it? <Link to="/access">Back to sign in</Link>
+              Remember it? <Link to="/sign-in">Back to sign in</Link>
             </p>
           </form>
         )}
@@ -77,4 +77,5 @@ export default function ForgotPassword() {
     </div>
   );
 }
+
 

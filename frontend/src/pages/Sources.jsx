@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { FaArrowUpRightFromSquare, FaCircleCheck } from 'react-icons/fa6';
 import PageBanner from '../components/PageBanner.jsx';
-import LikeButton from '../components/LikeButton.jsx';
+import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 import { sources as staticSources } from '../data/profileData.js';
 
@@ -17,7 +17,7 @@ export default function Sources() {
   return (
     <>
       <PageBanner pageKey="sources" slides={slides} profile={data?.profile} />
-      <LikeButton pageKey="sources" />
+      <EngagementSection pageKey="sources" />
 
       <section className="page-section">
         <span className="eyebrow">Verification</span>
@@ -59,4 +59,5 @@ export default function Sources() {
     </>
   );
 }
+
 

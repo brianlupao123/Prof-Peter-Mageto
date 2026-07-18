@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaBuilding, FaEnvelope, FaGlobe, FaPhone } from 'react-icons/fa6';
 import ContactForm from '../components/ContactForm.jsx';
 import PageBanner from '../components/PageBanner.jsx';
-import LikeButton from '../components/LikeButton.jsx';
+import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
 export default function Contact({ signedIn, token }) {
@@ -28,7 +28,7 @@ export default function Contact({ signedIn, token }) {
           </>
         }
       />
-      <LikeButton pageKey="contact" />
+      <EngagementSection pageKey="contact" />
       <section id="contact-form" className="page-section two-column">
         {/* Office info panel */}
         <div>
@@ -75,6 +75,7 @@ export default function Contact({ signedIn, token }) {
     </>
   );
 }
+
 
 
 

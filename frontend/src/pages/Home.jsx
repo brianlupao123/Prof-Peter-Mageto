@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FaArrowRight, FaHandshake, FaScaleBalanced, FaUserTie } from 'react-icons/fa6';
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
-import LikeButton from '../components/LikeButton.jsx';
+import EngagementSection from '../components/EngagementSection.jsx';
 import { highlights, leadershipFocus, SITE_NAME, stakeholderPaths } from '../data/profileData.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 
@@ -23,7 +23,7 @@ export default function Home() {
         profile={data?.profile}
         level="h1"
       />
-      <LikeButton pageKey="overview" />
+      <EngagementSection pageKey="overview" />
 
       {/* Stats band */}
       <section className="stat-band">
@@ -86,4 +86,5 @@ export default function Home() {
     </>
   );
 }
+
 

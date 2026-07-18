@@ -52,7 +52,7 @@ export default function Sidebar({ open, onClose, signedIn }) {
           )}
 
           {/* Sign in / Account */}
-          <NavLink to={signedIn ? '/dashboard' : '/access'} onClick={onClose} className="sidebar-signin-link">
+          <NavLink to={signedIn ? '/dashboard' : '/sign-in'} onClick={onClose} className="sidebar-signin-link">
             <FaRightToBracket />
             <span>{signedIn ? 'My Account' : 'Sign in'}</span>
           </NavLink>
@@ -74,4 +74,5 @@ export default function Sidebar({ open, onClose, signedIn }) {
     </>
   );
 }
+
 
