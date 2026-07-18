@@ -84,7 +84,7 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
                   alt=""
                   aria-hidden="true"
                   loading={slideIdx === 0 ? 'eager' : 'lazy'}
-                  fetchPriority={slideIdx === 0 ? 'high' : 'low'}
+                  fetchpriority={slideIdx === 0 ? 'high' : 'low'}
                 />
               )}
               <div className="page-banner-overlay" />
@@ -137,3 +137,4 @@ export default function PageBanner({ pageKey, slides, profile, level = 'h2', cta
     </section>
   );
 }
+
