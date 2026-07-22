@@ -10,9 +10,6 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '200kb' }));
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const ADMIN_EMAIL = String(process.env.ADMIN_EMAIL || '').toLowerCase();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const ADMIN_PASSWORD_HASH = ADMIN_PASSWORD ? bcrypt.hashSync(ADMIN_PASSWORD, 10) : null;
 if (!JWT_SECRET) console.warn('[AUTH] JWT_SECRET is not configured; authentication routes will refuse requests.');
 let db = null;
 if (process.env.DATABASE_URL) {
@@ -121,9 +118,6 @@ app.post('/api/auth/login', async (req, res) => {
     if (user && await bcrypt.compare(password, user.password_hash)) return res.json(signUser(publicUser(user)));
   }
 
-  if (ADMIN_EMAIL && ADMIN_PASSWORD_HASH && email === ADMIN_EMAIL && await bcrypt.compare(password, ADMIN_PASSWORD_HASH)) {
-    return res.json(signUser({ id: 'admin-prof-mageto', email, name: 'Prof. Mageto Admin', isAdmin: true }));
-  }
 
   const user = runtime.users.find((item) => item.email === email);
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) return res.status(401).json({ message: 'Invalid credentials. Please check your email and password.' });
@@ -142,15 +136,7 @@ app.put('/api/auth/password', verifyAdmin, async (req, res) => {
     return res.status(400).json({ message: 'Current password and a new password of at least 8 characters are required' });
   }
 
-  // Verify current password
-  const isEnvAdmin = req.user.id === 'admin-prof-mageto';
-  if (isEnvAdmin) {
-    const valid = ADMIN_PASSWORD_HASH && await bcrypt.compare(currentPassword, ADMIN_PASSWORD_HASH);
-    if (!valid) return res.status(401).json({ message: 'Current password is incorrect' });
-    // For env-var admin: store new hash in runtime for session duration only
-    // The actual persistent change requires updating the ADMIN_PASSWORD env var in Vercel
-    return res.json({ success: true, message: 'Password verified. To permanently change the admin password, update ADMIN_PASSWORD in your Vercel environment variables.' });
-  }
+  // Verify current password against the persisted database hash.
 
   if (db) {
     const rows = await db`select password_hash from users where id = ${req.user.id} limit 1`;
@@ -237,6 +223,18 @@ app.patch('/api/messages/:id/status', verifyAdmin, async (req, res) => {
   if (!found) return res.status(404).json({ message: 'Message not found' });
   found.status = status;
   res.json({ message: found });
+});
+
+app.delete('/api/messages/:id', verifyAdmin, async (req, res) => {
+  if (db) {
+    const rows = await db`delete from messages where id = ${req.params.id} returning id`;
+    if (!rows[0]) return res.status(404).json({ message: 'Message not found' });
+    return res.json({ deleted: true });
+  }
+  const before = runtime.messages.length;
+  runtime.messages = runtime.messages.filter((item) => item.id !== req.params.id);
+  if (runtime.messages.length === before) return res.status(404).json({ message: 'Message not found' });
+  res.json({ deleted: true });
 });
 
 app.post('/api/content-updates', verifyAdmin, async (req, res) => {

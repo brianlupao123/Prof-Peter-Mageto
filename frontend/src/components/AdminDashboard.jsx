@@ -496,6 +496,7 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
 }
 // ── Main AdminDashboard ────────────────────────────────────────────────────
 const TABS = ['Profile', 'Banners', 'Collections', 'Inbox', 'Activity'];
+const MESSAGE_STATUSES = ['new', 'read', 'replied', 'resolved', 'archived'];
 
 const COLLECTIONS = [
   { key: 'credentials', label: 'Credentials', columns: [{ key: 'label', label: 'Credential' }] },
@@ -581,11 +582,20 @@ export default function AdminDashboard({ signedIn, token }) {
     } catch (e) { setPwStatus(e.message); toast(e.message, 'error'); }
   };
 
-  const markResolved = async (id) => {
+  const updateMessageStatus = async (id, nextStatus) => {
     try {
-      await apiFetch(`/api/messages/${id}/status`, { method: 'PATCH', token, body: JSON.stringify({ status: 'resolved' }) });
+      await apiFetch(`/api/messages/${id}/status`, { method: 'PATCH', token, body: JSON.stringify({ status: nextStatus }) });
       await loadDashboard();
-      toast('Message resolved ✓');
+      toast('Message status updated');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const deleteMessage = async (id, name) => {
+    if (!window.confirm(`Delete message from "${name || 'this contact'}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/api/messages/${id}`, { method: 'DELETE', token });
+      await loadDashboard();
+      toast('Message deleted');
     } catch (e) { toast(e.message, 'error'); }
   };
 
@@ -771,12 +781,23 @@ export default function AdminDashboard({ signedIn, token }) {
                   {msg.subject && <p style={{ fontWeight: 700, margin: '0.25rem 0', fontSize: '0.9rem' }}>{msg.subject}</p>}
                   <p>{msg.message}</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                    <span className="activity-time">{relativeTime(msg.createdAt)} — status: {msg.status}</span>
-                    {msg.status !== 'resolved' && (
-                      <button type="button" onClick={() => markResolved(msg.id)}>
-                        <FaCheck /> Mark resolved
+                    <span className="activity-time">{relativeTime(msg.createdAt)}</span>
+                    <div className="message-actions">
+                      <label>
+                        <span>Status</span>
+                        <select value={msg.status || 'new'} onChange={(event) => updateMessageStatus(msg.id, event.target.value)}>
+                          {MESSAGE_STATUSES.map((item) => <option key={item} value={item}>{item}</option>)}
+                        </select>
+                      </label>
+                      {msg.status !== 'resolved' && (
+                        <button type="button" onClick={() => updateMessageStatus(msg.id, 'resolved')}>
+                          <FaCheck /> Resolve
+                        </button>
+                      )}
+                      <button className="btn-delete" type="button" onClick={() => deleteMessage(msg.id, msg.name)}>
+                        <FaTrash /> Delete
                       </button>
-                    )}
+                    </div>
                   </div>
                 </article>
               ))

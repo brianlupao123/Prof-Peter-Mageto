@@ -13,7 +13,6 @@ const Sources = lazy(() => import('./pages/Sources.jsx'));
 const Access = lazy(() => import('./pages/Access.jsx'));
 const SignIn = lazy(() => import('./pages/SignIn.jsx'));
 const SignUp = lazy(() => import('./pages/SignUp.jsx'));
-const ForgotPassword = lazy(() => import('./pages/ForgotPassword.jsx'));
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'));
 const NotFound = lazy(() => import('./pages/NotFound.jsx'));
 
@@ -141,7 +140,7 @@ export default function App() {
           <Route path="/signup" element={<Navigate to="/sign-up" replace />} />
           <Route path="/register" element={<Navigate to="/sign-up" replace />} />
 
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/forgot-password" element={<Navigate to="/sign-in" replace />} />
 
           {/* Protected dashboard */}
           <Route

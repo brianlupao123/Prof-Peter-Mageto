@@ -95,9 +95,6 @@ export default function SignIn({ signedIn, onSignIn }) {
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </button>
               </div>
-              <div className="auth-field-row">
-                <Link to="/forgot-password" className="auth-forgot">Forgot password?</Link>
-              </div>
             </div>
 
             {status && <p className="auth-status auth-status--error">{status}</p>}

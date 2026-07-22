@@ -79,7 +79,7 @@ export const roadmap = [
 
 export const sources = [
   { label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/' },
-  { label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/en/news/new-vice-chancellor-fulfills-calling-at-africa-university' },
+  { label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university' },
   { label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/' },
   { label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/' },
 ];
