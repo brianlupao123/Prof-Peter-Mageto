@@ -38,6 +38,13 @@ try {
   await sql`alter table hero_slides add column if not exists focal_position text default 'center center'`;
   await sql`alter table hero_slides add column if not exists overlay_strength integer default 68`;
   await sql`alter table hero_slides add column if not exists card_visibility boolean default true`;
+
+  console.log('Running ALTER TABLE sources_list...');
+  await sql`alter table sources_list add column if not exists publisher text`;
+  await sql`alter table sources_list add column if not exists source_type text`;
+  await sql`alter table sources_list add column if not exists published_date date`;
+  await sql`alter table sources_list add column if not exists verified boolean not null default false`;
+  await sql`alter table sources_list add column if not exists retired boolean not null default false`;
   console.log('Done.');
 } catch (error) {
   console.error('Failed to alter table:', error);

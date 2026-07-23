@@ -333,10 +333,10 @@ const profileFallback = globalThis.__MAGETO_PROFILE__ || {
     'Internationalize research, teaching, and learning',
   ].map((label, sort_order) => ({ id: 'goal-' + sort_order, label, sort_order })),
   sources: [
-    { id: 'source-1', label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0 },
-    { id: 'source-2', label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university', sort_order: 1 },
-    { id: 'source-3', label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/', sort_order: 2 },
-    { id: 'source-4', label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/', sort_order: 3 },
+    { id: 'source-1', label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 0, publisher: 'Africa University', source_type: 'official', published_date: null, verified: true, retired: false },
+    { id: 'source-2', label: 'UM News profile on Prof. Mageto', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university', sort_order: 1, publisher: 'United Methodist News', source_type: 'press', published_date: '2022-03-01', verified: true, retired: false },
+    { id: 'source-3', label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/', sort_order: 2, publisher: 'Africa University News', source_type: 'official', published_date: null, verified: true, retired: false },
+    { id: 'source-4', label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/', sort_order: 3, publisher: 'Africa University', source_type: 'official', published_date: null, verified: true, retired: false },
   ],
   socialLinks: [
     { id: 'social-1', platform: 'linkedin', url: 'https://www.linkedin.com/in/peter-mageto', sort_order: 0 },
@@ -352,12 +352,18 @@ const REPEATABLE_TABLES = {
   publications: { key: 'publications', table: 'publications', columns: ['title'] },
   'research-themes': { key: 'researchThemes', table: 'research_themes', columns: ['label'] },
   'strategy-goals': { key: 'strategyGoals', table: 'strategy_goals', columns: ['label'] },
-  sources: { key: 'sources', table: 'sources_list', columns: ['label', 'url'] },
+  sources: { key: 'sources', table: 'sources_list', columns: ['label', 'url', 'publisher', 'source_type', 'published_date', 'verified', 'retired', 'sort_order'], required: ['label', 'url'] },
   'social-links': { key: 'socialLinks', table: 'social_links', columns: ['platform', 'url'] },
 };
 
 function toCamel(snake) { return snake.replace(/_([a-z])/g, (_, c) => c.toUpperCase()); }
 function resolveTable(collection) { return REPEATABLE_TABLES[collection] || null; }
+function normalizeCollectionValue(col, value) {
+  if (value === '') return null;
+  if (col === 'verified' || col === 'retired') return value === true || value === 'true';
+  if (col === 'sort_order') return Number(value ?? 0);
+  return value ?? null;
+}
 
 async function logActivity(dbRef, authorEmail, title, body) {
   const entry = { id: 'activity-' + Date.now(), title, body, author_email: authorEmail, created_at: new Date().toISOString() };
@@ -563,7 +569,7 @@ app.delete('/api/hero-slides/:pageKey/:id', verifyAdmin, async (req, res) => {
 app.put('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
   const cfg = resolveTable(req.params.collection);
   if (!cfg) return next();
-  const values = cfg.columns.map((col) => req.body[toCamel(col)] ?? req.body[col]);
+  const values = cfg.columns.map((col) => normalizeCollectionValue(col, req.body[toCamel(col)] ?? req.body[col]));
   if (!db) {
     const item = profileFallback[cfg.key].find((row) => row.id === req.params.id);
     if (!item) return res.status(404).json({ message: 'Not found' });
@@ -572,7 +578,7 @@ app.put('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
     return res.json({ item });
   }
   const setClauses = cfg.columns.map((col, i) => col + ' = $' + (i + 1));
-  const rows = await db.query('update ' + cfg.table + ' set ' + setClauses.join(', ') + ' where id = $' + (values.length + 1) + ' returning *', [...values, req.params.id]);
+  const rows = await db('update ' + cfg.table + ' set ' + setClauses.join(', ') + ' where id = $' + (values.length + 1) + ' returning *', [...values, req.params.id]);
   if (!rows[0]) return res.status(404).json({ message: 'Not found' });
   await logActivity(db, req.user.email, 'Edited ' + req.params.collection + ' item', String(values[0] || req.params.id));
   res.json({ item: rows[0] });
@@ -581,8 +587,9 @@ app.put('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
 app.post('/api/:collection', verifyAdmin, async (req, res, next) => {
   const cfg = resolveTable(req.params.collection);
   if (!cfg) return next();
-  const values = cfg.columns.map((col) => req.body[toCamel(col)] ?? req.body[col]);
-  if (values.some((value) => value == null || value === '')) return res.status(400).json({ message: cfg.columns.join(', ') + ' are required' });
+  const values = cfg.columns.map((col) => normalizeCollectionValue(col, req.body[toCamel(col)] ?? req.body[col]));
+  const required = cfg.required || cfg.columns;
+  if (required.some((col) => values[cfg.columns.indexOf(col)] == null || values[cfg.columns.indexOf(col)] === '')) return res.status(400).json({ message: required.join(', ') + ' are required' });
   if (!db) {
     const item = { id: req.params.collection + '-' + Date.now(), sort_order: profileFallback[cfg.key].length };
     cfg.columns.forEach((col, index) => { item[col] = values[index]; });
@@ -591,7 +598,7 @@ app.post('/api/:collection', verifyAdmin, async (req, res, next) => {
     return res.status(201).json({ item });
   }
   const placeholders = cfg.columns.map((_, i) => '$' + (i + 1));
-  const rows = await db.query('insert into ' + cfg.table + ' (' + cfg.columns.join(', ') + ') values (' + placeholders.join(', ') + ') returning *', values);
+  const rows = await db('insert into ' + cfg.table + ' (' + cfg.columns.join(', ') + ') values (' + placeholders.join(', ') + ') returning *', values);
   await logActivity(db, req.user.email, 'Added ' + req.params.collection + ' item', String(values[0]));
   res.status(201).json({ item: rows[0] });
 });
@@ -606,7 +613,7 @@ app.delete('/api/:collection/:id', verifyAdmin, async (req, res, next) => {
     await logActivity(null, req.user.email, 'Deleted ' + req.params.collection + ' item', req.params.id);
     return res.json({ deleted: true });
   }
-  const rows = await db.query('delete from ' + cfg.table + ' where id = $1 returning id', [req.params.id]);
+  const rows = await db('delete from ' + cfg.table + ' where id = $1 returning id', [req.params.id]);
   if (!rows[0]) return res.status(404).json({ message: 'Not found' });
   await logActivity(db, req.user.email, 'Deleted ' + req.params.collection + ' item', req.params.id);
   res.json({ deleted: true });
@@ -623,7 +630,3 @@ if (process.env.RUN_API_SERVER === 'true') {
   const port = process.env.PORT || 5000;
   app.listen(port, () => console.log(`Prof. Mageto API listening on ${port}`));
 }
-
-
-
-

@@ -8,7 +8,8 @@ import { sources as staticSources } from '../data/profileData.js';
 export default function Sources() {
   const slides = useHeroSlides('sources');
   const { data } = useProfile();
-  const sources = data?.sources?.length ? data.sources : staticSources.map((s, i) => ({ id: `src-${i}`, ...s }));
+  const sources = (data?.sources?.length ? data.sources : staticSources.map((s, i) => ({ id: `src-${i}`, ...s })))
+    .filter((source) => source.retired !== true);
 
   useEffect(() => {
     document.title = 'Sources | Rev. Prof. Peter Mageto — Africa University';
@@ -40,7 +41,7 @@ export default function Sources() {
                 <FaCircleCheck style={{ color: 'var(--brand-strong)', flexShrink: 0, marginTop: '0.15rem' }} />
                 <div>
                   <strong style={{ display: 'block', marginBottom: '0.15rem' }}>{source.label}</strong>
-                  <span className="badge-verified">✓ Verified public record</span>
+                  <span className="badge-verified">{source.verified ? 'Verified public record' : 'Contextual public reference'}</span>
                 </div>
               </div>
               <FaArrowUpRightFromSquare style={{ color: 'var(--muted)', flexShrink: 0 }} />

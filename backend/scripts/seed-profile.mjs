@@ -81,17 +81,21 @@ for (const [i, label] of strategyGoals.entries()) {
 }
 
 const sources = [
-  { label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/' },
-  { label: 'Africa University faculty directory profile', url: 'https://africau.edu/faculty-staff/rev-peter-mageto/' },
-  { label: 'UM News: 5th Vice Chancellor installation', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university' },
-  { label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/' },
-  { label: 'Wikipedia biography', url: 'https://en.wikipedia.org/wiki/Peter_Mageto' },
-  { label: 'ResearchGate - Spiritual Gullibility in Search of Health', url: 'https://www.researchgate.net/publication/356651216_Spiritual_Gullibility_in_Search_of_Health_Tragedies_of_Scarcity_and_Sanctity_in_African_Contexts' },
-  { label: 'Amani Partners feature profile', url: 'https://amanipartners.org/peter-mageto-maiko/' },
-  { label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/' },
+  { label: 'Africa University official Vice Chancellor profile', url: 'https://africau.edu/about/vice-chancellor/', publisher: 'Africa University', sourceType: 'official', verified: true, retired: false },
+  { label: 'Africa University faculty directory profile', url: 'https://africau.edu/faculty-staff/rev-peter-mageto/', publisher: 'Africa University', sourceType: 'official', verified: true, retired: false },
+  { label: 'UM News: 5th Vice Chancellor installation', url: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university', publisher: 'United Methodist News', sourceType: 'press', publishedDate: '2022-03-01', verified: true, retired: false },
+  { label: 'Africa University 2023/27 Strategic Plan launch', url: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/', publisher: 'Africa University News', sourceType: 'official', verified: true, retired: false },
+  { label: 'Wikipedia biography', url: 'https://en.wikipedia.org/wiki/Peter_Mageto', publisher: 'Wikipedia', sourceType: 'contextual', verified: false, retired: false },
+  { label: 'ResearchGate - Spiritual Gullibility in Search of Health', url: 'https://www.researchgate.net/publication/356651216_Spiritual_Gullibility_in_Search_of_Health_Tragedies_of_Scarcity_and_Sanctity_in_African_Contexts', publisher: 'ResearchGate', sourceType: 'scholarly', verified: false, retired: true },
+  { label: 'Amani Partners feature profile', url: 'https://amanipartners.org/peter-mageto-maiko/', publisher: 'Amani Partners', sourceType: 'contextual', verified: false, retired: false },
+  { label: 'Africa University official contact page', url: 'https://africau.edu/about/contact-us/', publisher: 'Africa University', sourceType: 'official', verified: true, retired: false },
 ];
 for (const [i, s] of sources.entries()) {
-  await sql`insert into sources_list (label, url, sort_order) values (${s.label}, ${s.url}, ${i}) on conflict do nothing`;
+  await sql`
+    insert into sources_list (label, url, sort_order, publisher, source_type, published_date, verified, retired)
+    values (${s.label}, ${s.url}, ${i}, ${s.publisher}, ${s.sourceType}, ${s.publishedDate || null}, ${s.verified}, ${s.retired})
+    on conflict do nothing
+  `;
 }
 
 console.log('Profile content seeded - all pages should now be fully populated.');

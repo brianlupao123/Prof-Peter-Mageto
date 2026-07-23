@@ -79,7 +79,17 @@ create table if not exists career_entries (id uuid primary key default gen_rando
 create table if not exists publications (id uuid primary key default gen_random_uuid(), title text not null, sort_order integer not null default 0);
 create table if not exists research_themes (id uuid primary key default gen_random_uuid(), label text not null, sort_order integer not null default 0);
 create table if not exists strategy_goals (id uuid primary key default gen_random_uuid(), label text not null, sort_order integer not null default 0);
-create table if not exists sources_list (id uuid primary key default gen_random_uuid(), label text not null, url text not null, sort_order integer not null default 0);
+create table if not exists sources_list (
+  id uuid primary key default gen_random_uuid(),
+  label text not null,
+  url text not null,
+  sort_order integer not null default 0,
+  publisher text,
+  source_type text,
+  published_date date,
+  verified boolean not null default false,
+  retired boolean not null default false
+);
 create table if not exists social_links (id uuid primary key default gen_random_uuid(), platform text not null, url text not null, sort_order integer not null default 0);
 
 create index if not exists idx_credentials_sort on credentials (sort_order);

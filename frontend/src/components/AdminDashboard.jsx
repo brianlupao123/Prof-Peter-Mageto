@@ -91,9 +91,15 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState({});
 
+  const fieldValue = (item, key, type) => {
+    if (type === 'checkbox') return Boolean(item[key]);
+    if (type === 'date' && item[key]) return String(item[key]).slice(0, 10);
+    return item[key] ?? '';
+  };
+
   const startEdit = (id, item) => {
     const draft = {};
-    columns.forEach(({ key }) => { draft[key] = item[key] || ''; });
+    columns.forEach(({ key, type }) => { draft[key] = fieldValue(item, key, type); });
     setDrafts((d) => ({ ...d, [id]: draft }));
   };
 
@@ -106,7 +112,7 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
       await apiFetch(`/api/${collection}/${id}`, { method: 'PUT', token, body: JSON.stringify(drafts[id]) });
       cancelEdit(id);
       await onRefresh();
-      toast('Item updated ✓');
+      toast('Item updated');
     } catch (e) { toast(e.message, 'error'); }
   };
 
@@ -126,8 +132,35 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
       setNewItem({});
       setAdding(false);
       await onRefresh();
-      toast('Item added ✓');
+      toast('Item added');
     } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const renderField = (field, value, onChange) => {
+    const { key, label, multiline, type, options, required } = field;
+    return (
+      <label key={key} style={{ display: 'grid', gap: '0.25rem', marginBottom: '0.5rem' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>{label}{required ? ' *' : ''}</span>
+        {type === 'checkbox'
+          ? <input type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
+          : options
+            ? <select required={required} style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value || ''} onChange={(e) => onChange(e.target.value)}>
+                <option value="">Unspecified</option>
+                {options.map((option) => <option key={option} value={option}>{option}</option>)}
+              </select>
+            : multiline
+              ? <textarea rows={2} required={required} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={value || ''} onChange={(e) => onChange(e.target.value)} />
+              : <input required={required} type={type || 'text'} style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value || ''} onChange={(e) => onChange(e.target.value)} />
+        }
+      </label>
+    );
+  };
+
+  const displayValue = (item, field) => {
+    const value = item[field.key];
+    if (field.type === 'checkbox') return value ? 'Yes' : 'No';
+    if (value == null || value === '') return '-';
+    return String(value);
   };
 
   return (
@@ -141,19 +174,11 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
           <div key={id} className="collection-item">
             <div>
               {isEditing
-                ? columns.map(({ key, label, multiline }) => (
-                    <label key={key} style={{ display: 'grid', gap: '0.25rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>{label}</span>
-                      {multiline
-                        ? <textarea rows={2} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={drafts[id][key] || ''} onChange={(e) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [key]: e.target.value } }))} />
-                        : <input style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={drafts[id][key] || ''} onChange={(e) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [key]: e.target.value } }))} />
-                      }
-                    </label>
-                  ))
-                : columns.map(({ key, label }) => (
-                    <div key={key} style={{ fontSize: '0.88rem' }}>
-                      {columns.length > 1 && <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>{label}: </span>}
-                      {item[key]}
+                ? columns.map((field) => renderField(field, drafts[id][field.key], (value) => setDrafts((d) => ({ ...d, [id]: { ...d[id], [field.key]: value } }))))
+                : columns.map((field) => (
+                    <div key={field.key} style={{ fontSize: '0.88rem' }}>
+                      {columns.length > 1 && <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>{field.label}: </span>}
+                      {displayValue(item, field)}
                     </div>
                   ))
               }
@@ -178,15 +203,7 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
         ? (
           <form className="collection-item" style={{ borderColor: 'var(--brand)' }} onSubmit={addItem}>
             <div>
-              {columns.map(({ key, label, multiline }) => (
-                <label key={key} style={{ display: 'grid', gap: '0.25rem', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>{label} *</span>
-                  {multiline
-                    ? <textarea rows={2} required style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={newItem[key] || ''} onChange={(e) => setNewItem((n) => ({ ...n, [key]: e.target.value }))} />
-                    : <input required style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={newItem[key] || ''} onChange={(e) => setNewItem((n) => ({ ...n, [key]: e.target.value }))} />
-                  }
-                </label>
-              ))}
+              {columns.map((field) => renderField(field, fieldValue(newItem, field.key, field.type), (value) => setNewItem((n) => ({ ...n, [field.key]: value }))))}
             </div>
             <div className="collection-item-actions" style={{ flexDirection: 'column' }}>
               <button className="btn-save" type="submit">Add</button>
@@ -209,7 +226,7 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
   );
 }
 
-// ── Banner Slide Editor ────────────────────────────────────────────────────
+// Banner Slide Editor
 const PAGE_KEYS = ['overview', 'leadership', 'scholarship', 'strategy', 'roadmap', 'contact', 'sources'];
 
 function toSlideDraft(slide = {}) {
@@ -504,7 +521,20 @@ const COLLECTIONS = [
   { key: 'publications', label: 'Publications', columns: [{ key: 'title', label: 'Title' }] },
   { key: 'research-themes', label: 'Research Themes', columns: [{ key: 'label', label: 'Theme' }] },
   { key: 'strategy-goals', label: 'Strategy Goals', columns: [{ key: 'label', label: 'Goal' }] },
-  { key: 'sources', label: 'Sources', columns: [{ key: 'label', label: 'Label' }, { key: 'url', label: 'URL' }] },
+  {
+    key: 'sources',
+    label: 'Sources',
+    columns: [
+      { key: 'label', label: 'Label', required: true },
+      { key: 'url', label: 'URL', required: true },
+      { key: 'publisher', label: 'Publisher' },
+      { key: 'source_type', label: 'Source type', options: ['official', 'press', 'scholarly', 'contextual'] },
+      { key: 'published_date', label: 'Published date', type: 'date' },
+      { key: 'verified', label: 'Verified', type: 'checkbox' },
+      { key: 'retired', label: 'Retired', type: 'checkbox' },
+      { key: 'sort_order', label: 'Sort order', type: 'number' },
+    ],
+  },
   { key: 'social-links', label: 'Social Links', columns: [{ key: 'platform', label: 'Platform' }, { key: 'url', label: 'URL' }] },
 ];
 
