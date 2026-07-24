@@ -13,6 +13,7 @@ import {
 } from 'react-icons/fa6';
 import { apiFetch, uploadFile } from '../lib/api.js';
 import { useProfile } from '../lib/useProfile.js';
+import { fallbackHeroSlides } from '../data/profileData.js';
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 function useToast() {
@@ -859,7 +860,6 @@ export default function AdminDashboard({ signedIn, token }) {
     </>
   );
 }
-
 
 
 
