@@ -443,8 +443,9 @@ app.put('/api/profile', verifyAdmin, async (req, res) => {
 
 app.post('/api/uploads', verifyAdmin, express.raw({ type: '*/*', limit: '8mb' }), async (req, res) => {
   const filename = String(req.query.filename || 'upload-' + Date.now());
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return res.status(503).json({ message: 'Blob storage not configured. Add BLOB_READ_WRITE_TOKEN in Vercel settings.' });
-  const blob = await put(filename, req.body, { access: 'public', addRandomSuffix: true });
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN || process.env.MAGETO_PORTFOLIO_UPLOADS_READ_WRITE_TOKEN;
+  if (!blobToken) return res.status(503).json({ message: 'Blob storage not configured. Add BLOB_READ_WRITE_TOKEN or MAGETO_PORTFOLIO_UPLOADS_READ_WRITE_TOKEN in Vercel settings.' });
+  const blob = await put(filename, req.body, { access: 'public', addRandomSuffix: true, token: blobToken });
   await logActivity(db, req.user.email, 'Uploaded an image', blob.url);
   res.status(201).json({ url: blob.url });
 });
