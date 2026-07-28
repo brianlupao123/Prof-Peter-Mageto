@@ -1425,6 +1425,9 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
     line-height: 1.55;
     max-width: 100%;
   }
+  .page-banner-slide.has-image .hero-actions a:not(:first-child) {
+    color: var(--brand-strong);
+  }
   .page-banner-card {
     justify-self: stretch;
     margin: 1rem 0 0;
