@@ -812,6 +812,14 @@ footer.site-footer {
   border-radius: 8px;
   background: var(--surface);
 }
+.dashboard-panel { display: grid; gap: 1rem; }
+.dashboard-panel .contact-form.compact { gap: 0.85rem; }
+.dashboard-panel .contact-form.compact label { gap: 0.35rem; }
+.collection-item { align-content: start; }
+.collection-item > div:first-child,
+.collection-item form > div:first-child { min-width: 0; }
+.collection-item form { width: 100%; }
+.collection-item-actions { flex-wrap: wrap; justify-content: flex-end; }
 .collection-item-actions { display: flex; gap: 0.4rem; flex-shrink: 0; }
 .btn-edit, .btn-delete, .btn-save {
   padding: 0.4rem 0.7rem;
