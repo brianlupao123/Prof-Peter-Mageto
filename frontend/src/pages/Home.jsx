@@ -12,7 +12,7 @@ export default function Home() {
   const { data } = useProfile();
 
   useEffect(() => {
-    document.title = 'Overview | Rev. Prof. Peter Mageto — Africa University Vice Chancellor';
+    document.title = 'Overview | Rev. Prof. Peter Mageto â€” Africa University Vice Chancellor';
   }, []);
 
   return (
@@ -61,7 +61,7 @@ export default function Home() {
         <div>
           <span className="eyebrow">Audience Design</span>
           <h2>Built for credible information, fast.</h2>
-          <p className="lead">This portfolio serves funders, partners, academic peers, students, and media — each with a direct path to what matters most to them.</p>
+          <p className="lead">This portfolio serves funders, partners, academic peers, students, and media â€” each with a direct path to what matters most to them.</p>
         </div>
         <div className="stakeholder-list">
           {stakeholderPaths.map((path) => (
