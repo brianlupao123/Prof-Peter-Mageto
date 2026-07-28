@@ -34,7 +34,7 @@ Prof Magetto Website/
       main.jsx
       styles.css
       components/            # Header, Sidebar, dashboard/contact UI
-      data/profileData.js    # verified content and roadmap data
+      data/profileData.js    # verified fallback content
       lib/api.js             # API helper
       pages/                 # independent route pages
 ```
@@ -47,8 +47,9 @@ The frontend uses a professional executive layout with:
 - Sidebar navigation containing all major sections.
 - Responsive desktop and mobile behavior.
 - Light/dark theme toggle.
-- No broken remote portrait dependency; the launch version uses a clean executive identity panel until client-approved photography is supplied.
+- Dashboard-managed hero photography with per-slide focal position, overlay strength, and identity-card visibility controls.
 - Lazy-loaded routes for Overview, Leadership, Scholarship, Strategy, Roadmap, Contact, Sources, Access, Dashboard, and Not Found.
+- Public source cards that display restrained source-type and verified indicators. Retired sources are hidden from public pages.
 
 ## Backend Design
 
@@ -56,13 +57,43 @@ The backend is an Express application exported from `backend/src/app.js` and con
 
 Core behavior:
 
-- JWT authentication.
-- Admin credential login.
+- JWT authentication with DB-backed admin login as the sole runtime auth path.
 - Contact message creation.
-- Admin message listing and status updates.
-- Content update creation and listing.
-- Optional Neon Postgres persistence when `DATABASE_URL` is present.
-- Runtime memory fallback for preview/demo deployments.
+- Admin message listing, status updates, and deletion.
+- Admin profile, source, hero-slide, and collection management.
+- Password change through the dashboard using the stored password hash.
+- Real page-like counters backed by the `page_likes` table.
+- Neon Postgres persistence when `DATABASE_URL` is present.
+- Vercel Blob uploads through the protected upload endpoint.
+
+The old `ADMIN_PASSWORD` runtime fallback was removed during the July 2026 hardening work. `ADMIN_PASSWORD` remains useful only for `backend/scripts/seed-admin.mjs` disaster-recovery reseeding. The old forgot-password placeholder redirects to `/sign-in`, and the old fake Google sign-in button was removed because it did not implement real OAuth.
+
+## Admin Dashboard
+
+The dashboard currently supports:
+
+- Profile fields and official contact details.
+- Hero slide CRUD by page key, including `focal_position`, `overlay_strength`, `card_visibility`, CTA fields, and background image upload.
+- Source CRUD with `publisher`, `source_type`, `published_date`, `verified`, `retired`, and `sort_order`.
+- Inbox lifecycle management across `new`, `read`, `replied`, `resolved`, and `archived`, plus message deletion.
+- Dashboard password change using the DB-backed auth path.
+
+The active public engagement component is `frontend/src/components/EngagementSection.jsx`. It reads and writes likes through `/api/likes/:pageKey` and the `page_likes` table. Duplicate-click prevention is currently client-side via `localStorage`, so a determined visitor could still game the count across browsers/devices. This is an accepted low-severity limitation, not a launch blocker. `frontend/src/components/LikeButton.jsx` is unused dead code and can be removed in a future cleanup.
+
+## Source Management
+
+Sources are stored with:
+
+- `label`
+- `url`
+- `publisher`
+- `source_type`
+- `published_date`
+- `verified`
+- `retired`
+- `sort_order`
+
+Public source rendering keeps the page simple: visible sources show source type and verified state where applicable, while retired sources remain available in admin but are hidden publicly. The ResearchGate source is currently retired because normal browser access returned "Access denied"; keep it retired until a reliable replacement URL is verified. Wikipedia and Amani Partners remain contextual sources rather than being falsely elevated to verified institutional sources.
 
 ## Deployment
 
@@ -80,33 +111,57 @@ Production project:
 
 ## Environment Variables
 
-Recommended production variables:
+Required production variables:
 
 - `JWT_SECRET`: strong random secret.
-- `ADMIN_EMAIL`: production admin email.
-- `ADMIN_PASSWORD`: temporary password, rotate before real launch.
+- `ADMIN_EMAIL`: production admin email used by the seed/admin workflows.
+- `ADMIN_PASSWORD`: seed-admin input for reseeding the DB-backed account; not a runtime login fallback.
 - `DATABASE_URL`: Neon Postgres connection string.
+- `RESEND_API_KEY`: Resend key for contact notifications.
+- `NOTIFY_EMAIL`: inbox for contact notifications.
+- `NOTIFY_FROM_EMAIL`: optional sender override.
+- `BLOB_READ_WRITE_TOKEN` or `MAGETO_PORTFOLIO_UPLOADS_READ_WRITE_TOKEN`: Vercel Blob upload token.
+
+Credential rotation for `RESEND_API_KEY`, `DATABASE_URL`, `JWT_SECRET`, and `ADMIN_PASSWORD` was completed in the July 2026 hardening pass. Do not store secret values in documentation, commits, screenshots, or chat transcripts.
+
+Vercel Blob was also configured in Production during the hardening pass. Before that, dashboard uploads returned a missing-token error; uploads were verified after the token was added and after the Blob SDK upgrade.
+
+## Tooling And Dependency Status
+
+Project scripts:
+
+- `npm run lint`: ESLint over `frontend/src`, `backend/src`, and `backend/scripts`.
+- `npm run build`: Vite production build into root `dist/`.
+- `npm run smoke`: runs the production build, checks the seven public routes, and confirms unauthenticated `/api/messages` returns `401`.
+
+Current lint baseline: 0 errors, 10 warnings. An earlier baseline showed 120 warnings; the reduction followed the ESLint 10 upgrade and changed rule/default behavior, not a focused warning-removal refactor.
+
+Dependency/security status:
+
+- `@vercel/blob` was upgraded to the current major line and upload behavior was verified.
+- Vite and ESLint were upgraded to current major lines and regression-checked.
+- React Router remains on the 6.x line. `react-router-dom`/`react-router` have two known moderate advisories with no clean non-breaking fix available at review time. A 7.x upgrade was evaluated, but the target 7.x line introduced different higher-severity advisories, so the migration is deferred as an accepted known risk. The app only uses declarative routing APIs (`BrowserRouter`, `Routes`, `Route`, `Navigate`, `Link`, `NavLink`, and basic hooks), with no data-router/loader surface.
 
 ## Future Enhancements
 
-1. Replace the launch-safe identity panel with client-approved professional portrait photography.
-2. Add official biography, speeches, sermons, publications, awards, and media pages.
-3. Promote the dashboard into a full CMS with editorial roles, approvals, and audit trails.
-4. Add email notifications through Resend or another transactional email provider.
-5. Add spam protection and rate-limited contact submissions.
-6. Connect Neon Postgres permanently and remove reliance on runtime preview memory.
-7. Add file/media upload support for communications staff.
-8. Add analytics, performance monitoring, and search console verification.
-9. Add custom domain and final SEO/social preview assets.
-10. Add Playwright end-to-end tests for sign-in, theme switching, sidebar navigation, contact, and dashboard flows.
+1. Add editorial roles, approvals, and audit trails if the dashboard grows beyond a single-admin model.
+2. Add spam protection and rate-limited contact submissions.
+3. Add server-side rate limiting or fingerprinting for likes if engagement metrics become important.
+4. Identify a reliable replacement for the retired ResearchGate source.
+5. Add analytics, performance monitoring, and search console verification.
+6. Add custom domain and final SEO/social preview assets if not already managed in Vercel.
+7. Add Playwright end-to-end tests for sign-in, theme switching, sidebar navigation, contact, uploads, and dashboard CRUD flows.
+8. Remove unused dead code such as `LikeButton.jsx` during a future cleanup pass.
 
 ## Quality Checks Completed
 
-- `npm install` completed and updated `package-lock.json`.
-- `npm run build` completed successfully.
-- Build output confirms separate route chunks for fast page loading.
-- Root project structure was cleaned to separate frontend and backend architecture.
+- P0 security and functionality hardening completed.
+- P1 source metadata, slide controls, and baseline tooling completed.
+- P2 dependency, source-page, mobile hero, navigation, contact, and dashboard polish completed.
+- `npm run lint` passes with 0 errors and the documented warning baseline.
+- `npm run build` completes successfully.
+- `npm run smoke` passes against the production URL.
 
 ## Notes Before Official Launch
 
-The preview credential is intentionally documented for client review. Before public official launch, rotate the password, set production environment variables in Vercel, connect Neon persistence, and replace placeholder biography/media with client-approved content.
+Do not publish admin credentials in docs or screenshots. Confirm Vercel Production has the current environment variables before redeploying. If the admin password is ever lost, update `ADMIN_PASSWORD` privately, run `npm run seed:admin` against the intended database, redeploy if needed, and verify login through `/sign-in`.
