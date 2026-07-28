@@ -5,14 +5,40 @@ import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
 import { sources as staticSources } from '../data/profileData.js';
 
+const sourceTypeLabels = {
+  official: 'Official',
+  press: 'Press',
+  contextual: 'Contextual',
+  scholarly: 'Scholarly',
+};
+
+function formatSourceType(value) {
+  if (!value) return null;
+  return sourceTypeLabels[value] || value.replace(/[_-]/g, ' ');
+}
+
+function formatPublishedDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
 export default function Sources() {
   const slides = useHeroSlides('sources');
   const { data } = useProfile();
-  const sources = (data?.sources?.length ? data.sources : staticSources.map((s, i) => ({ id: `src-${i}`, ...s })))
-    .filter((source) => source.retired !== true);
+  const rawSources = data?.sources?.length ? data.sources : staticSources.map((s, i) => ({ id: `src-${i}`, ...s }));
+  const sources = rawSources
+    .filter((source) => source.retired !== true)
+    .sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0));
 
   useEffect(() => {
-    document.title = 'Sources | Rev. Prof. Peter Mageto — Africa University';
+    document.title = 'Sources | Rev. Prof. Peter Mageto - Africa University';
   }, []);
 
   return (
@@ -29,24 +55,34 @@ export default function Sources() {
         </p>
 
         <div className="source-list" style={{ marginTop: '1.5rem' }}>
-          {sources.map((source) => (
-            <a
-              key={source.id || source.url}
-              href={source.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="source-list-item"
-            >
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
-                <FaCircleCheck style={{ color: 'var(--brand-strong)', flexShrink: 0, marginTop: '0.15rem' }} />
-                <div>
-                  <strong style={{ display: 'block', marginBottom: '0.15rem' }}>{source.label}</strong>
-                  <span className="badge-verified">{source.verified ? 'Verified public record' : 'Contextual public reference'}</span>
+          {sources.map((source) => {
+            const sourceType = formatSourceType(source.source_type);
+            const publishedDate = formatPublishedDate(source.published_date);
+            const attribution = [source.publisher, publishedDate].filter(Boolean).join(' | ');
+
+            return (
+              <a
+                key={source.id || source.url}
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="source-list-item"
+              >
+                <div className="source-list-main">
+                  {source.verified ? <FaCircleCheck className="source-verified-icon" aria-hidden="true" /> : null}
+                  <div className="source-list-copy">
+                    <div className="source-meta-row">
+                      {sourceType ? <span className="source-type-label">{sourceType}</span> : null}
+                      {source.verified ? <span className="source-verified-label">Verified</span> : null}
+                    </div>
+                    <strong>{source.label}</strong>
+                    {attribution ? <span className="source-attribution">{attribution}</span> : null}
+                  </div>
                 </div>
-              </div>
-              <FaArrowUpRightFromSquare style={{ color: 'var(--muted)', flexShrink: 0 }} />
-            </a>
-          ))}
+                <FaArrowUpRightFromSquare className="source-link-icon" aria-hidden="true" />
+              </a>
+            );
+          })}
         </div>
 
         <div className="notice-panel" style={{ marginTop: '2rem' }}>
@@ -60,5 +96,3 @@ export default function Sources() {
     </>
   );
 }
-
-
