@@ -1457,6 +1457,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
     grid-template-columns: minmax(0, 1fr) auto;
   }
   .header-left { gap: 0.55rem; }
+  .logo-brand .site-logo strong { display: none; }
   .icon-button { width: 40px; height: 40px; }
   .brand span { width: 38px; height: 38px; }
   .nav-cta { min-height: 40px; padding: 0.6rem 0.8rem; }
