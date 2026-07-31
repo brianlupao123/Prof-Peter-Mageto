@@ -108,9 +108,9 @@ export default function Header({ theme, toggleTheme, signedIn, onSignOut, openSi
             )}
           </div>
         ) : (
-          <Link className="nav-cta" to="/contact?request=meeting#contact-form" aria-label="Request a meeting">
-            <span className="nav-cta-full">Request meeting</span>
-            <span className="nav-cta-short">Request</span>
+          <Link className="nav-cta" to="/contact#contact-form" aria-label="Contact the office">
+            <span className="nav-cta-full">Contact office</span>
+            <span className="nav-cta-short">Contact</span>
             <span aria-hidden="true">→</span>
           </Link>
         )}

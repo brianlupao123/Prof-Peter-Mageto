@@ -131,3 +131,30 @@ Still browser-check before deploy:
 - Contact form submit: message lands in admin Inbox with subject containing request type.
 
 Only after those pass should this be committed and deployed.
+
+
+## July 31 Follow-Up: Header And Alignment Correction
+
+Designer decision: the real request/appointment workflow is valuable, but `Request meeting` does not need to be a heavy persistent header button. It was visually dominating compact headers and making the mobile/tablet header feel crowded.
+
+Additional local fixes now applied:
+
+1. Header CTA demoted from `Request meeting` to `Contact office` on desktop and `Contact` on compact widths.
+2. The request workflow remains real and available on the Contact page through the request-type form: appointment request, speaking invitation, partnership discussion, and general enquiry.
+3. Body content alignment was adjusted so page sections, card grids, and focus sections use a smaller consistent side margin instead of a large centered gutter that felt disconnected from the full-width hero/stat bands.
+4. Engagement panels now receive a small consistent inset so they no longer slam into the viewport edge while the rest of the content sits far inward.
+
+Current mission for Mageto:
+
+- Keep Mageto institutional, calm, verified, and leadership-focused.
+- Replace fake or public-dead-end affordances with real workflows.
+- Avoid making Mageto look like a copy of Brian or Awasthi.
+- Keep public actions useful but restrained: contact/request belongs primarily in the Contact flow, not as a loud persistent header element.
+- Make the visual system feel coherent: hero, engagement, stats, and body sections should have intentional alignment relationships.
+
+What remains challenging:
+
+- Hero images still depend partly on the quality and focal position of uploaded source images.
+- A future improvement could add structured backend fields for request_type instead of storing the type in the message subject.
+- The dashboard could later add filters for enquiry type, appointment request, speaking invitation, and partnership discussion.
+- Final deployment should only happen after a browser screenshot check at mobile/tablet/desktop confirms the header and content alignment feel calmer.

@@ -1519,7 +1519,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
 }
 
 
-/* Responsive header polish for real request workflow */
+/* Responsive header polish for real contact workflow */
 .nav-cta-short { display: none; }
 
 @media (max-width: 900px) {
@@ -1564,5 +1564,35 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
   .nav-cta {
     padding-inline: 0.72rem;
     font-size: 0.86rem;
+  }
+}
+
+
+/* Content alignment polish for full-width hero pages */
+.calm-shell .page-main > .page-section,
+.calm-shell .page-main > .page-band,
+.calm-shell .page-main > .page-hero,
+.calm-shell .page-main > .card-grid.page-section,
+.calm-shell .page-main > .focus-grid.page-section,
+.calm-shell .page-main > .stakeholder-section.page-section {
+  width: auto;
+  max-width: none;
+  margin-inline: clamp(1rem, 2.35vw, 2rem);
+}
+
+.calm-shell .page-main > .engagement-section {
+  margin-inline: clamp(0.75rem, 1.5vw, 1.25rem);
+  border-radius: 8px;
+}
+
+@media (max-width: 760px) {
+  .calm-shell .page-main > .page-section,
+  .calm-shell .page-main > .page-band,
+  .calm-shell .page-main > .page-hero,
+  .calm-shell .page-main > .card-grid.page-section,
+  .calm-shell .page-main > .focus-grid.page-section,
+  .calm-shell .page-main > .stakeholder-section.page-section,
+  .calm-shell .page-main > .engagement-section {
+    margin-inline: 0.75rem;
   }
 }
