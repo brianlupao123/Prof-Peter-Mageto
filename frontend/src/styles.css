@@ -1402,12 +1402,9 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
 .page-banner-track { min-height: clamp(420px, 62svh, 560px); }
 .page-banner-slide { min-height: clamp(420px, 62svh, 560px); }
 .page-banner-bg { object-position: center center; }
-.page-banner--leadership .page-banner-bg { object-position: center 8% !important; }
-.page-banner--scholarship .page-banner-bg { object-position: center 18% !important; }
 .page-banner--strategy .page-banner-bg,
 .page-banner--roadmap .page-banner-bg,
 .page-banner--contact .page-banner-bg { object-position: center center; }
-.page-banner--sources .page-banner-bg { object-position: center 10% !important; }
 .page-banner-overlay {
   background:
     radial-gradient(circle at 82% 42%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 26%),
@@ -1474,8 +1471,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
   .page-banner-dots { bottom: 0.65rem; }
   .banner-arrow { display: none; }
   .page-banner-bg { object-position: center top; }
-  .page-banner--leadership .page-banner-bg { object-position: center 8% !important; }
-}
+  }
 
 @media (max-width: 620px) {
   .source-list a { align-items: flex-start; }
