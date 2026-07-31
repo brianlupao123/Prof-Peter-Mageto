@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaBars, FaMoon, FaSun, FaMagnifyingGlass, FaUser, FaRightFromBracket, FaGaugeHigh } from 'react-icons/fa6';
+import { FaBars, FaMoon, FaSun, FaMagnifyingGlass, FaRightFromBracket, FaGaugeHigh } from 'react-icons/fa6';
 import Logo from './Logo.jsx';
 import { useProfile } from '../lib/useProfile.js';
 
@@ -108,7 +108,7 @@ export default function Header({ theme, toggleTheme, signedIn, onSignOut, openSi
             )}
           </div>
         ) : (
-          <Link className="nav-cta" to="/sign-in">Sign in →</Link>
+          <Link className="nav-cta" to="/contact?request=meeting#contact-form">Request meeting →</Link>
         )}
       </div>
     </header>

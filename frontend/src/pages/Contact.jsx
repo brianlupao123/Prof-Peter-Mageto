@@ -23,8 +23,9 @@ export default function Contact({ signedIn, token }) {
         profile={data?.profile}
         ctas={
           <>
-            <a href="#contact-form">Send a message</a>
-            <Link to="/sources">Check sources</Link>
+            <a href="#contact-form">Send enquiry</a>
+            <Link to="/contact?request=meeting#contact-form">Request meeting</Link>
+            <Link to="/contact?request=speaking#contact-form">Invite to speak</Link>
           </>
         }
       />
@@ -33,10 +34,9 @@ export default function Contact({ signedIn, token }) {
         {/* Office info panel */}
         <div>
           <span className="eyebrow">Contact Workflow</span>
-          <h2>Structured communication for official enquiries.</h2>
+          <h2>Structured requests, routed to a real inbox.</h2>
           <p className="lead">
-            The contact form connects directly to an admin-reviewed inbox. Messages are logged, tracked,
-            and followed up via official Africa University channels.
+            Send an enquiry, appointment request, speaking invitation, or partnership note. Each submission is logged in the admin dashboard for review, status tracking, and follow-up.
           </p>
 
           <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1.5rem' }}>

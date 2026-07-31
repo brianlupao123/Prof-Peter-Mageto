@@ -142,6 +142,26 @@ h3 { font-size: 1.12rem; margin-bottom: 0.65rem; }
 .strategy-list article, .roadmap-list article { display: grid; grid-template-columns: 54px 1fr; align-items: center; gap: 1rem; }
 .strategy-list strong, .roadmap-list strong, .focus-grid strong { color: var(--accent); font-size: 1.5rem; }
 .contact-form { display: grid; gap: 0.9rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 1rem; }
+.contact-form select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+}
+.contact-admin-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.contact-admin-note a {
+  color: var(--brand-strong);
+  font-weight: 800;
+}
 .contact-form label { display: grid; gap: 0.45rem; color: var(--muted); font-weight: 800; }
 .contact-form input, .contact-form textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 0.9rem 1rem; background: var(--bg); color: var(--text); resize: vertical; }
 .form-status { color: var(--muted); margin: 0; }
@@ -395,7 +415,10 @@ footer { margin-left: 280px; }
 }
 
 .calm-shell .app-header {
-  grid-template-columns: minmax(250px, 330px) minmax(260px, 520px) auto;
+  grid-template-columns: auto minmax(280px, 520px) auto;
+  justify-content: space-between;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  padding: 0.75rem clamp(1rem, 2.5vw, 2rem);
   background: color-mix(in srgb, var(--surface) 96%, transparent);
 }
 .calm-shell .header-search {
@@ -1379,11 +1402,12 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
 .page-banner-track { min-height: clamp(420px, 62svh, 560px); }
 .page-banner-slide { min-height: clamp(420px, 62svh, 560px); }
 .page-banner-bg { object-position: center center; }
-.page-banner--leadership .page-banner-bg { object-position: center 22%; }
-.page-banner--scholarship .page-banner-bg { object-position: center 28%; }
+.page-banner--leadership .page-banner-bg { object-position: center 8% !important; }
+.page-banner--scholarship .page-banner-bg { object-position: center 18% !important; }
 .page-banner--strategy .page-banner-bg,
 .page-banner--roadmap .page-banner-bg,
 .page-banner--contact .page-banner-bg { object-position: center center; }
+.page-banner--sources .page-banner-bg { object-position: center 10% !important; }
 .page-banner-overlay {
   background:
     radial-gradient(circle at 82% 42%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 26%),
@@ -1450,7 +1474,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
   .page-banner-dots { bottom: 0.65rem; }
   .banner-arrow { display: none; }
   .page-banner-bg { object-position: center top; }
-  .page-banner--leadership .page-banner-bg { object-position: center top; }
+  .page-banner--leadership .page-banner-bg { object-position: center 8% !important; }
 }
 
 @media (max-width: 620px) {
