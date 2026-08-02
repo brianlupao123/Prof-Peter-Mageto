@@ -1659,7 +1659,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
   }
 
   .nav-cta::before {
-    content: "✉";
+    content: "\2709";
     line-height: 1;
   }
 }
@@ -1709,3 +1709,4 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
   text-transform: uppercase;
   letter-spacing: 0;
 }
+
