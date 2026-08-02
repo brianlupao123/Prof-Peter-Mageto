@@ -26,6 +26,7 @@ export default function Contact({ signedIn, token }) {
             <a href="#contact-form">Send enquiry</a>
             <Link to="/contact?request=meeting#contact-form">Request meeting</Link>
             <Link to="/contact?request=speaking#contact-form">Invite to speak</Link>
+            <Link to="/contact?request=media#contact-form">Media enquiry</Link>
           </>
         }
       />
@@ -36,7 +37,7 @@ export default function Contact({ signedIn, token }) {
           <span className="eyebrow">Contact Workflow</span>
           <h2>Structured requests, routed to a real inbox.</h2>
           <p className="lead">
-            Send an enquiry, appointment request, speaking invitation, or partnership note. Each submission is logged in the admin dashboard for review, status tracking, and follow-up.
+            Send an enquiry, appointment request, speaking invitation, partnership note, or media verification request. Each submission is logged in the admin dashboard for review, status tracking, and follow-up.
           </p>
 
           <div style={{ display: 'grid', gap: '0.75rem', marginTop: '1.5rem' }}>

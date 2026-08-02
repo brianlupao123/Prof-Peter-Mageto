@@ -37,6 +37,15 @@ function ToastContainer({ toasts }) {
 }
 
 // ── Relative time helper ───────────────────────────────────────────────────
+function requestTypeFromSubject(subject = '') {
+  const normalized = String(subject).toLowerCase();
+  if (normalized.includes('appointment')) return 'Appointment';
+  if (normalized.includes('speaking')) return 'Speaking';
+  if (normalized.includes('partnership')) return 'Partnership';
+  if (normalized.includes('media') || normalized.includes('verification')) return 'Media';
+  return 'General';
+}
+
 function relativeTime(isoString) {
   if (!isoString) return '';
   const diff = Date.now() - new Date(isoString).getTime();
@@ -809,7 +818,12 @@ export default function AdminDashboard({ signedIn, token }) {
                     <strong>{msg.name}</strong>
                     <span>{msg.email}</span>
                   </div>
-                  {msg.subject && <p style={{ fontWeight: 700, margin: '0.25rem 0', fontSize: '0.9rem' }}>{msg.subject}</p>}
+                  {msg.subject && (
+                    <div className="message-subject-row">
+                      <span className="request-type-badge">{requestTypeFromSubject(msg.subject)}</span>
+                      <p>{msg.subject}</p>
+                    </div>
+                  )}
                   <p>{msg.message}</p>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                     <span className="activity-time">{relativeTime(msg.createdAt)}</span>

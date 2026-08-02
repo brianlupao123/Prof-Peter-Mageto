@@ -186,6 +186,8 @@ app.post('/api/contact', async (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const subject = String(req.body.subject || 'Portfolio enquiry').trim();
   const message = String(req.body.message || req.body.body || '').trim();
+  const honeypot = String(req.body.website || '').trim();
+  if (honeypot) return res.status(201).json({ success: true, message: 'Message received. The office will be in touch.' });
   if (!name || !email || !message) return res.status(400).json({ message: 'Name, email and message are required' });
   if (!isValidEmail(email)) return res.status(400).json({ message: 'Please enter a valid email address' });
 

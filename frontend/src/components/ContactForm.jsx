@@ -2,15 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { FaPaperPlane } from 'react-icons/fa6';
 import { apiFetch } from '../lib/api.js';
+import RequestTypeSelect, { getRequestTypeLabel, requestTypes } from './RequestTypeSelect.jsx';
 
-const requestTypes = {
-  message: 'General enquiry',
-  meeting: 'Appointment request',
-  speaking: 'Speaking invitation',
-  partnership: 'Partnership discussion',
-};
-
-const initialForm = { name: '', email: '', organization: '', requestType: 'message', message: '' };
+const initialForm = { name: '', email: '', organization: '', requestType: 'message', message: '', website: '' };
 
 export default function ContactForm({ signedIn, token }) {
   const [searchParams] = useSearchParams();
@@ -31,8 +25,18 @@ export default function ContactForm({ signedIn, token }) {
     event.preventDefault();
     setStatus({ type: 'loading', text: 'Sending request...' });
 
-    const subject = requestTypes[form.requestType] || requestTypes.message;
-    const payload = { ...form, subject: `${subject}${form.organization ? ` - ${form.organization}` : ''}` };
+    const subject = getRequestTypeLabel(form.requestType);
+    const officeMessage = [
+      `[Request type: ${subject}]`,
+      form.organization ? `[Organization: ${form.organization}]` : '',
+      '',
+      form.message.trim(),
+    ].filter(Boolean).join('\n');
+    const payload = {
+      ...form,
+      subject: `${subject}${form.organization ? ` - ${form.organization}` : ''}`,
+      message: officeMessage,
+    };
 
     try {
       if (token === 'local-preview-token') {
@@ -60,14 +64,8 @@ export default function ContactForm({ signedIn, token }) {
       <label>Full name <input name="name" value={form.name} onChange={updateField} required /></label>
       <label>Email address <input name="email" type="email" value={form.email} onChange={updateField} required /></label>
       <label>Organization <input name="organization" value={form.organization} onChange={updateField} placeholder="Optional" /></label>
-      <label>
-        Request type
-        <select name="requestType" value={form.requestType} onChange={updateField}>
-          {Object.entries(requestTypes).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
-      </label>
+      <RequestTypeSelect value={form.requestType} onChange={updateField} />
+      <label className="website-field" aria-hidden="true">Website <input name="website" value={form.website} onChange={updateField} tabIndex="-1" autoComplete="off" /></label>
       <label>Message <textarea name="message" value={form.message} onChange={updateField} rows="6" required /></label>
       <button className="button-link" type="submit" disabled={status.type === 'loading'}>
         Send request <FaPaperPlane />
