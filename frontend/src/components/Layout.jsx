@@ -65,7 +65,7 @@ export default function Layout({ children, theme, toggleTheme, signedIn, onSignO
             <strong>Institution</strong>
             <span>Office of the Vice Chancellor</span>
             <span>Evidence-led portfolio system</span>
-            <span>Built and maintained by Brian Lupao</span>
+            <span>Africa University | Old Mutare, Zimbabwe</span>
           </div>
 
           {socialLinks.length > 0 && (
