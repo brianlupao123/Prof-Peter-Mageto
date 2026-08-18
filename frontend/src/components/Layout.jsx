@@ -6,6 +6,7 @@ import {
   FaXTwitter,
   FaYoutube,
 } from 'react-icons/fa6';
+import { Link } from 'react-router-dom';
 import Header from './Header.jsx';
 import Logo from './Logo.jsx';
 import Sidebar from './Sidebar.jsx';
@@ -38,8 +39,35 @@ export default function Layout({ children, theme, toggleTheme, signedIn, onSignO
         <div className="footer-top">
           <div className="footer-brand">
             <Logo size={32} logoUrl={data?.profile?.logo_url} />
-            <span>Africa University | Old Mutare, Zimbabwe</span>
+            <div>
+              <strong>{SITE_NAME}</strong>
+              <span>Africa University | Old Mutare, Zimbabwe</span>
+            </div>
           </div>
+
+          <div className="footer-column">
+            <strong>Portfolio</strong>
+            <Link to="/">Overview</Link>
+            <Link to="/leadership">Leadership</Link>
+            <Link to="/scholarship">Scholarship</Link>
+            <Link to="/strategy">Strategy</Link>
+          </div>
+
+          <div className="footer-column">
+            <strong>Engage</strong>
+            <Link to="/contact?request=meeting#contact-form">Request meeting</Link>
+            <Link to="/contact?request=speaking#contact-form">Invite to speak</Link>
+            <Link to="/sources">Verified sources</Link>
+            <Link to="/sign-in">Admin access</Link>
+          </div>
+
+          <div className="footer-column footer-column--compact">
+            <strong>Institution</strong>
+            <span>Office of the Vice Chancellor</span>
+            <span>Evidence-led portfolio system</span>
+            <span>Built and maintained by Brian Lupao</span>
+          </div>
+
           {socialLinks.length > 0 && (
             <nav className="footer-social" aria-label="Social media links">
               {socialLinks.map((link) => {
@@ -63,10 +91,10 @@ export default function Layout({ children, theme, toggleTheme, signedIn, onSignO
 
         <div className="footer-bottom">
           <span className="footer-copyright">
-            &copy; {new Date().getFullYear()} Rev. Prof. Peter Mageto &mdash; {SITE_NAME}
+            &copy; {new Date().getFullYear()} Rev. Prof. Peter Mageto - {SITE_NAME}
           </span>
           <a className="back-to-top" href="#root" aria-label="Back to top">
-            ↑ Back to top
+            Back to top
           </a>
         </div>
       </footer>
