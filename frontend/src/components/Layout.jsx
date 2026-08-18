@@ -89,6 +89,19 @@ export default function Layout({ children, theme, toggleTheme, signedIn, onSignO
           )}
         </div>
 
+        <div className="footer-action">
+          <div>
+            <strong>Need an official response from the Vice Chancellor's office?</strong>
+            <span>Choose the right request type and send it to the real admin inbox for follow-up.</span>
+          </div>
+          <Link className="footer-action-button" to="/contact?request=meeting#contact-form">
+            Request meeting
+          </Link>
+          <Link className="footer-trust-badge" to="/sources">
+            Verified sources
+          </Link>
+        </div>
+
         <div className="footer-bottom">
           <span className="footer-copyright">
             &copy; {new Date().getFullYear()} Rev. Prof. Peter Mageto - {SITE_NAME}

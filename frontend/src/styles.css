@@ -1750,11 +1750,29 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
 }
 
 footer.site-footer {
+  position: relative;
+  overflow: hidden;
+  margin-top: clamp(2rem, 4vw, 3.25rem);
   padding: 0;
   background:
     radial-gradient(circle at 12% 0, color-mix(in srgb, var(--brand) 18%, transparent), transparent 30%),
     linear-gradient(135deg, #0b2d24, #10251f 62%, #14372c);
   color: #f5fbf7;
+}
+
+footer.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: -1px -6vw auto;
+  height: clamp(34px, 5vw, 58px);
+  background: var(--bg);
+  clip-path: ellipse(58% 78% at 50% 0%);
+  z-index: 0;
+}
+
+.site-footer > * {
+  position: relative;
+  z-index: 1;
 }
 
 .site-footer .footer-top {
@@ -1764,7 +1782,7 @@ footer.site-footer {
   align-items: start;
   width: min(1180px, calc(100% - 2rem));
   margin-inline: auto;
-  padding: clamp(2.2rem, 5vw, 3.8rem) 0 2rem;
+  padding: clamp(4rem, 7vw, 5.4rem) 0 2rem;
 }
 
 .site-footer .footer-brand {
@@ -1811,6 +1829,52 @@ footer.site-footer {
   border-color: rgba(255, 255, 255, 0.14);
 }
 
+.site-footer .footer-action {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto auto;
+  gap: 0.85rem;
+  align-items: center;
+  width: min(1180px, calc(100% - 2rem));
+  margin: 0 auto 1.2rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.site-footer .footer-action strong,
+.site-footer .footer-action span {
+  display: block;
+}
+
+.site-footer .footer-action span {
+  margin-top: 0.25rem;
+  color: rgba(245, 251, 247, 0.72);
+  font-size: 0.9rem;
+}
+
+.site-footer .footer-action-button,
+.site-footer .footer-trust-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 1rem;
+  border-radius: 999px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.site-footer .footer-action-button {
+  background: var(--brand-strong);
+  color: #06231b;
+}
+
+.site-footer .footer-trust-badge {
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f5fbf7;
+}
+
 .site-footer .footer-bottom {
   width: min(1180px, calc(100% - 2rem));
   margin-inline: auto;
@@ -1831,6 +1895,15 @@ footer.site-footer {
 
   .site-footer .footer-top {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-footer .footer-action {
+    grid-template-columns: 1fr;
+  }
+
+  .site-footer .footer-action-button,
+  .site-footer .footer-trust-badge {
+    justify-self: start;
   }
 
   .site-footer .footer-social {
