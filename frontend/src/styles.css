@@ -1930,3 +1930,198 @@ footer.site-footer::before {
   }
 }
 
+/* Final Mageto visual alignment pass: compact office header and consistent content rhythm. */
+:root {
+  --mageto-content-max: 1120px;
+  --mageto-gutter: clamp(1rem, 3vw, 2rem);
+}
+
+.calm-shell .app-header {
+  grid-template-columns: max-content minmax(260px, 520px) max-content;
+  min-height: 68px;
+  gap: clamp(0.7rem, 1.8vw, 1.35rem);
+  padding-inline: var(--mageto-gutter);
+}
+
+.calm-shell .header-left {
+  min-width: 0;
+}
+
+.calm-shell .logo-brand .site-logo {
+  min-width: 0;
+}
+
+.calm-shell .app-header .logo-brand .site-logo strong {
+  display: none;
+}
+
+.calm-shell .header-search {
+  min-height: 42px;
+  border-radius: 9px;
+}
+
+.calm-shell .header-actions {
+  gap: 0.65rem;
+}
+
+.calm-shell .nav-cta {
+  min-width: 132px;
+  min-height: 42px;
+  padding: 0.68rem 0.95rem;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--brand-strong) 84%, var(--accent));
+  box-shadow: none;
+}
+
+.calm-shell .page-main > .page-section,
+.calm-shell .page-main > .page-band,
+.calm-shell .page-main > .page-hero,
+.calm-shell .page-main > .card-grid.page-section,
+.calm-shell .page-main > .focus-grid.page-section,
+.calm-shell .page-main > .stakeholder-section.page-section,
+.calm-shell .page-main > .strategy.page-section,
+.calm-shell .page-main > .two-column.page-section {
+  width: min(var(--mageto-content-max), calc(100% - (var(--mageto-gutter) * 2)));
+  max-width: var(--mageto-content-max);
+  margin-inline: auto;
+}
+
+.calm-shell .page-main > .engagement-section,
+.calm-shell .page-main > .stat-band {
+  width: min(var(--mageto-content-max), calc(100% - (var(--mageto-gutter) * 2)));
+  max-width: var(--mageto-content-max);
+  margin-inline: auto;
+}
+
+.calm-shell .page-main > .engagement-section {
+  margin-top: clamp(0.9rem, 1.8vw, 1.35rem);
+}
+
+.calm-shell .stat-band {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.page-banner-copy {
+  padding-left: max(var(--mageto-gutter), calc((100vw - var(--mageto-content-max)) / 2));
+}
+
+.calm-shell.sidebar-open .page-banner-copy {
+  padding-left: var(--mageto-gutter);
+}
+
+.page-banner-card {
+  margin-right: var(--mageto-gutter);
+}
+
+.site-footer .footer-top,
+.site-footer .footer-action,
+.site-footer .footer-bottom {
+  width: min(var(--mageto-content-max), calc(100% - (var(--mageto-gutter) * 2)));
+}
+
+.site-footer .footer-action {
+  grid-template-columns: minmax(0, 1fr) auto;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.site-footer .footer-trust-badge {
+  display: none;
+}
+
+.site-footer .footer-action-button {
+  background: #f5fbf7;
+  color: #0b2d24;
+}
+
+@media (min-width: 1101px) {
+  .calm-shell.sidebar-open .page-main > .page-section,
+  .calm-shell.sidebar-open .page-main > .page-band,
+  .calm-shell.sidebar-open .page-main > .page-hero,
+  .calm-shell.sidebar-open .page-main > .card-grid.page-section,
+  .calm-shell.sidebar-open .page-main > .focus-grid.page-section,
+  .calm-shell.sidebar-open .page-main > .stakeholder-section.page-section,
+  .calm-shell.sidebar-open .page-main > .strategy.page-section,
+  .calm-shell.sidebar-open .page-main > .two-column.page-section,
+  .calm-shell.sidebar-open .page-main > .engagement-section,
+  .calm-shell.sidebar-open .page-main > .stat-band,
+  .calm-shell.sidebar-open .site-footer .footer-top,
+  .calm-shell.sidebar-open .site-footer .footer-action,
+  .calm-shell.sidebar-open .site-footer .footer-bottom {
+    width: min(1000px, calc(100% - (var(--mageto-gutter) * 2)));
+  }
+}
+
+@media (max-width: 980px) {
+  .calm-shell .app-header {
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+
+  .calm-shell .header-search {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .calm-shell .app-header {
+    min-height: 62px;
+    padding-inline: 0.75rem;
+  }
+
+  .calm-shell .logo-brand .site-logo strong {
+    display: none;
+  }
+
+  .calm-shell .header-actions .icon-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .calm-shell .nav-cta {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    border-radius: 50%;
+  }
+
+  .calm-shell .nav-cta .nav-cta-full,
+  .calm-shell .nav-cta .nav-cta-short,
+  .calm-shell .nav-cta span[aria-hidden="true"] {
+    display: none;
+  }
+
+  .calm-shell .nav-cta::before {
+    content: "\2709";
+    line-height: 1;
+  }
+
+  .page-banner-copy,
+  .calm-shell.sidebar-open .page-banner-copy {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .page-banner-card {
+    margin-right: 1rem;
+  }
+
+  .calm-shell .page-main > .page-section,
+  .calm-shell .page-main > .page-band,
+  .calm-shell .page-main > .page-hero,
+  .calm-shell .page-main > .card-grid.page-section,
+  .calm-shell .page-main > .focus-grid.page-section,
+  .calm-shell .page-main > .stakeholder-section.page-section,
+  .calm-shell .page-main > .strategy.page-section,
+  .calm-shell .page-main > .two-column.page-section,
+  .calm-shell .page-main > .engagement-section,
+  .calm-shell .page-main > .stat-band {
+    width: min(100% - 1rem, var(--mageto-content-max));
+  }
+
+  .site-footer .footer-action {
+    grid-template-columns: 1fr;
+  }
+}
+
