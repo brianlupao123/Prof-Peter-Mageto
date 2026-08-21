@@ -17,7 +17,7 @@ export default function Strategy() {
   return (
     <>
       <PageBanner pageKey="strategy" slides={slides} profile={data?.profile} />
-      <EngagementSection pageKey="strategy" />
+      <EngagementSection pageKey="strategy" contactHref="/contact?request=partnership#contact-form" />
 
       <section className="strategy page-section">
         <div className="strategy-copy">

@@ -18,7 +18,7 @@ export default function Leadership() {
   return (
     <>
       <PageBanner pageKey="leadership" slides={slides} profile={data?.profile} />
-      <EngagementSection pageKey="leadership" />
+      <EngagementSection pageKey="leadership" contactHref="/contact?request=meeting#contact-form" />
 
       {/* Leadership philosophy grid */}
       <section className="focus-grid page-section">

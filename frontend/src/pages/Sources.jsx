@@ -44,7 +44,7 @@ export default function Sources() {
   return (
     <>
       <PageBanner pageKey="sources" slides={slides} profile={data?.profile} />
-      <EngagementSection pageKey="sources" />
+      <EngagementSection pageKey="sources" contactHref="/contact?request=media#contact-form" />
 
       <section className="page-section">
         <span className="eyebrow">Verification</span>

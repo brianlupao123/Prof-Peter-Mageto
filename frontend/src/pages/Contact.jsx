@@ -57,7 +57,7 @@ export default function Contact({ signedIn, token }) {
           </>
         }
       />
-      <EngagementSection pageKey="contact" />
+      <EngagementSection pageKey="contact" contactHref="#contact-form" />
 
       <section className="office-desk page-section">
         <div className="section-kicker-row">

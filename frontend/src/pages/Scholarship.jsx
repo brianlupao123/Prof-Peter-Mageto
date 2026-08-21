@@ -20,7 +20,7 @@ export default function Scholarship() {
   return (
     <>
       <PageBanner pageKey="scholarship" slides={slides} profile={data?.profile} />
-      <EngagementSection pageKey="scholarship" />
+      <EngagementSection pageKey="scholarship" contactHref="/contact?request=partnership#contact-form" />
 
       {/* Credentials grid */}
       <section className="page-section">
