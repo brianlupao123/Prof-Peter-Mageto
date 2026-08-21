@@ -905,6 +905,120 @@ footer.site-footer {
 .dashboard-panel { display: grid; gap: 1rem; }
 .dashboard-panel .contact-form.compact { gap: 0.85rem; }
 .dashboard-panel .contact-form.compact label { gap: 0.35rem; }
+
+.admin-command-center {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, transparent), var(--surface)),
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--brand) 10%, transparent), transparent 36%);
+}
+
+.admin-command-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-command-heading h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2.4vw, 2.1rem);
+}
+
+.admin-command-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.admin-command-status button,
+.admin-command-actions a,
+.admin-command-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.55rem 0.75rem;
+  background: var(--surface);
+  color: var(--brand-strong);
+  font-weight: 850;
+}
+
+.admin-command-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-command-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.35rem 0.65rem;
+  min-height: 116px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.85rem;
+  background: color-mix(in srgb, var(--surface) 90%, var(--surface-strong));
+  color: var(--text);
+  text-align: left;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.admin-command-card:hover,
+.admin-command-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand) 34%, var(--line));
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  outline: none;
+}
+
+.admin-command-card svg {
+  grid-row: span 2;
+  width: 34px;
+  height: 34px;
+  padding: 0.45rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface-strong));
+  color: var(--brand-strong);
+}
+
+.admin-command-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+  line-height: 1.25;
+}
+
+.admin-command-card strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.admin-command-card small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.admin-command-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
 .collection-item { align-content: start; }
 .collection-item > div:first-child,
 .collection-item form > div:first-child { min-width: 0; }
@@ -987,6 +1101,35 @@ footer.site-footer {
 @media (max-width: 900px) {
   .dashboard-grid-wide { grid-template-columns: 1fr; }
   .dashboard-tabs { gap: 0; }
+  .admin-command-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .admin-command-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .admin-command-center {
+    padding: 0.85rem;
+  }
+  .admin-command-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-command-status,
+  .admin-command-actions {
+    align-items: stretch;
+    width: 100%;
+  }
+  .admin-command-status {
+    flex-wrap: wrap;
+  }
+  .admin-command-status button,
+  .admin-command-actions a,
+  .admin-command-actions button {
+    flex: 1 1 100%;
+  }
 }
 
 /* ============================================================

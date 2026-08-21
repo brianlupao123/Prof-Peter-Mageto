@@ -3,7 +3,12 @@ import { Link } from 'react-router-dom';
 import {
   FaArrowDown,
   FaArrowUp,
+  FaBookOpen,
+  FaBullhorn,
   FaCheck,
+  FaEnvelopeOpenText,
+  FaFileCircleCheck,
+  FaImages,
   FaLock,
   FaPlus,
   FaRotate,
@@ -858,10 +863,90 @@ export default function AdminDashboard({ signedIn, token }) {
     sources: data?.sources ?? [],
     'social-links': data?.socialLinks ?? [],
   };
+  const heroSlideCount = data?.heroSlides?.length || fallbackHeroSlides.length || 0;
+  const sourceCount = collectionData.sources.length;
+  const verifiedSourceCount = collectionData.sources.filter((source) => source.verified && !source.retired).length;
+  const publishedOfficeCount = officeMessages.filter((item) => item.published).length;
+  const draftOfficeCount = officeMessages.length - publishedOfficeCount;
+  const openMessageCount = messages.filter((message) => !['resolved', 'archived'].includes(message.status)).length;
+
+  const openSources = () => {
+    setActiveCollection('sources');
+    setActiveTab('Collections');
+  };
+
+  const commandCards = [
+    {
+      label: 'Open inbox',
+      value: openMessageCount,
+      detail: `${messages.length} total contact request${messages.length === 1 ? '' : 's'}`,
+      icon: FaEnvelopeOpenText,
+      action: () => setActiveTab('Inbox'),
+    },
+    {
+      label: 'Published messages',
+      value: publishedOfficeCount,
+      detail: `${draftOfficeCount} draft item${draftOfficeCount === 1 ? '' : 's'} in review`,
+      icon: FaBullhorn,
+      action: () => setActiveTab('Messages'),
+    },
+    {
+      label: 'Verified sources',
+      value: verifiedSourceCount,
+      detail: `${sourceCount} source record${sourceCount === 1 ? '' : 's'} managed`,
+      icon: FaFileCircleCheck,
+      action: openSources,
+    },
+    {
+      label: 'Hero slides',
+      value: heroSlideCount,
+      detail: 'Visual banners across public pages',
+      icon: FaImages,
+      action: () => setActiveTab('Banners'),
+    },
+  ];
 
   return (
     <>
       <ToastContainer toasts={toasts} />
+
+      <section className="admin-command-center" aria-label="Admin command center">
+        <div className="admin-command-heading">
+          <div>
+            <span className="eyebrow">Operations</span>
+            <h2>VC office command center</h2>
+          </div>
+          <div className="admin-command-status">
+            <span>{status}</span>
+            <button
+              type="button"
+              onClick={async () => { await reload(); await loadDashboard(); toast('Dashboard refreshed'); }}
+            >
+              <FaRotate /> Refresh
+            </button>
+          </div>
+        </div>
+
+        <div className="admin-command-grid">
+          {commandCards.map((card) => {
+            const Icon = card.icon;
+            return (
+              <button key={card.label} type="button" className="admin-command-card" onClick={card.action}>
+                <Icon aria-hidden="true" />
+                <span>{card.label}</span>
+                <strong>{card.value}</strong>
+                <small>{card.detail}</small>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="admin-command-actions" aria-label="Quick actions">
+          <Link to="/messages" target="_blank" rel="noopener noreferrer"><FaBookOpen /> View public archive</Link>
+          <button type="button" onClick={() => setActiveTab('Messages')}><FaPlus /> Add message</button>
+          <button type="button" onClick={openSources}><FaFileCircleCheck /> Review sources</button>
+        </div>
+      </section>
 
       {/* Tab bar */}
       <div className="dashboard-tabs">
