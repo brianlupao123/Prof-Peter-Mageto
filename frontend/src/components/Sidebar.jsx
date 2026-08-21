@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import {
   FaBookOpen, FaChartLine, FaEnvelope, FaHouse, FaLandmark,
   FaMap, FaNewspaper, FaShieldHalved, FaXmark, FaRightToBracket, FaBullhorn,
+  FaCalendarCheck, FaFileCircleCheck,
 } from 'react-icons/fa6';
 import Logo from './Logo.jsx';
 import { useProfile } from '../lib/useProfile.js';
@@ -20,6 +21,33 @@ const navIcons = {
 };
 
 const publicNavItems = navItems.filter((item) => item.to !== '/dashboard');
+
+const officeShortcuts = [
+  {
+    to: '/contact?request=meeting#contact-form',
+    label: 'Request meeting',
+    detail: 'Office routing',
+    icon: FaCalendarCheck,
+  },
+  {
+    to: '/messages',
+    label: 'Messages',
+    detail: 'Speeches archive',
+    icon: FaBullhorn,
+  },
+  {
+    to: '/sources',
+    label: 'Verified evidence',
+    detail: 'Public record',
+    icon: FaFileCircleCheck,
+  },
+  {
+    to: '/contact#contact-form',
+    label: 'Contact office',
+    detail: 'Send enquiry',
+    icon: FaEnvelope,
+  },
+];
 
 export default function Sidebar({ open, onClose, signedIn }) {
   const { data } = useProfile();
@@ -58,6 +86,24 @@ export default function Sidebar({ open, onClose, signedIn }) {
             <span>{signedIn ? 'My Account' : 'Sign in'}</span>
           </NavLink>
         </nav>
+
+        <div className="sidebar-office-panel" aria-label="Office shortcuts">
+          <span className="sidebar-office-kicker">Office shortcuts</span>
+          <div className="sidebar-office-grid">
+            {officeShortcuts.map((item) => {
+              const Icon = item.icon;
+              return (
+                <NavLink key={item.to} to={item.to} onClick={onClose} className="sidebar-office-link">
+                  <Icon />
+                  <span>
+                    <strong>{item.label}</strong>
+                    <small>{item.detail}</small>
+                  </span>
+                </NavLink>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="sidebar-footer">
           <strong>Office of the Vice Chancellor</strong>

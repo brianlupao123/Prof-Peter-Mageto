@@ -2533,6 +2533,99 @@ footer.site-footer::before {
   color: var(--brand-strong);
 }
 
+/* Mobile/sidebar discovery: keep public workflows reachable when header search collapses. */
+.sidebar-office-panel {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 0.72rem;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line));
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface-strong) 88%, var(--brand) 8%), color-mix(in srgb, var(--surface) 94%, transparent));
+}
+
+.sidebar {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.sidebar-office-kicker {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sidebar-office-grid {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.sidebar-office-link {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+  min-height: 52px;
+  padding: 0.62rem 0.68rem;
+  border: 1px solid color-mix(in srgb, var(--line) 82%, var(--brand) 10%);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  color: var(--text);
+}
+
+.sidebar-office-link:hover,
+.sidebar-office-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--brand) 34%, var(--line));
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface));
+}
+
+.sidebar-office-link svg {
+  width: 34px;
+  height: 34px;
+  padding: 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 15%, var(--surface-strong));
+  color: var(--brand-strong);
+}
+
+.sidebar-office-link strong,
+.sidebar-office-link small {
+  display: block;
+  line-height: 1.18;
+}
+
+.sidebar-office-link strong {
+  font-size: 0.9rem;
+}
+
+.sidebar-office-link small {
+  margin-top: 0.14rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+@media (max-width: 360px) {
+  .sidebar-office-panel {
+    padding: 0.72rem;
+  }
+
+  .sidebar-office-link {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 0.55rem;
+  }
+
+  .sidebar-office-link svg {
+    width: 30px;
+    height: 30px;
+    padding: 0.48rem;
+  }
+}
+
 .icon-card,
 .focus-grid article,
 .source-list a,
