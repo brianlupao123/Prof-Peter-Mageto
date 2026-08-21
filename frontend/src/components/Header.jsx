@@ -2,39 +2,73 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaBars, FaMoon, FaSun, FaMagnifyingGlass, FaRightFromBracket, FaGaugeHigh } from 'react-icons/fa6';
 import Logo from './Logo.jsx';
+import { navItems } from '../data/profileData.js';
 import { useProfile } from '../lib/useProfile.js';
+
+const officeSearchItems = [
+  { to: '/contact?request=meeting#contact-form', label: 'Request meeting', summary: 'Send a meeting request to the office', keywords: 'meeting appointment request office vice chancellor' },
+  { to: '/contact?request=speaking#contact-form', label: 'Invite to speak', summary: 'Send a speaking or event invitation', keywords: 'speech speaking invite event keynote address' },
+  { to: '/contact?request=media#contact-form', label: 'Media enquiry', summary: 'Ask for biography, source, or media confirmation', keywords: 'media press biography verify verification source' },
+  { to: '/messages', label: 'Messages & Speeches', summary: 'Read public VC messages, speeches, and statements', keywords: 'message speech statement address archive public' },
+];
+
+const searchItems = [
+  ...navItems
+    .filter((item) => item.to !== '/dashboard')
+    .map((item) => ({ ...item, keywords: `${item.label} ${item.summary}` })),
+  ...officeSearchItems,
+];
+
+function matchSearchItems(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return searchItems.slice(0, 5);
+  return searchItems
+    .map((item) => {
+      const haystack = `${item.label} ${item.summary} ${item.keywords || ''}`.toLowerCase();
+      const starts = item.label.toLowerCase().startsWith(q) ? 3 : 0;
+      const includes = haystack.includes(q) ? 2 : 0;
+      const words = q.split(/\s+/).filter(Boolean).reduce((score, word) => score + (haystack.includes(word) ? 1 : 0), 0);
+      return { ...item, score: starts + includes + words };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label))
+    .slice(0, 6);
+}
 
 export default function Header({ theme, toggleTheme, signedIn, onSignOut, openSidebar, userEmail }) {
   const { data } = useProfile();
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
 
-  // Close profile dropdown when clicking outside
+  // Close menus when clicking outside.
   useEffect(() => {
     const handler = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
         setProfileOpen(false);
+      }
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setSearchOpen(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  const results = matchSearchItems(searchQuery);
+  const goToSearchItem = (item) => {
+    if (!item) return;
+    navigate(item.to);
+    setSearchQuery('');
+    setSearchOpen(false);
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-    // Simple navigation-based search
-    const q = searchQuery.toLowerCase();
-    if (q.includes('leader')) navigate('/leadership');
-    else if (q.includes('scholar') || q.includes('research')) navigate('/scholarship');
-    else if (q.includes('strat')) navigate('/strategy');
-    else if (q.includes('road') || q.includes('plan')) navigate('/roadmap');
-    else if (q.includes('contact') || q.includes('reach')) navigate('/contact');
-    else if (q.includes('source')) navigate('/sources');
-    else navigate('/');
-    setSearchQuery('');
+    goToSearchItem(results[0] || searchItems[0]);
   };
 
   const initials = userEmail ? userEmail.slice(0, 2).toUpperCase() : 'U';
@@ -52,15 +86,40 @@ export default function Header({ theme, toggleTheme, signedIn, onSignOut, openSi
       </div>
 
       {/* CENTER: Search bar (hidden on mobile) */}
-      <form className="header-search" onSubmit={handleSearch} role="search" aria-label="Site search">
+      <form className="header-search" onSubmit={handleSearch} role="search" aria-label="Site search" ref={searchRef}>
         <FaMagnifyingGlass style={{ flexShrink: 0, opacity: 0.45 }} />
         <input
           type="search"
-          placeholder="Search pages — Leadership, Scholarship, Strategy…"
+          placeholder="Search pages, speeches, sources, requests..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+          onFocus={() => setSearchOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              setSearchOpen(false);
+              e.currentTarget.blur();
+            }
+          }}
           aria-label="Search the site"
+          aria-expanded={searchOpen}
+          aria-controls="header-search-results"
         />
+        <button className="header-search-submit" type="submit">Go</button>
+        {searchOpen && (
+          <div className="header-search-results" id="header-search-results">
+            {results.length > 0 ? results.map((item) => (
+              <button key={`${item.label}-${item.to}`} type="button" onClick={() => goToSearchItem(item)}>
+                <strong>{item.label}</strong>
+                <span>{item.summary}</span>
+              </button>
+            )) : (
+              <button type="button" onClick={() => goToSearchItem({ to: '/contact', label: 'Contact', summary: 'Send a request to the office' })}>
+                <strong>No direct match</strong>
+                <span>Open Contact to send a specific office request.</span>
+              </button>
+            )}
+          </div>
+        )}
       </form>
 
       {/* RIGHT: Dark/Light → Profile/Sign-in */}
