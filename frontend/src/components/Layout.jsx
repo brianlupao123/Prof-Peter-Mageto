@@ -57,6 +57,7 @@ export default function Layout({ children, theme, toggleTheme, signedIn, onSignO
             <strong>Engage</strong>
             <Link to="/contact?request=meeting#contact-form">Request meeting</Link>
             <Link to="/contact?request=speaking#contact-form">Invite to speak</Link>
+            <Link to="/messages">Messages & speeches</Link>
             <Link to="/sources">Verified sources</Link>
             <Link to="/sign-in">Admin access</Link>
           </div>

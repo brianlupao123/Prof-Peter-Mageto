@@ -2308,6 +2308,88 @@ footer.site-footer::before {
   color: #fff;
 }
 
+.office-desk {
+  padding-top: clamp(2rem, 4vw, 3.5rem) !important;
+  padding-bottom: clamp(1.8rem, 3vw, 2.8rem) !important;
+}
+
+.office-desk-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.office-desk-card {
+  display: grid;
+  gap: 0.6rem;
+  min-height: 168px;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, transparent), var(--surface)),
+    radial-gradient(circle at 95% 0, color-mix(in srgb, var(--accent) 12%, transparent), transparent 34%);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.office-desk-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--brand) 30%, var(--line));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 7%, var(--surface)), var(--surface)),
+    radial-gradient(circle at 95% 0, color-mix(in srgb, var(--accent) 16%, transparent), transparent 34%);
+}
+
+.office-desk-card svg {
+  width: 34px;
+  height: 34px;
+  padding: 0.45rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface-strong));
+  color: var(--brand-strong);
+}
+
+.office-desk-card strong {
+  font-size: 1rem;
+}
+
+.office-desk-card span {
+  color: var(--muted);
+  font-size: 0.91rem;
+  line-height: 1.55;
+}
+
+.office-desk-process {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 88%, var(--surface-strong));
+}
+
+.office-desk-process span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 30px;
+  border-radius: 999px;
+  padding: 0.32rem 0.62rem;
+  background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.office-desk-process svg {
+  color: var(--brand-strong);
+}
+
 .icon-card,
 .focus-grid article,
 .source-list a,
@@ -2341,6 +2423,10 @@ footer.site-footer::before {
   .office-pathway-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .office-desk-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 620px) {
@@ -2353,7 +2439,15 @@ footer.site-footer::before {
     grid-template-columns: 1fr;
   }
 
+  .office-desk-grid {
+    grid-template-columns: 1fr;
+  }
+
   .office-pathway-card {
+    min-height: 0;
+  }
+
+  .office-desk-card {
     min-height: 0;
   }
 

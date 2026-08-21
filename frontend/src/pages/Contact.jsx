@@ -1,10 +1,37 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaBuilding, FaEnvelope, FaGlobe, FaPhone } from 'react-icons/fa6';
+import { FaBuilding, FaCalendarCheck, FaCircleCheck, FaEnvelope, FaGlobe, FaHandshake, FaMicrophone, FaNewspaper, FaPhone } from 'react-icons/fa6';
 import ContactForm from '../components/ContactForm.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
+
+const requestDeskItems = [
+  {
+    icon: FaCalendarCheck,
+    title: 'Meetings',
+    text: 'Use for appointment requests, courtesy calls, university engagements, and office follow-up.',
+    to: '/contact?request=meeting#contact-form',
+  },
+  {
+    icon: FaMicrophone,
+    title: 'Speaking',
+    text: 'Use for public addresses, panels, ceremonies, conferences, and institutional events.',
+    to: '/contact?request=speaking#contact-form',
+  },
+  {
+    icon: FaHandshake,
+    title: 'Partnerships',
+    text: 'Use for mission-aligned collaboration, donor conversations, academic links, and strategic initiatives.',
+    to: '/contact?request=partnership#contact-form',
+  },
+  {
+    icon: FaNewspaper,
+    title: 'Media',
+    text: 'Use for biography checks, quotes, press verification, and source clarification.',
+    to: '/contact?request=media#contact-form',
+  },
+];
 
 export default function Contact({ signedIn, token }) {
   const slides = useHeroSlides('contact');
@@ -31,6 +58,38 @@ export default function Contact({ signedIn, token }) {
         }
       />
       <EngagementSection pageKey="contact" />
+
+      <section className="office-desk page-section">
+        <div className="section-kicker-row">
+          <div>
+            <span className="eyebrow">Office Request Desk</span>
+            <h2>Choose the right route before you write.</h2>
+          </div>
+          <Link to="/messages" className="section-inline-action">
+            Messages & speeches
+          </Link>
+        </div>
+
+        <div className="office-desk-grid">
+          {requestDeskItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.title} to={item.to} className="office-desk-card">
+                <Icon aria-hidden="true" />
+                <strong>{item.title}</strong>
+                <span>{item.text}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <div className="office-desk-process" aria-label="Request handling process">
+          <span><FaCircleCheck aria-hidden="true" /> Routed to admin inbox</span>
+          <span><FaCircleCheck aria-hidden="true" /> Status tracked by staff</span>
+          <span><FaCircleCheck aria-hidden="true" /> Follow-up through verified contact details</span>
+        </div>
+      </section>
+
       <section id="contact-form" className="page-section two-column">
         {/* Office info panel */}
         <div>
