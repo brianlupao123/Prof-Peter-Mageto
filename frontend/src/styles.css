@@ -2609,6 +2609,88 @@ footer.site-footer::before {
   font-weight: 800;
 }
 
+.office-message-preview {
+  padding-top: clamp(1.8rem, 3.4vw, 3rem) !important;
+  padding-bottom: clamp(1.8rem, 3.4vw, 3rem) !important;
+  border-top: 1px solid color-mix(in srgb, var(--brand) 16%, var(--line));
+  border-bottom: 1px solid color-mix(in srgb, var(--brand) 16%, var(--line));
+}
+
+.office-message-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.office-message-preview-card,
+.office-message-empty {
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line));
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 95%, transparent), color-mix(in srgb, var(--surface-strong) 82%, transparent));
+}
+
+.office-message-preview-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: clamp(1rem, 2vw, 1.25rem);
+}
+
+.office-message-preview-card h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2vw, 1.22rem);
+}
+
+.office-message-preview-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.62;
+}
+
+.office-message-preview-card .message-source-link {
+  margin-top: 0.1rem;
+}
+
+.office-message-empty {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.office-message-empty > svg {
+  width: 42px;
+  height: 42px;
+  padding: 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--brand) 13%, var(--surface-strong));
+  color: var(--brand-strong);
+}
+
+.office-message-empty strong,
+.office-message-empty span {
+  display: block;
+}
+
+.office-message-empty span {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.office-message-empty a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand-strong);
+  font-weight: 900;
+}
+
 @media (max-width: 360px) {
   .sidebar-office-panel {
     padding: 0.72rem;
@@ -2662,6 +2744,19 @@ footer.site-footer::before {
 
   .office-desk-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .office-message-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .office-message-empty {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .office-message-empty a {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 

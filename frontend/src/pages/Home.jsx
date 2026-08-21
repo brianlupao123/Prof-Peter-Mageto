@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FaArrowRight,
+  FaArrowUpRightFromSquare,
   FaBullhorn,
   FaCalendarCheck,
   FaHandshake,
@@ -13,16 +14,72 @@ import {
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
-import { highlights, leadershipFocus, SITE_NAME, stakeholderPaths } from '../data/profileData.js';
+import { highlights, leadershipFocus, stakeholderPaths } from '../data/profileData.js';
+import { apiFetch } from '../lib/api.js';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
+
+const messageTypeLabels = {
+  message: 'Message',
+  speech: 'Speech',
+  statement: 'Statement',
+  address: 'Address',
+};
+
+function formatMessageType(value) {
+  return messageTypeLabels[value] || String(value || 'Message').replace(/[_-]/g, ' ');
+}
+
+function formatMessageDate(value) {
+  if (!value) return 'Undated';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Undated';
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(date);
+}
+
+function messageExcerpt(value) {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= 128) return text;
+  return text.slice(0, 128).trim() + '...';
+}
 
 export default function Home() {
   const slides = useHeroSlides('overview');
   const { data } = useProfile();
+  const [officeMessages, setOfficeMessages] = useState([]);
+  const [officeMessagesStatus, setOfficeMessagesStatus] = useState('loading');
 
   useEffect(() => {
     document.title = 'Overview | Rev. Prof. Peter Mageto — Africa University Vice Chancellor';
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    apiFetch('/api/office-messages')
+      .then((payload) => {
+        if (!active) return;
+        setOfficeMessages(payload.officeMessages || []);
+        setOfficeMessagesStatus('ready');
+      })
+      .catch(() => {
+        if (!active) return;
+        setOfficeMessagesStatus('error');
+      });
+
+    return () => { active = false; };
+  }, []);
+
+  const featuredMessages = useMemo(() => [...officeMessages]
+    .sort((a, b) => {
+      const dateCompare = String(b.publishedDate || '').localeCompare(String(a.publishedDate || ''));
+      if (dateCompare !== 0) return dateCompare;
+      return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+    })
+    .slice(0, 2), [officeMessages]);
 
   return (
     <>
@@ -66,6 +123,51 @@ export default function Home() {
             <span>Public source trail for leadership, strategy, scholarship, and contact data.</span>
           </Link>
         </div>
+      </section>
+
+      <section className="office-message-preview page-section">
+        <div className="section-kicker-row">
+          <div>
+            <span className="eyebrow">Messages & Speeches</span>
+            <h2>Public voice of the Vice Chancellor's office.</h2>
+          </div>
+          <Link to="/messages" className="section-inline-action">
+            Open archive <FaArrowRight />
+          </Link>
+        </div>
+
+        {officeMessagesStatus === 'ready' && featuredMessages.length > 0 ? (
+          <div className="office-message-preview-grid">
+            {featuredMessages.map((item) => (
+              <article key={item.id} className="office-message-preview-card">
+                <div className="source-meta-row">
+                  <span className="source-type-label">{formatMessageType(item.type)}</span>
+                  <span className="source-attribution">{formatMessageDate(item.publishedDate)}</span>
+                </div>
+                <h3>{item.title}</h3>
+                <p>{messageExcerpt(item.body)}</p>
+                <Link to="/messages" className="message-source-link">
+                  Read in archive <FaArrowRight />
+                </Link>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="office-message-empty">
+            <FaBullhorn />
+            <div>
+              <strong>{officeMessagesStatus === 'error' ? 'Archive temporarily unavailable' : 'Formal archive ready'}</strong>
+              <span>
+                {officeMessagesStatus === 'error'
+                  ? 'Public pages remain available while messages are refreshed.'
+                  : 'Published speeches, statements, and addresses appear here once released by the office.'}
+              </span>
+            </div>
+            <Link to="/messages">
+              Visit archive <FaArrowUpRightFromSquare />
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* Stats band */}
