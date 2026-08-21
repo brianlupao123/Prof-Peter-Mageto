@@ -57,6 +57,15 @@ function relativeTime(isoString) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
+function dateInputValue(value) {
+  return value ? String(value).slice(0, 10) : '';
+}
+
+function displayDate(value) {
+  if (!value) return 'Undated';
+  return new Date(value).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
 // ── File Upload Button ─────────────────────────────────────────────────────
 function UploadButton({ token, onUploaded, label = 'Upload image', accept = 'image/*' }) {
   const ref = useRef(null);
@@ -229,6 +238,192 @@ function CollectionEditor({ collection, columns, items, token, onRefresh, toast 
             style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', alignSelf: 'start' }}
           >
             <FaPlus /> Add item
+          </button>
+        )
+      }
+    </div>
+  );
+}
+
+// ── Messages & Speeches Editor ─────────────────────────────────────────────
+const OFFICE_MESSAGE_TYPES = ['message', 'speech', 'statement', 'address'];
+
+function emptyOfficeMessageDraft() {
+  return {
+    title: '',
+    body: '',
+    type: 'message',
+    publishedDate: '',
+    sourceUrl: '',
+    published: false,
+    sortOrder: 0,
+  };
+}
+
+function officeMessageDraft(item = {}) {
+  return {
+    title: item.title || '',
+    body: item.body || '',
+    type: item.type || 'message',
+    publishedDate: dateInputValue(item.publishedDate),
+    sourceUrl: item.sourceUrl || '',
+    published: Boolean(item.published),
+    sortOrder: Number(item.sortOrder ?? 0),
+  };
+}
+
+function OfficeMessagesEditor({ items, token, onRefresh, toast }) {
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState(emptyOfficeMessageDraft());
+  const [adding, setAdding] = useState(false);
+  const [newDraft, setNewDraft] = useState(emptyOfficeMessageDraft());
+
+  const savePayload = (value) => ({
+    title: value.title,
+    body: value.body,
+    type: value.type,
+    publishedDate: value.publishedDate || null,
+    sourceUrl: value.sourceUrl || null,
+    published: Boolean(value.published),
+    sortOrder: Number(value.sortOrder || 0),
+  });
+
+  const startEdit = (item) => {
+    setEditingId(item.id);
+    setDraft(officeMessageDraft(item));
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setDraft(emptyOfficeMessageDraft());
+  };
+
+  const saveEdit = async (id) => {
+    try {
+      await apiFetch(`/api/office-messages/${id}`, { method: 'PUT', token, body: JSON.stringify(savePayload(draft)) });
+      cancelEdit();
+      await onRefresh();
+      toast('Message updated');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const addItem = async (e) => {
+    e.preventDefault();
+    try {
+      await apiFetch('/api/office-messages', { method: 'POST', token, body: JSON.stringify(savePayload(newDraft)) });
+      setNewDraft(emptyOfficeMessageDraft());
+      setAdding(false);
+      await onRefresh();
+      toast('Message added');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const deleteItem = async (item) => {
+    if (!window.confirm(`Delete "${item.title}"? This cannot be undone.`)) return;
+    try {
+      await apiFetch(`/api/office-messages/${item.id}`, { method: 'DELETE', token });
+      await onRefresh();
+      toast('Message deleted');
+    } catch (e) { toast(e.message, 'error'); }
+  };
+
+  const renderFields = (value, setValue) => (
+    <div style={{ display: 'grid', gap: '0.6rem' }}>
+      <label style={{ display: 'grid', gap: '0.25rem' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Title *</span>
+        <input required style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value.title} onChange={(e) => setValue((d) => ({ ...d, title: e.target.value }))} />
+      </label>
+      <label style={{ display: 'grid', gap: '0.25rem' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Body *</span>
+        <textarea required rows={5} style={{ width: '100%', resize: 'vertical', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)', font: 'inherit' }} value={value.body} onChange={(e) => setValue((d) => ({ ...d, body: e.target.value }))} />
+      </label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '0.6rem' }}>
+        <label style={{ display: 'grid', gap: '0.25rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Type</span>
+          <select style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value.type} onChange={(e) => setValue((d) => ({ ...d, type: e.target.value }))}>
+            {OFFICE_MESSAGE_TYPES.map((type) => <option key={type} value={type}>{type}</option>)}
+          </select>
+        </label>
+        <label style={{ display: 'grid', gap: '0.25rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Published date</span>
+          <input type="date" style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value.publishedDate} onChange={(e) => setValue((d) => ({ ...d, publishedDate: e.target.value }))} />
+        </label>
+      </div>
+      <label style={{ display: 'grid', gap: '0.25rem' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Source URL</span>
+        <input style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value.sourceUrl} onChange={(e) => setValue((d) => ({ ...d, sourceUrl: e.target.value }))} />
+      </label>
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', gap: '0.6rem', alignItems: 'end' }}>
+        <label style={{ display: 'grid', gap: '0.25rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 700 }}>Sort order</span>
+          <input type="number" style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--line)', borderRadius: '6px', background: 'var(--bg)', color: 'var(--text)' }} value={value.sortOrder} onChange={(e) => setValue((d) => ({ ...d, sortOrder: e.target.value }))} />
+        </label>
+        <label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', paddingBottom: '0.5rem' }}>
+          <input type="checkbox" checked={Boolean(value.published)} onChange={(e) => setValue((d) => ({ ...d, published: e.target.checked }))} />
+          <span>Published</span>
+        </label>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'grid', gap: '0.75rem' }}>
+      {items.length === 0 && <p style={{ color: 'var(--muted)' }}>No messages or speeches yet. Add the first item below.</p>}
+      {items.map((item) => {
+        const isEditing = editingId === item.id;
+        return (
+          <article key={item.id} className="collection-item">
+            <div>
+              {isEditing
+                ? renderFields(draft, setDraft)
+                : (
+                  <div style={{ display: 'grid', gap: '0.45rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <strong>{item.title}</strong>
+                      <span className="badge-verified">{item.published ? 'Published' : 'Draft'}</span>
+                      <span style={{ color: 'var(--muted)', fontSize: '0.8rem', textTransform: 'capitalize' }}>{item.type}</span>
+                    </div>
+                    <p style={{ margin: 0, color: 'var(--muted)' }}>{displayDate(item.publishedDate)} · Sort {item.sortOrder ?? 0}</p>
+                    <p style={{ margin: 0 }}>{String(item.body || '').slice(0, 220)}{String(item.body || '').length > 220 ? '…' : ''}</p>
+                    {item.sourceUrl && <a href={item.sourceUrl} target="_blank" rel="noreferrer">Source link</a>}
+                  </div>
+                )
+              }
+            </div>
+            <div className="collection-item-actions">
+              {isEditing
+                ? <>
+                    <button className="btn-save" type="button" onClick={() => saveEdit(item.id)}>Save</button>
+                    <button className="btn-edit" type="button" onClick={cancelEdit}>Cancel</button>
+                  </>
+                : <>
+                    <button className="btn-edit" type="button" onClick={() => startEdit(item)}>Edit</button>
+                    <button className="btn-delete" type="button" onClick={() => deleteItem(item)}><FaTrash /></button>
+                  </>
+              }
+            </div>
+          </article>
+        );
+      })}
+
+      {adding
+        ? (
+          <form className="collection-item" style={{ borderColor: 'var(--brand)' }} onSubmit={addItem}>
+            <div>{renderFields(newDraft, setNewDraft)}</div>
+            <div className="collection-item-actions" style={{ flexDirection: 'column' }}>
+              <button className="btn-save" type="submit"><FaPlus /> Add</button>
+              <button className="btn-edit" type="button" onClick={() => { setAdding(false); setNewDraft(emptyOfficeMessageDraft()); }}>Cancel</button>
+            </div>
+          </form>
+        )
+        : (
+          <button
+            className="btn-edit"
+            type="button"
+            onClick={() => setAdding(true)}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '0.45rem', alignSelf: 'start' }}
+          >
+            <FaPlus /> Add message
           </button>
         )
       }
@@ -522,7 +717,7 @@ function BannerEditor({ token, profileData, onRefresh, toast }) {
   );
 }
 // ── Main AdminDashboard ────────────────────────────────────────────────────
-const TABS = ['Profile', 'Banners', 'Collections', 'Inbox', 'Activity'];
+const TABS = ['Profile', 'Banners', 'Collections', 'Messages', 'Inbox', 'Activity'];
 const MESSAGE_STATUSES = ['new', 'read', 'replied', 'resolved', 'archived'];
 
 const COLLECTIONS = [
@@ -555,6 +750,7 @@ export default function AdminDashboard({ signedIn, token }) {
   const [activeTab, setActiveTab] = useState('Profile');
   const [activeCollection, setActiveCollection] = useState('credentials');
   const [messages, setMessages] = useState([]);
+  const [officeMessages, setOfficeMessages] = useState([]);
   const [activity, setActivity] = useState([]);
   const [status, setStatus] = useState('Ready');
 
@@ -588,11 +784,13 @@ export default function AdminDashboard({ signedIn, token }) {
     if (!signedIn) return;
     setStatus('Loading…');
     try {
-      const [msgPayload, actPayload] = await Promise.all([
+      const [msgPayload, officePayload, actPayload] = await Promise.all([
         apiFetch('/api/messages', { token }),
+        apiFetch('/api/admin/office-messages', { token }),
         apiFetch('/api/activity', { token }),
       ]);
       setMessages(msgPayload.messages || []);
+      setOfficeMessages(officePayload.officeMessages || []);
       setActivity(actPayload.activity || []);
       setStatus('Synced');
     } catch (e) { setStatus(e.message); }
@@ -803,6 +1001,27 @@ export default function AdminDashboard({ signedIn, token }) {
         </section>
       )}
 
+      {/* ── MESSAGES TAB ── */}
+      {activeTab === 'Messages' && (
+        <section className="dashboard-panel">
+          <div className="panel-heading">
+            <div>
+              <span className="eyebrow">VC Office</span>
+              <h2>Messages & Speeches</h2>
+            </div>
+          </div>
+          <p style={{ color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+            Publish formal messages, speeches, statements, and addresses for the public archive. Drafts stay visible only here.
+          </p>
+          <OfficeMessagesEditor
+            items={officeMessages}
+            token={token}
+            onRefresh={loadDashboard}
+            toast={toast}
+          />
+        </section>
+      )}
+
       {/* ── INBOX TAB ── */}
       {activeTab === 'Inbox' && (
         <section className="dashboard-panel">
@@ -874,6 +1093,3 @@ export default function AdminDashboard({ signedIn, token }) {
     </>
   );
 }
-
-
-
