@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import {
   FaBookOpen, FaChartLine, FaEnvelope, FaHouse, FaLandmark,
-  FaMap, FaNewspaper, FaShieldHalved, FaXmark, FaRightToBracket,
+  FaMap, FaNewspaper, FaShieldHalved, FaXmark, FaRightToBracket, FaBullhorn,
 } from 'react-icons/fa6';
 import Logo from './Logo.jsx';
 import { useProfile } from '../lib/useProfile.js';
@@ -14,6 +14,7 @@ const navIcons = {
   '/strategy': FaChartLine,
   '/roadmap': FaMap,
   '/contact': FaEnvelope,
+  '/messages': FaBullhorn,
   '/sources': FaNewspaper,
   '/dashboard': FaShieldHalved,
 };

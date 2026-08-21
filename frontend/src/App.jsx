@@ -10,6 +10,7 @@ const Strategy = lazy(() => import('./pages/Strategy.jsx'));
 const Roadmap = lazy(() => import('./pages/Roadmap.jsx'));
 const Contact = lazy(() => import('./pages/Contact.jsx'));
 const Sources = lazy(() => import('./pages/Sources.jsx'));
+const Messages = lazy(() => import('./pages/Messages.jsx'));
 const Access = lazy(() => import('./pages/Access.jsx'));
 const SignIn = lazy(() => import('./pages/SignIn.jsx'));
 const SignUp = lazy(() => import('./pages/SignUp.jsx'));
@@ -131,6 +132,7 @@ export default function App() {
           <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/contact" element={<Contact signedIn={signedIn} token={session?.token} />} />
           <Route path="/sources" element={<Sources />} />
+          <Route path="/messages" element={<Messages />} />
 
           <Route path="/access" element={<Access signedIn={signedIn} onSignIn={signIn} />} />
           <Route path="/sign-in" element={<SignIn signedIn={signedIn} onSignIn={signIn} />} />

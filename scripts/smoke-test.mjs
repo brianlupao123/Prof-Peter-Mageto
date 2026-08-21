@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 
 const siteUrl = (process.env.SITE_URL || 'https://prof-peter-mageto.vercel.app').replace(/\/$/, '');
-const publicRoutes = ['/', '/leadership', '/scholarship', '/strategy', '/roadmap', '/contact', '/sources'];
+const publicRoutes = ['/', '/leadership', '/scholarship', '/strategy', '/roadmap', '/contact', '/messages', '/sources'];
 const npmCli = process.env.npm_execpath;
 
 function runNodeScript(scriptPath, args) {

@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { FaBookOpen, FaChartLine, FaEnvelope, FaLandmark, FaNewspaper, FaShieldHalved } from 'react-icons/fa6';
+import { FaBookOpen, FaBullhorn, FaChartLine, FaEnvelope, FaLandmark, FaNewspaper, FaShieldHalved } from 'react-icons/fa6';
 import { navItems } from '../data/profileData.js';
 
 const indexIcons = {
@@ -7,6 +7,7 @@ const indexIcons = {
   '/scholarship': FaBookOpen,
   '/strategy': FaChartLine,
   '/contact': FaEnvelope,
+  '/messages': FaBullhorn,
   '/sources': FaNewspaper,
   '/dashboard': FaShieldHalved,
 };

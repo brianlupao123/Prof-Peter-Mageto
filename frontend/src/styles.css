@@ -169,6 +169,21 @@ h3 { font-size: 1.12rem; margin-bottom: 0.65rem; }
 .form-status.error { color: #b54040; }
 .source-list a { display: flex; justify-content: space-between; align-items: center; gap: 1rem; color: var(--brand-strong); font-weight: 800; }
 .source-list-item { text-decoration: none; }
+.message-archive-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 1rem;
+  color: var(--text);
+}
+.message-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--brand-strong);
+  font-weight: 800;
+  text-decoration: none;
+}
 .source-list-main { display: flex; align-items: flex-start; gap: 0.65rem; min-width: 0; }
 .source-list-copy { display: grid; gap: 0.28rem; min-width: 0; }
 .source-list-copy strong { display: block; line-height: 1.35; }
@@ -1475,6 +1490,7 @@ html, body, #root { max-width: 100%; overflow-x: clip; }
 
 @media (max-width: 620px) {
   .source-list a { align-items: flex-start; }
+  .message-archive-item { grid-template-columns: 1fr; }
   .source-list-main { gap: 0.55rem; }
   .source-type-label,
   .source-verified-label { font-size: 0.64rem; }

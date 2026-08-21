@@ -15,6 +15,7 @@ export const navItems = [
   { to: '/strategy', label: 'Strategy', summary: '2023-2027 strategic priorities' },
   { to: '/roadmap', label: 'Roadmap', summary: 'Future website improvements' },
   { to: '/contact', label: 'Contact', summary: 'Secure enquiries and workflow' },
+  { to: '/messages', label: 'Messages', summary: 'VC messages, speeches, and statements' },
   { to: '/sources', label: 'Sources', summary: 'Verified public references' },
   { to: '/dashboard', label: 'Dashboard', summary: 'Admin inbox and content tools' },
 ];

@@ -31,6 +31,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://prof-peter-mageto.vercel.app/messages</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://prof-peter-mageto.vercel.app/sources</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
