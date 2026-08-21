@@ -2125,3 +2125,174 @@ footer.site-footer::before {
   }
 }
 
+/* Mageto visible feature layer: public office workflows and evidence trail. */
+.office-pathways {
+  padding-top: clamp(2rem, 4vw, 3.5rem) !important;
+  padding-bottom: clamp(1.6rem, 3vw, 2.5rem) !important;
+}
+
+.section-kicker-row {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-kicker-row h2 {
+  margin-bottom: 0;
+}
+
+.section-inline-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 40px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--brand-strong);
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.office-pathway-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.office-pathway-card {
+  display: grid;
+  align-content: start;
+  gap: 0.65rem;
+  min-height: 176px;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line));
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 94%, transparent), var(--surface)),
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--brand) 13%, transparent), transparent 34%);
+  color: var(--text);
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.office-pathway-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--line));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--brand) 8%, var(--surface)), var(--surface)),
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--accent) 14%, transparent), transparent 34%);
+}
+
+.office-pathway-card svg {
+  width: 34px;
+  height: 34px;
+  padding: 0.45rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--brand) 12%, var(--surface-strong));
+  color: var(--brand-strong);
+}
+
+.office-pathway-card strong {
+  font-size: 1rem;
+}
+
+.office-pathway-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.evidence-ribbon {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 86%, var(--surface-strong));
+}
+
+.evidence-ribbon span,
+.evidence-ribbon a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.evidence-ribbon span {
+  background: color-mix(in srgb, var(--brand) 9%, var(--surface));
+  color: var(--muted);
+}
+
+.evidence-ribbon a {
+  margin-left: auto;
+  background: var(--brand-strong);
+  color: #fff;
+}
+
+.icon-card,
+.focus-grid article,
+.source-list a,
+.roadmap-list article,
+.strategy-list article {
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.icon-card:hover,
+.focus-grid article:hover,
+.source-list a:hover,
+.roadmap-list article:hover,
+.strategy-list article:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand) 32%, var(--line));
+}
+
+.contact-form {
+  padding: clamp(1rem, 2vw, 1.35rem);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, transparent), var(--surface)),
+    radial-gradient(circle at 95% 0, color-mix(in srgb, var(--brand) 12%, transparent), transparent 34%);
+}
+
+.contact-form .button-link {
+  width: 100%;
+  background: color-mix(in srgb, var(--brand-strong) 88%, var(--accent));
+}
+
+@media (max-width: 980px) {
+  .office-pathway-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .section-kicker-row {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .office-pathway-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .office-pathway-card {
+    min-height: 0;
+  }
+
+  .evidence-ribbon a {
+    width: 100%;
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+

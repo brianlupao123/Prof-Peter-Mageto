@@ -1,6 +1,15 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FaArrowRight, FaHandshake, FaScaleBalanced, FaUserTie } from 'react-icons/fa6';
+import {
+  FaArrowRight,
+  FaBullhorn,
+  FaCalendarCheck,
+  FaHandshake,
+  FaNewspaper,
+  FaScaleBalanced,
+  FaShieldHalved,
+  FaUserTie,
+} from 'react-icons/fa6';
 import IconCard from '../components/IconCard.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
@@ -24,6 +33,40 @@ export default function Home() {
         level="h1"
       />
       <EngagementSection pageKey="overview" />
+
+      <section className="office-pathways page-section">
+        <div className="section-kicker-row">
+          <div>
+            <span className="eyebrow">Public Office Workflow</span>
+            <h2>More than a profile page.</h2>
+          </div>
+          <Link to="/contact#contact-form" className="section-inline-action">
+            Start request <FaArrowRight />
+          </Link>
+        </div>
+        <div className="office-pathway-grid">
+          <Link to="/contact?request=meeting#contact-form" className="office-pathway-card">
+            <FaCalendarCheck />
+            <strong>Request meeting</strong>
+            <span>Structured appointment enquiries routed to the admin inbox.</span>
+          </Link>
+          <Link to="/contact?request=speaking#contact-form" className="office-pathway-card">
+            <FaBullhorn />
+            <strong>Invite to speak</strong>
+            <span>Speaking invitations separated from general messages for faster review.</span>
+          </Link>
+          <Link to="/contact?request=media#contact-form" className="office-pathway-card">
+            <FaNewspaper />
+            <strong>Media enquiry</strong>
+            <span>Press and biography checks directed through verified institutional context.</span>
+          </Link>
+          <Link to="/sources" className="office-pathway-card">
+            <FaShieldHalved />
+            <strong>Verify claims</strong>
+            <span>Public source trail for leadership, strategy, scholarship, and contact data.</span>
+          </Link>
+        </div>
+      </section>
 
       {/* Stats band */}
       <section className="stat-band">
@@ -50,10 +93,13 @@ export default function Home() {
 
       {/* Credibility note */}
       <section className="page-section" style={{ paddingTop: 0 }}>
-        <p className="credibility-note">
-          All claims on this site are drawn from Africa University's official website, UM News, and public announcements.
-          Every page links to its primary source. <Link to="/sources" style={{ color: 'var(--brand-strong)', fontWeight: 700 }}>View all sources ?</Link>
-        </p>
+        <div className="evidence-ribbon">
+          <span>Verified profile</span>
+          <span>Official contact route</span>
+          <span>Source metadata</span>
+          <span>Admin-managed content</span>
+          <Link to="/sources">View all sources <FaArrowRight /></Link>
+        </div>
       </section>
 
       {/* Stakeholder paths */}
