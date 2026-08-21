@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import EvidenceLinks from '../components/EvidenceLinks.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
@@ -51,6 +52,19 @@ export default function Strategy() {
             launched by Prof. Mageto in February 2023.
           </p>
         </div>
+      </section>
+
+      <section className="page-section" style={{ paddingTop: 0 }}>
+        <EvidenceLinks
+          title="Strategic plan reference."
+          note="The 2023-2027 priority framework is anchored in Africa University's public launch announcement."
+          links={[
+            {
+              label: 'Africa University 2023/27 Strategic Plan launch',
+              href: 'https://aunews.africau.edu/africa-universitys-vice-chancellor-launches-2023-27-strategic-plan/',
+            },
+          ]}
+        />
       </section>
     </>
   );

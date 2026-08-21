@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import EvidenceLinks from '../components/EvidenceLinks.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
 import { roadmap } from '../data/profileData.js';
@@ -31,6 +32,23 @@ export default function Roadmap() {
             </article>
           ))}
         </div>
+      </section>
+
+      <section className="page-section" style={{ paddingTop: 0 }}>
+        <EvidenceLinks
+          title="Platform transparency."
+          note="The roadmap sits beside the public source register so visitors can separate verified biography, strategy evidence, and platform features."
+          links={[
+            {
+              label: 'Africa University official contact page',
+              href: 'https://africau.edu/about/contact-us/',
+            },
+            {
+              label: 'Africa University Vice Chancellor profile',
+              href: 'https://africau.edu/about/vice-chancellor/',
+            },
+          ]}
+        />
       </section>
     </>
   );

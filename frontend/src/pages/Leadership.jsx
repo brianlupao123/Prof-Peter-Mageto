@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FaQuoteLeft } from 'react-icons/fa6';
+import EvidenceLinks from '../components/EvidenceLinks.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
 import { leadershipFocus } from '../data/profileData.js';
@@ -84,6 +85,23 @@ export default function Leadership() {
           My vision and plan is to see that Africa University keeps its identity as pan-African and trains people for the continent of Africa.
         </blockquote>
         <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>— Prof. Peter Mageto, UM News</span>
+      </section>
+
+      <section className="page-section" style={{ paddingTop: 0 }}>
+        <EvidenceLinks
+          title="Leadership claims are source-backed."
+          note="Career, appointment, and institutional leadership claims are tied to official Africa University and UM News references."
+          links={[
+            {
+              label: 'UM News profile on Prof. Mageto',
+              href: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university',
+            },
+            {
+              label: 'Africa University Vice Chancellor profile',
+              href: 'https://africau.edu/about/vice-chancellor/',
+            },
+          ]}
+        />
       </section>
     </>
   );

@@ -2691,6 +2691,83 @@ footer.site-footer::before {
   font-weight: 900;
 }
 
+.evidence-links-panel {
+  display: grid;
+  gap: 0.95rem;
+  padding: clamp(1rem, 2.4vw, 1.35rem);
+  border: 1px solid color-mix(in srgb, var(--brand) 20%, var(--line));
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 96%, transparent), color-mix(in srgb, var(--surface-strong) 82%, transparent));
+}
+
+.evidence-links-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.evidence-links-head span,
+.evidence-links-head a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.evidence-links-head span {
+  color: var(--brand-strong);
+}
+
+.evidence-links-head a {
+  color: var(--muted);
+}
+
+.evidence-links-head a:hover {
+  color: var(--brand-strong);
+}
+
+.evidence-links-panel strong {
+  font-size: clamp(1.02rem, 2vw, 1.18rem);
+}
+
+.evidence-links-panel p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  line-height: 1.58;
+}
+
+.evidence-links-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.evidence-links-list a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 38px;
+  padding: 0.48rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--line));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 850;
+}
+
+.evidence-links-list a:hover {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--line));
+  color: var(--brand-strong);
+}
+
 @media (max-width: 360px) {
   .sidebar-office-panel {
     padding: 0.72rem;
@@ -2757,6 +2834,11 @@ footer.site-footer::before {
   .office-message-empty a {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .evidence-links-head {
+    align-items: start;
+    flex-direction: column;
   }
 }
 

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { FaBookOpen, FaBuildingColumns, FaGraduationCap } from 'react-icons/fa6';
+import EvidenceLinks from '../components/EvidenceLinks.jsx';
 import PageBanner from '../components/PageBanner.jsx';
 import EngagementSection from '../components/EngagementSection.jsx';
 import { useHeroSlides, useProfile } from '../lib/useProfile.js';
@@ -66,6 +67,23 @@ export default function Scholarship() {
             Publications listed are from publicly verified academic records and institutional biography.
           </p>
         </article>
+      </section>
+
+      <section className="page-section" style={{ paddingTop: 0 }}>
+        <EvidenceLinks
+          title="Scholarship references stay reviewable."
+          note="Academic and publication references are presented as a public record, with retired or unreliable links kept out of the public page."
+          links={[
+            {
+              label: 'Africa University Vice Chancellor profile',
+              href: 'https://africau.edu/about/vice-chancellor/',
+            },
+            {
+              label: 'UM News profile on Prof. Mageto',
+              href: 'https://www.umnews.org/news/new-vice-chancellor-fulfills-calling-at-africa-university',
+            },
+          ]}
+        />
       </section>
     </>
   );
