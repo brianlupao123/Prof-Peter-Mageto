@@ -91,6 +91,18 @@ create table if not exists sources_list (
   retired boolean not null default false
 );
 create table if not exists social_links (id uuid primary key default gen_random_uuid(), platform text not null, url text not null, sort_order integer not null default 0);
+create table if not exists office_messages (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  body text not null,
+  type text not null default 'message' check (type in ('message', 'speech', 'statement', 'address')),
+  published_date date,
+  source_url text,
+  published boolean not null default false,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
 create index if not exists idx_credentials_sort on credentials (sort_order);
 create index if not exists idx_career_sort on career_entries (sort_order);
@@ -99,6 +111,7 @@ create index if not exists idx_research_sort on research_themes (sort_order);
 create index if not exists idx_strategy_sort on strategy_goals (sort_order);
 create index if not exists idx_sources_sort on sources_list (sort_order);
 create index if not exists idx_social_links_sort on social_links (sort_order);
+create index if not exists idx_office_messages_public on office_messages (published, published_date desc, sort_order asc);
 
 -- Fix messages status constraint to allow 'resolved' (run this against existing DB)
 alter table messages drop constraint if exists messages_status_check;

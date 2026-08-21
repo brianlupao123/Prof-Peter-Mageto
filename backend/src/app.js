@@ -87,6 +87,21 @@ function normalizeMessage(row) {
   return { id: row.id, name: row.name, email: row.email, subject: row.subject, message: row.message, status: row.status, source: row.source, createdAt: row.created_at || row.createdAt };
 }
 
+function normalizeOfficeMessage(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    body: row.body,
+    type: row.type,
+    publishedDate: row.published_date || row.publishedDate || null,
+    sourceUrl: row.source_url || row.sourceUrl || null,
+    published: Boolean(row.published),
+    sortOrder: row.sort_order ?? row.sortOrder ?? 0,
+    createdAt: row.created_at || row.createdAt || null,
+    updatedAt: row.updated_at || row.updatedAt || null,
+  };
+}
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -285,6 +300,140 @@ app.get('/api/content-updates', async (_req, res) => {
   res.json({ updates: runtime.contentUpdates });
 });
 
+const OFFICE_MESSAGE_TYPES = new Set(['message', 'speech', 'statement', 'address']);
+
+function readOfficeMessageBody(input = {}) {
+  const title = String(input.title || '').trim();
+  const body = String(input.body || input.content || '').trim();
+  const type = String(input.type || 'message').trim().toLowerCase();
+  const publishedDate = input.publishedDate ?? input.published_date ?? null;
+  const sourceUrl = input.sourceUrl ?? input.source_url ?? null;
+  const published = input.published === true || input.published === 'true';
+  const sortOrder = Number(input.sortOrder ?? input.sort_order ?? 0);
+
+  return { title, body, type, publishedDate, sourceUrl, published, sortOrder };
+}
+
+function validateOfficeMessagePayload(payload) {
+  if (!payload.title || !payload.body) return 'Title and body are required';
+  if (!OFFICE_MESSAGE_TYPES.has(payload.type)) return 'Type must be message, speech, statement, or address';
+  if (!Number.isFinite(payload.sortOrder)) return 'Sort order must be a number';
+  return null;
+}
+
+app.get('/api/office-messages', async (_req, res) => {
+  if (!db) {
+    const rows = profileFallback.officeMessages
+      .filter((item) => item.published)
+      .sort((a, b) => String(b.published_date || '').localeCompare(String(a.published_date || '')) || (a.sort_order || 0) - (b.sort_order || 0));
+    return res.json({ officeMessages: rows.map(normalizeOfficeMessage) });
+  }
+  const rows = await db`
+    select *
+    from office_messages
+    where published = true
+    order by published_date desc nulls last, sort_order asc, created_at desc
+  `;
+  res.json({ officeMessages: rows.map(normalizeOfficeMessage) });
+});
+
+app.get('/api/admin/office-messages', verifyAdmin, async (_req, res) => {
+  if (!db) {
+    const rows = [...profileFallback.officeMessages].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    return res.json({ officeMessages: rows.map(normalizeOfficeMessage) });
+  }
+  const rows = await db`
+    select *
+    from office_messages
+    order by sort_order asc, published_date desc nulls last, created_at desc
+  `;
+  res.json({ officeMessages: rows.map(normalizeOfficeMessage) });
+});
+
+app.post('/api/office-messages', verifyAdmin, async (req, res) => {
+  const payload = readOfficeMessageBody(req.body);
+  const error = validateOfficeMessagePayload(payload);
+  if (error) return res.status(400).json({ message: error });
+
+  if (!db) {
+    const item = {
+      id: 'office-message-' + Date.now(),
+      title: payload.title,
+      body: payload.body,
+      type: payload.type,
+      published_date: payload.publishedDate,
+      source_url: payload.sourceUrl,
+      published: payload.published,
+      sort_order: payload.sortOrder,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    profileFallback.officeMessages.push(item);
+    await logActivity(null, req.user.email, 'Added office message', payload.title);
+    return res.status(201).json({ officeMessage: normalizeOfficeMessage(item) });
+  }
+
+  const rows = await db`
+    insert into office_messages (title, body, type, published_date, source_url, published, sort_order)
+    values (${payload.title}, ${payload.body}, ${payload.type}, ${payload.publishedDate || null}, ${payload.sourceUrl || null}, ${payload.published}, ${payload.sortOrder})
+    returning *
+  `;
+  await logActivity(db, req.user.email, 'Added office message', payload.title);
+  res.status(201).json({ officeMessage: normalizeOfficeMessage(rows[0]) });
+});
+
+app.put('/api/office-messages/:id', verifyAdmin, async (req, res) => {
+  const payload = readOfficeMessageBody(req.body);
+  const error = validateOfficeMessagePayload(payload);
+  if (error) return res.status(400).json({ message: error });
+
+  if (!db) {
+    const item = profileFallback.officeMessages.find((row) => row.id === req.params.id);
+    if (!item) return res.status(404).json({ message: 'Office message not found' });
+    item.title = payload.title;
+    item.body = payload.body;
+    item.type = payload.type;
+    item.published_date = payload.publishedDate;
+    item.source_url = payload.sourceUrl;
+    item.published = payload.published;
+    item.sort_order = payload.sortOrder;
+    item.updated_at = new Date().toISOString();
+    await logActivity(null, req.user.email, 'Edited office message', payload.title);
+    return res.json({ officeMessage: normalizeOfficeMessage(item) });
+  }
+
+  const rows = await db`
+    update office_messages set
+      title = ${payload.title},
+      body = ${payload.body},
+      type = ${payload.type},
+      published_date = ${payload.publishedDate || null},
+      source_url = ${payload.sourceUrl || null},
+      published = ${payload.published},
+      sort_order = ${payload.sortOrder},
+      updated_at = now()
+    where id = ${req.params.id}
+    returning *
+  `;
+  if (!rows[0]) return res.status(404).json({ message: 'Office message not found' });
+  await logActivity(db, req.user.email, 'Edited office message', payload.title);
+  res.json({ officeMessage: normalizeOfficeMessage(rows[0]) });
+});
+
+app.delete('/api/office-messages/:id', verifyAdmin, async (req, res) => {
+  if (!db) {
+    const before = profileFallback.officeMessages.length;
+    profileFallback.officeMessages = profileFallback.officeMessages.filter((row) => row.id !== req.params.id);
+    if (profileFallback.officeMessages.length === before) return res.status(404).json({ message: 'Office message not found' });
+    await logActivity(null, req.user.email, 'Deleted office message', req.params.id);
+    return res.json({ deleted: true });
+  }
+  const rows = await db`delete from office_messages where id = ${req.params.id} returning id`;
+  if (!rows[0]) return res.status(404).json({ message: 'Office message not found' });
+  await logActivity(db, req.user.email, 'Deleted office message', req.params.id);
+  res.json({ deleted: true });
+});
+
 // ============================================================
 // Profile CRUD routes
 // ============================================================
@@ -344,6 +493,7 @@ const profileFallback = globalThis.__MAGETO_PROFILE__ || {
     { id: 'social-1', platform: 'linkedin', url: 'https://www.linkedin.com/in/peter-mageto', sort_order: 0 },
     { id: 'social-2', platform: 'website', url: 'https://africau.edu/about/vice-chancellor/', sort_order: 1 },
   ],
+  officeMessages: [],
   activity: [],
 };
 globalThis.__MAGETO_PROFILE__ = profileFallback;
